@@ -44,6 +44,7 @@ export interface Employee {
   location: string;
   type: string;
   status: string;
+  hiring_source: string;
   avatar_url?: string;
   department?: Department;
   designation?: Designation;

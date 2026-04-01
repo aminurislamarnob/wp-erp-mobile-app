@@ -224,12 +224,23 @@ export default function DashboardScreen() {
     }
   }
 
-  const currentTime = new Date().toLocaleTimeString('en-US', {
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    hour12: true,
+  // Live clock
+  const [currentTime, setCurrentTime] = useState(() => formatLiveClock());
+  useEffect(() => {
+    const id = setInterval(() => setCurrentTime(formatLiveClock()), 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  const nowDate = new Date();
+  const dateLabel = nowDate.toLocaleDateString('en-US', {
+    month: 'long',
+    day: '2-digit',
+    weekday: 'long',
   });
+
+  // Shift time display
+  const shiftStart = todayLog?.ds_start_time ? formatTime12h(todayLog.ds_start_time) : '--:--';
+  const shiftEnd = todayLog?.ds_end_time ? formatTime12h(todayLog.ds_end_time) : '--:--';
 
   const selectedEvents = selectedDate ? getEventsForDate(selectedDate) : [];
 
@@ -274,34 +285,49 @@ export default function DashboardScreen() {
       {/* ─── Clock In/Out Card ─── */}
       {hasAttendance && (
         <View style={styles.clockCard}>
-          <Text style={styles.clockTime}>{currentTime}</Text>
-          <View style={styles.clockInfoRow}>
-            <View style={styles.clockInfoItem}>
-              <Text style={styles.clockInfoLabel}>Check In</Text>
-              <Text style={styles.clockInfoValue}>
-                {checkedIn ? formatTime12h(checkedIn) : '--:--'}
-              </Text>
+          {/* Top section: time + weather icon area */}
+          <View style={styles.clockTopRow}>
+            <View>
+              <Text style={styles.clockTime}>{currentTime}</Text>
+              <Text style={styles.clockDate}>{dateLabel}</Text>
             </View>
-            <View style={styles.clockInfoItem}>
-              <Text style={styles.clockInfoLabel}>Check Out</Text>
-              <Text style={styles.clockInfoValue}>
-                {checkedOut ? formatTime12h(checkedOut) : '--:--'}
-              </Text>
-            </View>
-            <View style={styles.clockInfoItem}>
-              <Text style={styles.clockInfoLabel}>Elapsed</Text>
-              <Text style={styles.clockInfoValue}>{elapsed}</Text>
+            <View style={styles.clockIconWrap}>
+              <Feather name="sun" size={28} color="#FDB813" />
             </View>
           </View>
-          <TouchableOpacity
-            style={[styles.clockBtn, isCheckedIn && styles.clockBtnOut]}
-            onPress={handleClockInOut}
-            disabled={clockLoading}
-          >
-            <Text style={[styles.clockBtnText, isCheckedIn && styles.clockBtnTextOut]}>
-              {clockLoading ? '...' : isCheckedIn ? 'Check Out' : 'Check In'}
+
+          <View style={styles.clockDivider} />
+
+          {/* Info rows */}
+          <View style={styles.clockInfoRow}>
+            <Text style={styles.clockInfoLabel}>Shift Time</Text>
+            <Text style={styles.clockInfoColon}>:</Text>
+            <Text style={styles.clockInfoValue}>{shiftStart} - {shiftEnd}</Text>
+          </View>
+          <View style={styles.clockInfoRow}>
+            <Text style={styles.clockInfoLabel}>Checked-in</Text>
+            <Text style={styles.clockInfoColon}>:</Text>
+            <Text style={styles.clockInfoValue}>
+              {checkedIn ? formatTime12h(checkedIn) : '00:00:00'}
             </Text>
-          </TouchableOpacity>
+          </View>
+
+          {/* Bottom: working time + button */}
+          <View style={styles.clockBottomRow}>
+            <View>
+              <Text style={styles.clockWorkingLabel}>Working :</Text>
+              <Text style={styles.clockWorkingTime}>{elapsed}</Text>
+            </View>
+            <TouchableOpacity
+              style={[styles.clockBtn, isCheckedIn && styles.clockBtnOut]}
+              onPress={handleClockInOut}
+              disabled={clockLoading}
+            >
+              <Text style={[styles.clockBtnText, isCheckedIn && styles.clockBtnTextOut]}>
+                {clockLoading ? '...' : isCheckedIn ? 'Check-out' : 'Check-in'}
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
       )}
 
@@ -325,15 +351,7 @@ export default function DashboardScreen() {
               onPress={() => navigation.navigate('Attendance')}
             />
           )}
-          {isModuleActive('document_manager') && (
-            <QuickAction
-              label="Documents"
-              iconName="folder"
-              bgColor={colors.success + '20'}
-              iconColor={colors.success}
-            />
-          )}
-          {isModuleActive('reimbursement') && (
+{isModuleActive('reimbursement') && (
             <QuickAction
               label="Reimburse"
               iconName="dollar-sign"
@@ -579,6 +597,16 @@ function CollapsibleSection({
   );
 }
 
+function formatLiveClock(): string {
+  const d = new Date();
+  let h = d.getHours();
+  const m = String(d.getMinutes()).padStart(2, '0');
+  const s = String(d.getSeconds()).padStart(2, '0');
+  const ampm = h >= 12 ? 'pm' : 'am';
+  h = h % 12 || 12;
+  return `${h}:${m}:${s} ${ampm}`;
+}
+
 function formatTime12h(timeStr: string): string {
   if (!timeStr) return '--:--';
   const parts = timeStr.split(':');
@@ -659,46 +687,83 @@ const styles = StyleSheet.create({
 
   // Clock Card
   clockCard: {
-    backgroundColor: colors.primaryDark,
+    backgroundColor: colors.primary,
     marginHorizontal: spacing.md,
-    marginTop: -1,
-    borderBottomLeftRadius: 20,
-    borderBottomRightRadius: 20,
+    marginTop: spacing.md,
+    borderRadius: 20,
     padding: spacing.lg,
-    paddingTop: spacing.md,
-    alignItems: 'center',
+  },
+  clockTopRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
   },
   clockTime: {
     color: '#fff',
-    fontSize: fontSize.xxl,
+    fontSize: 28,
     fontWeight: '700',
-    letterSpacing: 1,
+    letterSpacing: 0.5,
+  },
+  clockDate: {
+    color: 'rgba(255,255,255,0.7)',
+    fontSize: fontSize.sm,
+    marginTop: 2,
+  },
+  clockIconWrap: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: 'rgba(255,255,255,0.15)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  clockDivider: {
+    height: 1,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    marginVertical: spacing.md,
   },
   clockInfoRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%',
-    marginTop: spacing.md,
-    marginBottom: spacing.md,
-  },
-  clockInfoItem: {
-    flex: 1,
     alignItems: 'center',
+    marginBottom: spacing.sm,
   },
   clockInfoLabel: {
-    color: 'rgba(255,255,255,0.6)',
-    fontSize: fontSize.xs,
-    marginBottom: 2,
+    color: 'rgba(255,255,255,0.85)',
+    fontSize: fontSize.sm,
+    width: 100,
+  },
+  clockInfoColon: {
+    color: 'rgba(255,255,255,0.85)',
+    fontSize: fontSize.sm,
+    marginRight: spacing.md,
   },
   clockInfoValue: {
     color: '#fff',
     fontSize: fontSize.sm,
-    fontWeight: '600',
+    fontWeight: '500',
+    flex: 1,
+    textAlign: 'right',
+  },
+  clockBottomRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-end',
+    marginTop: spacing.sm,
+  },
+  clockWorkingLabel: {
+    color: 'rgba(255,255,255,0.85)',
+    fontSize: fontSize.sm,
+  },
+  clockWorkingTime: {
+    color: '#fff',
+    fontSize: 24,
+    fontWeight: '700',
+    marginTop: 2,
   },
   clockBtn: {
-    backgroundColor: '#fff',
+    backgroundColor: 'rgba(255,255,255,0.9)',
     paddingHorizontal: spacing.xl,
-    paddingVertical: spacing.sm + 2,
+    paddingVertical: spacing.sm + 4,
     borderRadius: 24,
   },
   clockBtnOut: {
@@ -706,7 +771,7 @@ const styles = StyleSheet.create({
   },
   clockBtnText: {
     color: colors.primary,
-    fontSize: fontSize.sm,
+    fontSize: fontSize.md,
     fontWeight: '700',
   },
   clockBtnTextOut: {
@@ -756,7 +821,7 @@ const styles = StyleSheet.create({
   },
   quickAction: {
     alignItems: 'center',
-    width: 64,
+    width: 76,
   },
   quickActionIcon: {
     width: 48,

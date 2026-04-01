@@ -37,7 +37,9 @@ export async function getTeamDirectory(
 
 export async function getMyExperiences(userId: number) {
   const client = await getClient();
-  const { data } = await client.get(`/erp/v1/hrm/employees/${userId}/experiences`);
+  const { data } = await client.get(`/erp/v1/hrm/employees/${userId}/experiences`, {
+    params: { per_page: 10 },
+  });
   return data;
 }
 

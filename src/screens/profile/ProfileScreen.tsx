@@ -20,21 +20,17 @@ import {
   getMyExperiences,
   getMyEducations,
   getMyDependents,
-  getMyJobHistory,
-  getMyNotes,
   uploadPhoto,
 } from '../../api/endpoints';
 import { Employee } from '../../types';
 
-type TabKey = 'info' | 'experience' | 'education' | 'dependents' | 'jobs' | 'notes';
+type TabKey = 'info' | 'experience' | 'education' | 'dependents';
 
 const TABS: { key: TabKey; label: string }[] = [
   { key: 'info', label: 'Info' },
   { key: 'experience', label: 'Experience' },
   { key: 'education', label: 'Education' },
   { key: 'dependents', label: 'Dependents' },
-  { key: 'jobs', label: 'Job History' },
-  { key: 'notes', label: 'Notes' },
 ];
 
 export default function ProfileScreen() {
@@ -81,8 +77,6 @@ export default function ProfileScreen() {
         experience: getMyExperiences,
         education: getMyEducations,
         dependents: getMyDependents,
-        jobs: getMyJobHistory,
-        notes: getMyNotes,
       };
       const result = await fetchers[activeTab](userId);
       setSubData(Array.isArray(result) ? result : []);
@@ -238,10 +232,12 @@ function ProfileInfo({ employee }: { employee: Employee }) {
   return (
     <>
       <Card title="Personal Information">
+        <InfoRow label="Name" value={employee.full_name} />
+        <InfoRow label="Employee ID" value={employee.employee_id} />
         <InfoRow label="Date of Birth" value={employee.date_of_birth} />
         <InfoRow label="Gender" value={employee.gender} />
         <InfoRow label="Marital Status" value={employee.marital_status} />
-        <InfoRow label="Nationality" value={employee.nationality} />
+        <InfoRow label="Nationality" value={employee.nationality} noCapitalize />
         <InfoRow label="Blood Group" value={employee.blood_group} />
         <InfoRow label="Driving License" value={employee.driving_license} />
       </Card>
@@ -250,24 +246,21 @@ function ProfileInfo({ employee }: { employee: Employee }) {
         <InfoRow label="Phone" value={employee.phone} />
         <InfoRow label="Mobile" value={employee.mobile} />
         <InfoRow label="Work Phone" value={employee.work_phone} />
-        <InfoRow label="Other Email" value={employee.other_email} />
-      </Card>
-
-      <Card title="Address">
+        <InfoRow label="Other Email" value={employee.other_email} noCapitalize />
         <InfoRow label="Street" value={employee.street_1} />
         {employee.street_2 ? <InfoRow label="" value={employee.street_2} /> : null}
         <InfoRow label="City" value={employee.city} />
-        <InfoRow label="State" value={employee.state} />
+        <InfoRow label="State" value={employee.state} noCapitalize />
         <InfoRow label="Postal Code" value={employee.postal_code} />
-        <InfoRow label="Country" value={employee.country} />
+        <InfoRow label="Country" value={employee.country} noCapitalize />
       </Card>
 
       <Card title="Job Information">
         <InfoRow label="Department" value={employee.department?.title} />
         <InfoRow label="Designation" value={employee.designation?.title} />
         <InfoRow label="Reporting To" value={employee.reporting_to?.full_name} />
-        <InfoRow label="Location" value={employee.location} />
         <InfoRow label="Type" value={employee.type} />
+        <InfoRow label="Source of Hire" value={employee.hiring_source} />
         <InfoRow label="Status" value={employee.status} />
       </Card>
 
@@ -338,36 +331,8 @@ function SubResourceList({ tab, data }: { tab: TabKey; data: any[] }) {
           {data.map((item, i) => (
             <Card key={item.id || i} title={item.name || 'Dependent'}>
               <InfoRow label="Relation" value={item.relation} />
-              <InfoRow label="Date of Birth" value={item.date_of_birth} />
+              <InfoRow label="Date of Birth" value={parseDateValue(item.date_of_birth || item.dob)} />
             </Card>
-          ))}
-        </>
-      );
-    case 'jobs':
-      return (
-        <>
-          {data.map((item, i) => (
-            <Card key={item.id || i} title={item.designation?.title || 'Position'}>
-              <InfoRow label="Department" value={item.department?.title} />
-              <InfoRow label="Reporting To" value={item.reporting_to?.full_name} />
-              <InfoRow label="Date" value={item.date} />
-              <InfoRow label="Type" value={item.type} />
-              <InfoRow label="Category" value={item.category} />
-            </Card>
-          ))}
-        </>
-      );
-    case 'notes':
-      return (
-        <>
-          {data.map((item, i) => (
-            <View key={item.id || i} style={styles.noteCard}>
-              <Text style={styles.noteText}>{item.comment || item.note || ''}</Text>
-              <Text style={styles.noteDate}>
-                {item.created_at || item.date || ''}
-                {item.comment_by_name ? ` · ${item.comment_by_name}` : ''}
-              </Text>
-            </View>
           ))}
         </>
       );
@@ -387,14 +352,27 @@ function Card({ title, children }: { title: string; children: React.ReactNode })
   );
 }
 
-function InfoRow({ label, value }: { label: string; value?: string }) {
+function InfoRow({ label, value, noCapitalize }: { label: string; value?: string; noCapitalize?: boolean }) {
   if (!value) return null;
   return (
     <View style={styles.infoRow}>
       {label ? <Text style={styles.infoLabel}>{label}</Text> : null}
-      <Text style={styles.infoValue}>{value}</Text>
+      <Text style={[styles.infoValue, noCapitalize && { textTransform: 'none' }]}>{value}</Text>
     </View>
   );
+}
+
+function parseDateValue(value: string | number | undefined): string | undefined {
+  if (!value) return undefined;
+  const num = Number(value);
+  if (!isNaN(num) && num > 100000) {
+    const d = new Date(num * 1000);
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  }
+  return String(value);
 }
 
 // ─── Styles ───
@@ -551,25 +529,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     flex: 1,
     textAlign: 'right',
-  },
-
-  // Notes
-  noteCard: {
-    backgroundColor: colors.surface,
-    marginHorizontal: spacing.md,
-    marginTop: spacing.sm,
-    borderRadius: 12,
-    padding: spacing.md,
-  },
-  noteText: {
-    fontSize: fontSize.sm,
-    color: colors.text,
-    lineHeight: 20,
-  },
-  noteDate: {
-    fontSize: fontSize.xs,
-    color: colors.textLight,
-    marginTop: spacing.sm,
+    textTransform: 'capitalize',
   },
 
   // Empty

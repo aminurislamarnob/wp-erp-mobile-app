@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Expo React Native mobile app for WP-ERP (WordPress ERP plugin). Provides an employee self-service portal: dashboard, leave management, attendance clock in/out, announcements, profile, team directory, documents, and reimbursements.
+Expo React Native mobile app for WP-ERP (WordPress ERP plugin). Provides an employee self-service portal: dashboard with live clock-in/out, leave management, attendance, profile (info, experience, education, dependents), and team directory.
 
 Connects to a WordPress site running WP-ERP via its REST API (`/wp-json/erp/v1/hrm/...`). Authentication uses a custom `erp-mobile/v1/login` endpoint that returns a persistent Bearer token.
 
@@ -32,8 +32,9 @@ No test runner or linter is configured.
 
 **Navigation** (`src/navigation/AppNavigator.tsx`):
 - Unauthenticated: shows `LoginScreen`
-- Authenticated: bottom tab navigator with Dashboard, Leave (stack), Attendance (conditional on module), Announcements, Profile (stack)
+- Authenticated: bottom tab navigator with Dashboard, Leave (stack), Attendance (conditional on module), Profile (stack)
 - Attendance tab only appears when the `attendance` module is active on the WP-ERP site
+- Profile tabs: Info, Experience, Education, Dependents
 
 **Auth flow** (`src/contexts/AuthContext.tsx`):
 - Login: validate site URL → POST to `erp-mobile/v1/login` → verify employee role → fetch employee profile + active modules
@@ -54,8 +55,11 @@ No test runner or linter is configured.
 ## Key Patterns
 
 - Screens are organized by domain: `src/screens/{domain}/{Screen}.tsx`
-- Leave dates may come as Unix timestamps or ISO strings — `endpoints.ts` normalizes them via `parseLeaveDate()`
+- Dates may come as Unix timestamps or ISO strings — normalized via helpers like `parseLeaveDate()` in endpoints and `parseDateValue()` in ProfileScreen
 - File uploads (leave documents, profile photo) use native `fetch` with `FormData` rather than Axios
 - Pagination uses WP-style `X-WP-Total` / `X-WP-TotalPages` headers
 - Module-gated features: check `isModuleActive(moduleId)` from AuthContext before rendering
+- Dashboard clock card shows live ticking time, shift info, check-in status, working elapsed timer, and check-in/out button
+- Profile `InfoRow` supports `noCapitalize` prop — used for fields like email, country, state, nationality that should not be title-cased
+- WP-ERP API field names sometimes differ from display names (e.g., `hiring_source` for "Source of Hire")
 - Bundle ID: `com.welabs.wperpmobile` (both iOS and Android)

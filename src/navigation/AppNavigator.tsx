@@ -120,15 +120,7 @@ function MainTabs() {
           }}
         />
       )}
-      <Tab.Screen
-        name="Announcements"
-        component={AnnouncementsScreen}
-        options={{
-          title: 'News',
-          tabBarIcon: ({ color, size }) => <Feather name="bell" size={size} color={color} />,
-        }}
-      />
-      <Tab.Screen
+<Tab.Screen
         name="Profile"
         component={ProfileStackScreen}
         options={{
