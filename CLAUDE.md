@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Expo React Native mobile app for WP-ERP (WordPress ERP plugin). Provides an employee self-service portal: dashboard with live clock-in/out, leave management, attendance, profile (info, experience, education, dependents), and team directory.
+Expo React Native mobile app for WP-ERP (WordPress ERP plugin). Provides an employee self-service portal: dashboard with live clock-in/out, leave management, attendance, announcements, profile (info, experience, education, dependents), and team directory.
 
 Connects to a WordPress site running WP-ERP via its REST API (`/wp-json/erp/v1/hrm/...`). Authentication uses a custom `erp-mobile/v1/login` endpoint that returns a persistent Bearer token.
 
@@ -33,7 +33,9 @@ No test runner or linter is configured.
 **Navigation** (`src/navigation/AppNavigator.tsx`):
 - Unauthenticated: shows `LoginScreen`
 - Authenticated: bottom tab navigator with Dashboard, Leave (stack), Attendance (conditional on module), Profile (stack)
+- Announcements list + detail screens live on the RootStack (accessible from dashboard quick action or any screen)
 - Attendance tab only appears when the `attendance` module is active on the WP-ERP site
+- All native navigation headers are hidden; every screen renders `<AppHeader />` (`src/components/AppHeader.tsx`) — a shared purple header with avatar, name, designation, and logout button
 - Profile tabs: Info, Experience, Education, Dependents
 
 **Auth flow** (`src/contexts/AuthContext.tsx`):
@@ -59,6 +61,7 @@ No test runner or linter is configured.
 - File uploads (leave documents, profile photo) use native `fetch` with `FormData` rather than Axios
 - Pagination uses WP-style `X-WP-Total` / `X-WP-TotalPages` headers
 - Module-gated features: check `isModuleActive(moduleId)` from AuthContext before rendering
+- Announcements use employee-scoped endpoint (`/erp/v1/hrm/employees/{userId}/announcements`) — the main `/hrm/announcements` requires admin capability. Response returns raw WP post fields (`post_title`, `post_content`, `post_date`) normalized via `normalizeAnnouncement()`
 - Dashboard clock card shows live ticking time, shift info, check-in status, working elapsed timer, and check-in/out button
 - Profile `InfoRow` supports `noCapitalize` prop — used for fields like email, country, state, nationality that should not be title-cased
 - WP-ERP API field names sometimes differ from display names (e.g., `hiring_source` for "Source of Hire")

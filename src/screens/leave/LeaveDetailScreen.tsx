@@ -12,6 +12,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { getLeaveRequestDetail } from '../../api/endpoints';
 import { LeaveRequest } from '../../types';
 import { colors, spacing, fontSize } from '../../constants/theme';
+import AppHeader from '../../components/AppHeader';
 
 const STATUS_MAP: Record<number, { label: string; color: string; icon: keyof typeof Feather.glyphMap }> = {
   1: { label: 'Approved', color: colors.success, icon: 'check-circle' },
@@ -43,17 +44,23 @@ export default function LeaveDetailScreen() {
 
   if (loading) {
     return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" color={colors.primary} />
+      <View style={styles.container}>
+        <AppHeader />
+        <View style={styles.center}>
+          <ActivityIndicator size="large" color={colors.primary} />
+        </View>
       </View>
     );
   }
 
   if (!request) {
     return (
-      <View style={styles.center}>
-        <Feather name="alert-circle" size={48} color={colors.textLight} />
-        <Text style={styles.errorText}>Could not load request details</Text>
+      <View style={styles.container}>
+        <AppHeader />
+        <View style={styles.center}>
+          <Feather name="alert-circle" size={48} color={colors.textLight} />
+          <Text style={styles.errorText}>Could not load request details</Text>
+        </View>
       </View>
     );
   }
@@ -63,7 +70,9 @@ export default function LeaveDetailScreen() {
   const days = getDayCount(request.start_date, request.end_date);
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <View style={styles.container}>
+    <AppHeader />
+    <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.content}>
       {/* Status Banner */}
       <View style={[styles.statusBanner, { backgroundColor: status.color + '15' }]}>
         <Feather name={status.icon} size={28} color={status.color} />
@@ -162,6 +171,7 @@ export default function LeaveDetailScreen() {
         )}
       </View>
     </ScrollView>
+    </View>
   );
 }
 

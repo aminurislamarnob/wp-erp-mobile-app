@@ -11,6 +11,7 @@ import {
 import { getTeamDirectory } from '../../api/endpoints';
 import { Employee } from '../../types';
 import { colors, spacing, fontSize } from '../../constants/theme';
+import AppHeader from '../../components/AppHeader';
 
 export default function TeamDirectoryScreen() {
   const [employees, setEmployees] = useState<Employee[]>([]);
@@ -82,6 +83,7 @@ export default function TeamDirectoryScreen() {
 
   return (
     <View style={styles.container}>
+      <AppHeader />
       <View style={styles.searchWrap}>
         <TextInput
           style={styles.searchInput}

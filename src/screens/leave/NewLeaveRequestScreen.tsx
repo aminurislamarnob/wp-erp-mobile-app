@@ -19,6 +19,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { getMyLeaveBalance, submitLeaveRequest } from '../../api/endpoints';
 import { LeavePolicy } from '../../types';
 import { colors, spacing, fontSize } from '../../constants/theme';
+import AppHeader from '../../components/AppHeader';
 
 interface AttachedFile {
   uri: string;
@@ -211,7 +212,9 @@ export default function NewLeaveRequestScreen() {
   const selectedBalance = selectedPolicy ? getBalanceForPolicy(selectedPolicy.id) : null;
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <View style={styles.container}>
+    <AppHeader />
+    <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.content}>
       {/* Policy Selector */}
       <Text style={styles.label}>Leave Policy</Text>
       <TouchableOpacity
@@ -384,6 +387,7 @@ export default function NewLeaveRequestScreen() {
         )}
       </TouchableOpacity>
     </ScrollView>
+    </View>
   );
 }
 

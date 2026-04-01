@@ -16,6 +16,7 @@ import ProfileScreen from '../screens/profile/ProfileScreen';
 import TeamDirectoryScreen from '../screens/profile/TeamDirectoryScreen';
 import AttendanceScreen from '../screens/attendance/AttendanceScreen';
 import AnnouncementsScreen from '../screens/announcements/AnnouncementsScreen';
+import AnnouncementDetailScreen from '../screens/announcements/AnnouncementDetailScreen';
 
 const RootStack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -24,47 +25,19 @@ const LeaveStackNav = createNativeStackNavigator();
 
 function ProfileStackScreen() {
   return (
-    <ProfileStackNav.Navigator
-      screenOptions={{
-        headerTintColor: colors.text,
-      }}
-    >
-      <ProfileStackNav.Screen
-        name="MyProfile"
-        component={ProfileScreen}
-        options={{ title: 'My Profile' }}
-      />
-      <ProfileStackNav.Screen
-        name="TeamDirectory"
-        component={TeamDirectoryScreen}
-        options={{ title: 'Team Directory' }}
-      />
+    <ProfileStackNav.Navigator screenOptions={{ headerShown: false }}>
+      <ProfileStackNav.Screen name="MyProfile" component={ProfileScreen} />
+      <ProfileStackNav.Screen name="TeamDirectory" component={TeamDirectoryScreen} />
     </ProfileStackNav.Navigator>
   );
 }
 
 function LeaveStackScreen() {
   return (
-    <LeaveStackNav.Navigator
-      screenOptions={{
-        headerTintColor: colors.text,
-      }}
-    >
-      <LeaveStackNav.Screen
-        name="LeaveList"
-        component={LeaveScreen}
-        options={{ title: 'My Leave' }}
-      />
-      <LeaveStackNav.Screen
-        name="NewLeaveRequest"
-        component={NewLeaveRequestScreen}
-        options={{ title: 'New Leave Request' }}
-      />
-      <LeaveStackNav.Screen
-        name="LeaveDetail"
-        component={LeaveDetailScreen}
-        options={{ title: 'Leave Details' }}
-      />
+    <LeaveStackNav.Navigator screenOptions={{ headerShown: false }}>
+      <LeaveStackNav.Screen name="LeaveList" component={LeaveScreen} />
+      <LeaveStackNav.Screen name="NewLeaveRequest" component={NewLeaveRequestScreen} />
+      <LeaveStackNav.Screen name="LeaveDetail" component={LeaveDetailScreen} />
     </LeaveStackNav.Navigator>
   );
 }
@@ -75,6 +48,7 @@ function MainTabs() {
   return (
     <Tab.Navigator
       screenOptions={{
+        headerShown: false,
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.textLight,
         tabBarStyle: {
@@ -86,17 +60,12 @@ function MainTabs() {
         tabBarLabelStyle: {
           fontSize: fontSize.xs,
         },
-        headerStyle: {
-          backgroundColor: colors.surface,
-        },
-        headerTintColor: colors.text,
       }}
     >
       <Tab.Screen
         name="Dashboard"
         component={DashboardScreen}
         options={{
-          headerShown: false,
           tabBarLabel: 'Home',
           tabBarIcon: ({ color, size }) => <Feather name="home" size={size} color={color} />,
         }}
@@ -105,7 +74,6 @@ function MainTabs() {
         name="Leave"
         component={LeaveStackScreen}
         options={{
-          headerShown: false,
           title: 'Leave',
           tabBarIcon: ({ color, size }) => <Feather name="calendar" size={size} color={color} />,
         }}
@@ -120,11 +88,10 @@ function MainTabs() {
           }}
         />
       )}
-<Tab.Screen
+      <Tab.Screen
         name="Profile"
         component={ProfileStackScreen}
         options={{
-          headerShown: false,
           title: 'Profile',
           tabBarIcon: ({ color, size }) => <Feather name="user" size={size} color={color} />,
         }}
@@ -148,7 +115,11 @@ export default function AppNavigator() {
     <NavigationContainer>
       <RootStack.Navigator screenOptions={{ headerShown: false }}>
         {isAuthenticated ? (
-          <RootStack.Screen name="Main" component={MainTabs} />
+          <>
+            <RootStack.Screen name="Main" component={MainTabs} />
+            <RootStack.Screen name="Announcements" component={AnnouncementsScreen} />
+            <RootStack.Screen name="AnnouncementDetail" component={AnnouncementDetailScreen} />
+          </>
         ) : (
           <RootStack.Screen name="Login" component={LoginScreen} />
         )}

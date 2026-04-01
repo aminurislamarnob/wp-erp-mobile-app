@@ -19,6 +19,7 @@ import {
 } from '../../api/endpoints';
 import { SelfAttendance, SelfAttendanceLog, AttendanceReportDay } from '../../types';
 import { colors, spacing, fontSize } from '../../constants/theme';
+import AppHeader from '../../components/AppHeader';
 
 type Tab = 'clock' | 'log' | 'report';
 
@@ -43,6 +44,7 @@ export default function AttendanceScreen() {
 
   return (
     <View style={styles.container}>
+      <AppHeader />
       {/* Tab Bar */}
       <View style={styles.tabBar}>
         {TABS.map((t) => (

@@ -19,6 +19,7 @@ import {
 } from '../../api/endpoints';
 import { LeaveRequest, Holiday } from '../../types';
 import { colors, spacing, fontSize } from '../../constants/theme';
+import AppHeader from '../../components/AppHeader';
 
 type TabKey = 'requests' | 'balance' | 'holidays';
 type StatusFilter = 'all' | 'pending' | 'approved' | 'rejected';
@@ -115,6 +116,7 @@ export default function LeaveScreen() {
 
   return (
     <View style={styles.container}>
+      <AppHeader />
       {/* Tabs */}
       <View style={styles.tabBar}>
         {(['requests', 'balance', 'holidays'] as TabKey[]).map((tab) => (

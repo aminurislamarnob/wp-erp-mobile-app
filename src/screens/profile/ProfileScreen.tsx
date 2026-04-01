@@ -15,6 +15,7 @@ import { Feather } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../../contexts/AuthContext';
 import { colors, spacing, fontSize } from '../../constants/theme';
+import AppHeader from '../../components/AppHeader';
 import {
   getMyProfile,
   getMyExperiences,
@@ -140,8 +141,10 @@ export default function ProfileScreen() {
   }
 
   return (
+    <View style={styles.container}>
+    <AppHeader />
     <ScrollView
-      style={styles.container}
+      style={{ flex: 1 }}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
     >
       {/* ── Profile Header ── */}
@@ -223,6 +226,7 @@ export default function ProfileScreen() {
 
       <View style={{ height: spacing.xl }} />
     </ScrollView>
+    </View>
   );
 }
 

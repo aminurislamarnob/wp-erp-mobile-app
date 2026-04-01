@@ -13,6 +13,7 @@ import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../contexts/AuthContext';
 import { useToast } from '../../components/Toast';
 import { colors, spacing, fontSize } from '../../constants/theme';
+import AppHeader from '../../components/AppHeader';
 import {
   getUpcomingBirthdays,
   getWhoIsOut,
@@ -31,7 +32,7 @@ const MONTHS = [
 
 export default function DashboardScreen() {
   const navigation = useNavigation<any>();
-  const { employee, user, logout, isModuleActive } = useAuth();
+  const { employee, user, isModuleActive } = useAuth();
   const toast = useToast();
   const [refreshing, setRefreshing] = useState(false);
   const [birthdays, setBirthdays] = useState<Birthday[]>([]);
@@ -258,29 +259,7 @@ export default function DashboardScreen() {
       style={styles.container}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
     >
-      {/* ─── Header ─── */}
-      <View style={styles.header}>
-        <View style={styles.headerLeft}>
-          {employee?.avatar_url ? (
-            <Image source={{ uri: employee.avatar_url }} style={styles.avatar} />
-          ) : (
-            <View style={[styles.avatar, styles.avatarPlaceholder]}>
-              <Text style={styles.avatarInitial}>
-                {employee?.first_name?.[0] || 'E'}
-              </Text>
-            </View>
-          )}
-          <View style={styles.headerInfo}>
-            <Text style={styles.headerName}>{employee?.full_name || 'Employee'}</Text>
-            <Text style={styles.headerDesignation}>
-              {employee?.designation?.title || ''}
-            </Text>
-          </View>
-        </View>
-        <TouchableOpacity onPress={logout} style={styles.logoutBtn}>
-          <Feather name="log-out" size={18} color="#fff" />
-        </TouchableOpacity>
-      </View>
+      <AppHeader />
 
       {/* ─── Clock In/Out Card ─── */}
       {hasAttendance && (
@@ -359,6 +338,13 @@ export default function DashboardScreen() {
               iconColor={colors.warning}
             />
           )}
+          <QuickAction
+            label="News"
+            iconName="volume-2"
+            bgColor={colors.success + '20'}
+            iconColor={colors.success}
+            onPress={() => navigation.navigate('Announcements')}
+          />
           <QuickAction
             label="Profile"
             iconName="user"
@@ -628,61 +614,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
-  },
-
-  // Header
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: colors.primary,
-    paddingHorizontal: spacing.lg,
-    paddingTop: 56,
-    paddingBottom: spacing.lg,
-  },
-  headerLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-  },
-  avatar: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    borderWidth: 2,
-    borderColor: 'rgba(255,255,255,0.4)',
-  },
-  avatarPlaceholder: {
-    backgroundColor: colors.primaryDark,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  avatarInitial: {
-    color: '#fff',
-    fontSize: fontSize.lg,
-    fontWeight: '700',
-  },
-  headerInfo: {
-    marginLeft: spacing.md,
-    flex: 1,
-  },
-  headerName: {
-    color: '#fff',
-    fontSize: fontSize.md,
-    fontWeight: '700',
-  },
-  headerDesignation: {
-    color: 'rgba(255,255,255,0.75)',
-    fontSize: fontSize.xs,
-    marginTop: 2,
-  },
-  logoutBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: 'rgba(255,255,255,0.15)',
-    justifyContent: 'center',
-    alignItems: 'center',
   },
 
   // Clock Card

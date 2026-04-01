@@ -342,21 +342,36 @@ export async function getMyAttendanceReport(
 
 // ─── Announcements ───
 
+function normalizeAnnouncement(raw: any): Announcement {
+  return {
+    id: Number(raw.id || raw.ID || raw.post_id),
+    title: raw.title || raw.post_title || '',
+    body: raw.body || raw.post_content || '',
+    status: raw.status || raw.post_status || '',
+    date: raw.date || raw.post_date || '',
+    author: raw.author || raw.post_author || '',
+  };
+}
+
 export async function getMyAnnouncements(
+  userId: number,
   page = 1,
   perPage = 20
 ): Promise<PaginatedResponse<Announcement>> {
   const client = await getClient();
-  const { data, headers } = await client.get('/erp/v1/hrm/announcements/my', {
+  const { data, headers } = await client.get(`/erp/v1/hrm/employees/${userId}/announcements`, {
     params: { page, per_page: perPage },
   });
-  return { data, ...extractPagination(headers) };
+  const items = Array.isArray(data) ? data : [];
+  return { data: items.map(normalizeAnnouncement), ...extractPagination(headers) };
 }
 
-export async function getAnnouncementDetail(id: number): Promise<Announcement> {
+export async function getAnnouncementDetail(userId: number, id: number): Promise<Announcement | null> {
   const client = await getClient();
-  const { data } = await client.get(`/erp/v1/hrm/announcements/my/${id}`);
-  return data;
+  const { data } = await client.get(`/erp/v1/hrm/employees/${userId}/announcements`);
+  const items = Array.isArray(data) ? data : [];
+  const normalized = items.map(normalizeAnnouncement);
+  return normalized.find((a) => a.id === id) || null;
 }
 
 // ─── Documents ───
