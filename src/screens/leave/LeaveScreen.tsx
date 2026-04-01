@@ -49,13 +49,10 @@ export default function LeaveScreen() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
-  const [debug, setDebug] = useState('');
-
   const loadRequests = useCallback(async () => {
-    if (!user) { setDebug('no user'); return; }
+    if (!user) return;
     try {
       const allRequests = await getMyLeaveRequests(user.id);
-      setDebug(`API returned ${allRequests.length} leaves, filter=${statusFilter}`);
       // API returns current fiscal year leaves; apply status filter client-side
       const filter = STATUS_FILTERS.find((f) => f.key === statusFilter);
       const filterValue = filter?.value;
@@ -64,19 +61,16 @@ export default function LeaveScreen() {
         : allRequests;
       setRequests(filtered);
     } catch (err: any) {
-      setDebug(`ERROR: ${err?.message || err}`);
       toast.error('Load Failed', err?.message || 'Failed to load leave requests');
     }
   }, [user, statusFilter]);
 
   const loadBalances = useCallback(async () => {
-    if (!user) { setDebug('no user'); return; }
+    if (!user) return;
     try {
       const data = await getMyLeaveBalance(user.id);
-      setDebug(`Balance: ${Array.isArray(data) ? data.length + ' policies' : typeof data + ': ' + JSON.stringify(data).slice(0, 100)}`);
       setBalances(Array.isArray(data) ? data : []);
     } catch (err: any) {
-      setDebug(`Balance ERROR: ${err?.message || err}`);
       setBalances([]);
       toast.error('Load Failed', err?.message || 'Failed to load leave balance');
     }
@@ -158,13 +152,6 @@ export default function LeaveScreen() {
           ))}
         </View>
       )}
-
-      {/* Debug */}
-      {debug ? (
-        <View style={{ padding: 8, backgroundColor: '#FEF3C7' }}>
-          <Text style={{ fontSize: 11, color: '#92400E' }}>{debug}</Text>
-        </View>
-      ) : null}
 
       {/* Content */}
       {loading ? (
