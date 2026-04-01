@@ -1,42 +1,68 @@
-import axios, { AxiosInstance, InternalAxiosRequestConfig } from 'axios';
+import axios, { AxiosInstance } from 'axios';
 import * as SecureStore from 'expo-secure-store';
 import { Credentials } from '../types';
 
 const CREDENTIALS_KEY = 'erp_credentials';
 
 let apiClient: AxiosInstance | null = null;
+let currentCredentials: Credentials | null = null;
 
 export async function saveCredentials(credentials: Credentials): Promise<void> {
-  await SecureStore.setItemAsync(CREDENTIALS_KEY, JSON.stringify(credentials));
+  currentCredentials = credentials;
+  try {
+    await SecureStore.setItemAsync(CREDENTIALS_KEY, JSON.stringify(credentials));
+  } catch {
+    // Fallback: SecureStore may not be available (e.g. web)
+  }
   apiClient = createClient(credentials);
 }
 
 export async function getCredentials(): Promise<Credentials | null> {
-  const raw = await SecureStore.getItemAsync(CREDENTIALS_KEY);
-  if (!raw) return null;
-  return JSON.parse(raw);
+  if (currentCredentials) return currentCredentials;
+  try {
+    const raw = await SecureStore.getItemAsync(CREDENTIALS_KEY);
+    if (!raw) return null;
+    currentCredentials = JSON.parse(raw);
+    return currentCredentials;
+  } catch {
+    return null;
+  }
 }
 
 export async function clearCredentials(): Promise<void> {
-  await SecureStore.deleteItemAsync(CREDENTIALS_KEY);
+  currentCredentials = null;
+  try {
+    await SecureStore.deleteItemAsync(CREDENTIALS_KEY);
+  } catch {
+    // Fallback: SecureStore may not be available (e.g. web)
+  }
   apiClient = null;
 }
 
+export async function updateToken(token: string): Promise<void> {
+  const creds = await getCredentials();
+  if (creds) {
+    creds.token = token;
+    currentCredentials = creds;
+    try {
+      await SecureStore.setItemAsync(CREDENTIALS_KEY, JSON.stringify(creds));
+    } catch {
+      // web fallback
+    }
+    apiClient = createClient(creds);
+  }
+}
+
 function createClient(credentials: Credentials): AxiosInstance {
-  const { siteUrl, username, appPassword } = credentials;
-  const token = btoa(`${username}:${appPassword}`);
+  const { siteUrl, token } = credentials;
 
   const client = axios.create({
     baseURL: `${siteUrl}/wp-json`,
     timeout: 15000,
     headers: {
       'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
     },
-  });
-
-  client.interceptors.request.use((config: InternalAxiosRequestConfig) => {
-    config.headers.Authorization = `Basic ${token}`;
-    return config;
   });
 
   return client;

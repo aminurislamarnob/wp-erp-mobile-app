@@ -1,22 +1,75 @@
 import axios from 'axios';
 import { WPUser, Employee, ERPModule } from '../types';
 
-export async function validateSite(siteUrl: string): Promise<boolean> {
-  const response = await axios.get(`${siteUrl}/wp-json/`, { timeout: 10000 });
-  return !!response.data?.namespaces;
+export interface SiteValidationResult {
+  isWordPress: boolean;
+  hasERP: boolean;
+  error?: string;
 }
 
-export async function validateCredentials(
+export interface LoginResult {
+  token: string;
+  user: WPUser;
+}
+
+const ALLOWED_EMPLOYEE_ROLES = ['employee', 'administrator', 'erp_hr_manager'];
+
+export async function validateSite(siteUrl: string): Promise<SiteValidationResult> {
+  // HTTPS check
+  if (!siteUrl.startsWith('https://')) {
+    return { isWordPress: false, hasERP: false, error: 'Site URL must use HTTPS' };
+  }
+
+  // Validate WordPress REST API
+  let namespaces: string[];
+  try {
+    const response = await axios.get(`${siteUrl}/wp-json/`, { timeout: 10000 });
+    namespaces = response.data?.namespaces || [];
+    if (!namespaces.length) {
+      return { isWordPress: false, hasERP: false, error: 'WordPress REST API not available at this URL' };
+    }
+  } catch {
+    return { isWordPress: false, hasERP: false, error: 'Could not connect to site. Please check the URL.' };
+  }
+
+  // Check if WP-ERP namespace is present
+  const hasERPNamespace = namespaces.some((ns: string) => ns.startsWith('erp/'));
+  if (!hasERPNamespace) {
+    return { isWordPress: true, hasERP: false, error: 'WP-ERP plugin is not active on this site' };
+  }
+
+  return { isWordPress: true, hasERP: true };
+}
+
+export function verifyEmployeeRole(user: WPUser): boolean {
+  if (!user.roles || !user.roles.length) return true;
+  return user.roles.some((role) => ALLOWED_EMPLOYEE_ROLES.includes(role));
+}
+
+/**
+ * Login via the custom erp-mobile/v1/login endpoint.
+ * Returns a persistent Bearer token for subsequent API calls.
+ */
+export async function loginWithPassword(
   siteUrl: string,
   username: string,
-  appPassword: string
-): Promise<WPUser> {
-  const token = btoa(`${username}:${appPassword}`);
-  const response = await axios.get(`${siteUrl}/wp-json/wp/v2/users/me`, {
-    headers: { Authorization: `Basic ${token}` },
-    timeout: 10000,
-  });
-  return response.data;
+  password: string
+): Promise<LoginResult> {
+  const response = await axios.post(
+    `${siteUrl}/wp-json/erp-mobile/v1/login`,
+    { username, password },
+    { timeout: 15000 }
+  );
+
+  const data = response.data;
+  if (!data?.success || !data?.token) {
+    throw new Error('Login failed — unexpected response');
+  }
+
+  return {
+    token: data.token,
+    user: data.user,
+  };
 }
 
 export async function fetchEmployee(
@@ -28,7 +81,7 @@ export async function fetchEmployee(
     `${siteUrl}/wp-json/erp/v1/hrm/employees/${userId}`,
     {
       params: { include: 'department,designation,reporting_to,avatar' },
-      headers: { Authorization: `Basic ${token}` },
+      headers: { 'Authorization': `Bearer ${token}` },
     }
   );
   return response.data;
@@ -41,11 +94,12 @@ export async function fetchActiveModules(
   try {
     const response = await axios.get(
       `${siteUrl}/wp-json/erp_pro/v1/admin/modules`,
-      { headers: { Authorization: `Basic ${token}` } }
+      {
+        headers: { 'Authorization': `Bearer ${token}` },
+      }
     );
     return response.data;
   } catch {
-    // erp-pro not installed — return empty
     return [];
   }
 }

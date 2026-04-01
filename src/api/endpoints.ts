@@ -1,4 +1,4 @@
-import { getClient, extractPagination } from './client';
+import { getClient, getCredentials, extractPagination } from './client';
 import {
   Employee,
   Birthday,
@@ -6,7 +6,9 @@ import {
   Holiday,
   CalendarEvent,
   Announcement,
-  AttendanceLog,
+  SelfAttendance,
+  SelfAttendanceLog,
+  AttendanceReportDay,
   LeavePolicy,
   PaginatedResponse,
 } from '../types';
@@ -28,7 +30,7 @@ export async function getTeamDirectory(
 ): Promise<PaginatedResponse<Employee>> {
   const client = await getClient();
   const { data, headers } = await client.get('/erp/v1/hrm/employees', {
-    params: { page, per_page: perPage, status: 'active', search },
+    params: { page, per_page: perPage, status: 'active', s: search, include: 'department,designation,avatar' },
   });
   return { data, ...extractPagination(headers) };
 }
@@ -57,6 +59,60 @@ export async function getMyJobHistory(userId: number) {
   return data;
 }
 
+export async function getMyNotes(userId: number) {
+  const client = await getClient();
+  const { data } = await client.get(`/erp/v1/hrm/employees/${userId}/notes`);
+  return data;
+}
+
+export async function uploadPhoto(userId: number, uri: string, fileName: string, mimeType = 'image/jpeg') {
+  const credentials = await getCredentials();
+  if (!credentials) throw new Error('Not authenticated');
+
+  const { siteUrl, token } = credentials;
+  const baseURL = `${siteUrl}/wp-json`;
+
+  // Step 1: Upload the image file using fetch (handles RN FormData reliably)
+  const formData = new FormData();
+  formData.append('image', {
+    uri,
+    name: fileName,
+    type: mimeType,
+  } as any);
+
+  const uploadRes = await fetch(`${baseURL}/erp/v1/hrm/employees/upload`, {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${token}` },
+    body: formData,
+  });
+
+  if (!uploadRes.ok) {
+    const errBody = await uploadRes.json().catch(() => null);
+    throw new Error(errBody?.message || `Upload failed (${uploadRes.status})`);
+  }
+
+  const uploadData = await uploadRes.json();
+  const photoId = uploadData?.photo_id;
+  if (!photoId) throw new Error('Upload failed — no photo ID returned');
+
+  // Step 2: Associate the uploaded photo with the employee
+  const patchRes = await fetch(`${baseURL}/erp/v1/hrm/employees/upload`, {
+    method: 'PATCH',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ photo_id: photoId, user_id: userId }),
+  });
+
+  if (!patchRes.ok) {
+    const errBody = await patchRes.json().catch(() => null);
+    throw new Error(errBody?.message || `Failed to update photo (${patchRes.status})`);
+  }
+
+  return patchRes.json();
+}
+
 // ─── Birthdays ───
 
 export async function getUpcomingBirthdays(): Promise<Birthday[]> {
@@ -69,46 +125,129 @@ export async function getUpcomingBirthdays(): Promise<Birthday[]> {
 
 // ─── Leave ───
 
-export async function getMyLeaveRequests(
-  userId: number,
-  params?: { status?: number; type?: string; page?: number }
-): Promise<PaginatedResponse<LeaveRequest>> {
-  const client = await getClient();
-  const { data, headers } = await client.get('/erp/v1/hrm/leaves/requests', {
-    params: { user_id: userId, include: 'policy', ...params },
-  });
-  return { data, ...extractPagination(headers) };
+// Normalize raw leave request from API (handles Unix timestamps, flat fields, string IDs)
+function normalizeLeaveRequest(raw: any): LeaveRequest {
+  return {
+    id: Number(raw.id),
+    user_id: Number(raw.user_id),
+    employee_id: Number(raw.employee_id),
+    employee_name: raw.employee_name || raw.display_name || raw.name || '',
+    avatar_url: raw.avatar_url || '',
+    status: Number(raw.status || raw.last_status || 2),
+    start_date: parseLeaveDate(raw.start_date),
+    end_date: parseLeaveDate(raw.end_date),
+    reason: raw.reason || '',
+    comments: raw.comments || raw.message || '',
+    days: raw.days ? Number(raw.days) : undefined,
+    available: raw.available != null ? Number(raw.available) : undefined,
+    spent: raw.spent != null ? Number(raw.spent) : undefined,
+    entitlement: raw.entitlement != null ? Number(raw.entitlement) : undefined,
+    policy: raw.policy || {
+      id: Number(raw.leave_id || 0),
+      name: raw.policy_name || '',
+      description: '',
+      color: raw.color || '',
+    },
+  };
 }
 
-export async function getLeaveRequestDetail(id: number): Promise<LeaveRequest> {
+// Parse date: handles both Unix timestamp strings and ISO date strings
+function parseLeaveDate(value: string | number): string {
+  if (!value) return '';
+  const num = Number(value);
+  // If it's a large number, treat as Unix timestamp (seconds)
+  if (!isNaN(num) && num > 100000) {
+    const d = new Date(num * 1000);
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  }
+  // Already a date string
+  return String(value);
+}
+
+export async function getMyLeaveRequests(
+  userId: number
+): Promise<LeaveRequest[]> {
   const client = await getClient();
-  const { data } = await client.get(`/erp/v1/hrm/leaves/requests/${id}`, {
-    params: { include: 'policy' },
+  const { data } = await client.get(`/erp/v1/hrm/employees/${userId}/leaves`, {
+    params: { per_page: 100 },
   });
-  return data;
+  const items = Array.isArray(data) ? data : [];
+  return items.map(normalizeLeaveRequest);
+}
+
+export async function getLeaveRequestDetail(id: number, userId: number): Promise<LeaveRequest | null> {
+  const client = await getClient();
+  const { data } = await client.get(`/erp/v1/hrm/employees/${userId}/leaves`);
+  const items = Array.isArray(data) ? data : [];
+  const normalized = items.map(normalizeLeaveRequest);
+  return normalized.find((r) => r.id === id) || null;
 }
 
 export async function submitLeaveRequest(payload: {
   user_id: number;
-  leave_policy: number;
+  policy_id: number;
   start_date: string;
   end_date: string;
   reason: string;
-}): Promise<LeaveRequest> {
-  const client = await getClient();
-  const { data } = await client.post('/erp/v1/hrm/leaves/requests', payload);
-  return data;
+  files?: { uri: string; name: string; type: string }[];
+}) {
+  const credentials = await getCredentials();
+  if (!credentials) throw new Error('Not authenticated');
+
+  const { siteUrl, token } = credentials;
+  const baseURL = `${siteUrl}/wp-json`;
+
+  const formData = new FormData();
+  formData.append('policy_id', String(payload.policy_id));
+  formData.append('start_date', payload.start_date);
+  formData.append('end_date', payload.end_date + ' 23:59:59');
+  formData.append('reason', payload.reason);
+  formData.append('notification', '');
+
+  if (payload.files?.length) {
+    payload.files.forEach((file) => {
+      formData.append('leave_document[]', {
+        uri: file.uri,
+        name: file.name,
+        type: file.type,
+      } as any);
+    });
+  }
+
+  const res = await fetch(`${baseURL}/erp/v1/hrm/employees/${payload.user_id}/leaves`, {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${token}` },
+    body: formData,
+  });
+
+  if (!res.ok) {
+    const errBody = await res.json().catch(() => null);
+    throw new Error(errBody?.message || `Request failed (${res.status})`);
+  }
+
+  return res.json();
 }
 
 export async function getMyLeavePolicies(userId: number): Promise<LeavePolicy[]> {
   const client = await getClient();
   const { data } = await client.get(`/erp/v1/hrm/employees/${userId}/policies`);
-  return data;
+  const items = Array.isArray(data) ? data : [];
+  return items.map((p: any) => ({
+    id: Number(p.leave_id || p.id),
+    name: p.policy || p.name || '',
+    description: p.description || '',
+    color: p.color || '',
+  }));
 }
 
 export async function getMyLeaveBalance(userId: number) {
   const client = await getClient();
-  const { data } = await client.get(`/erp/v1/hrm/employees/${userId}/leaves`);
+  const { data } = await client.get(`/erp/v1/hrm/employees/${userId}/policies`, {
+    params: { per_page: 100 },
+  });
   return data;
 }
 
@@ -138,34 +277,64 @@ export async function getMyCalendarEvents(
 ): Promise<CalendarEvent[]> {
   const client = await getClient();
   const { data } = await client.get(`/erp/v1/hrm/employees/${userId}/events`, {
-    params: { start: `${year}-01-01`, end: `${year}-12-31` },
+    params: { start: `${year}-01-01`, end: `${year}-12-31`, per_page: 100 },
   });
   return data;
 }
 
 // ─── Attendance ───
 
-export async function clockInOut(): Promise<AttendanceLog> {
+export async function getSelfAttendance(): Promise<{ attendance: SelfAttendance; log: SelfAttendanceLog }> {
   const client = await getClient();
-  try {
-    const { data } = await client.post('/erp/v1/hrm/attendance/self-attendance');
-    return data;
-  } catch {
-    // Fallback if self-attendance not available
-    const { data } = await client.post('/erp/v1/hrm/attendance/logs');
-    return data;
-  }
+  // Cache-bust to avoid stale responses after clock in/out
+  const { data } = await client.get('/erp/v1/hrm/attendance/self-attendance', {
+    params: { _t: Date.now() },
+  });
+  return data;
 }
 
-export async function getMyAttendanceLogs(userId: number): Promise<AttendanceLog[]> {
+export async function clockInOut(type: 'checkin' | 'checkout') {
+  // Use native fetch because save_attendance() uses wp_send_json_success/die()
+  // which can cause issues with Axios response handling
+  const credentials = await getCredentials();
+  if (!credentials) throw new Error('Not authenticated');
+
+  const { siteUrl, token } = credentials;
+
+  const response = await fetch(`${siteUrl}/wp-json/erp/v1/hrm/attendance/self-attendance`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+    body: JSON.stringify({ type }),
+  });
+
+  const data = await response.json();
+
+  if (data?.success === false) {
+    throw new Error(typeof data?.data === 'string' ? data.data : 'Clock action failed');
+  }
+
+  return data?.data ?? data;
+}
+
+export async function getMyAttendanceLogs(userId: number) {
   const client = await getClient();
   const { data } = await client.get(`/erp/v1/hrm/attendance/logs/${userId}`);
   return data;
 }
 
-export async function getMyAttendanceReport(userId: number) {
+export async function getMyAttendanceReport(
+  userId: number,
+  startDate?: string,
+  endDate?: string
+): Promise<AttendanceReportDay[]> {
   const client = await getClient();
-  const { data } = await client.get(`/erp/v1/hrm/attendance/reports/${userId}`);
+  const params: any = {};
+  if (startDate) params.start_date = startDate;
+  if (endDate) params.end_date = endDate;
+  const { data } = await client.get(`/erp/v1/hrm/attendance/reports/${userId}`, { params });
   return data;
 }
 

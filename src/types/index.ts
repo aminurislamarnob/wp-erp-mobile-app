@@ -2,7 +2,8 @@
 export interface Credentials {
   siteUrl: string;
   username: string;
-  appPassword: string;
+  password: string;
+  token: string;
 }
 
 export interface WPUser {
@@ -75,6 +76,10 @@ export interface LeaveRequest {
   end_date: string;
   reason: string;
   comments: string;
+  days?: number;
+  available?: number;
+  spent?: number;
+  entitlement?: number;
   policy?: LeavePolicy;
 }
 
@@ -110,6 +115,66 @@ export interface AttendanceLog {
   check_in: string;
   check_out: string;
   status: string;
+}
+
+export interface SelfAttendance {
+  ds_id: string;
+  log_id: string;
+  shift_title: string;
+  ds_start_time: string;
+  ds_end_time: string;
+  log_time: string;
+  min_checkin: string;
+  max_checkout: string;
+}
+
+export interface SelfAttendanceLog {
+  ds_id: string;
+  log_id: string;
+  log_time: string;
+  shift_title: string;
+  start_time: string;
+  ds_start_time: string;
+  end_time: string;
+  ds_end_time: string;
+  min_checkin: string;
+  max_checkin_unix: string;
+  curnt_timestamp_unx: string;
+  max_checkout: string;
+  curnt_timestamp: number;
+  max_checkin: number;
+}
+
+export interface AttendanceReportDay {
+  date: string;
+  checkin: number | string;
+  checkout: number | string;
+  worktime: number | string;
+  late_time: number | string | null;
+  earlyleft_time: number | string | null;
+  shift: string;
+  start: number | string;
+  end: number | string;
+  status: string;
+  overtime: number | string;
+}
+
+export interface AttendanceReportSummary {
+  dates: number;
+  working_days: number;
+  present: number;
+  leaves: number;
+  absent: number;
+  holidays: number;
+  missing_checkout: number;
+  late: number;
+  early_left: number;
+  avg_checkin: number;
+  avg_checkout: number;
+  avg_worktime: number;
+  worktime: number;
+  overtime: number;
+  percentage: number;
 }
 
 // Announcement

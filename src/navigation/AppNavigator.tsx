@@ -1,22 +1,73 @@
 import React from 'react';
-import { ActivityIndicator, Text, View } from 'react-native';
+import { ActivityIndicator, View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../contexts/AuthContext';
 import { colors, fontSize } from '../constants/theme';
 
 import LoginScreen from '../screens/auth/LoginScreen';
 import DashboardScreen from '../screens/dashboard/DashboardScreen';
 import LeaveScreen from '../screens/leave/LeaveScreen';
+import NewLeaveRequestScreen from '../screens/leave/NewLeaveRequestScreen';
+import LeaveDetailScreen from '../screens/leave/LeaveDetailScreen';
 import ProfileScreen from '../screens/profile/ProfileScreen';
+import TeamDirectoryScreen from '../screens/profile/TeamDirectoryScreen';
 import AttendanceScreen from '../screens/attendance/AttendanceScreen';
 import AnnouncementsScreen from '../screens/announcements/AnnouncementsScreen';
-import DocumentsScreen from '../screens/documents/DocumentsScreen';
-import ReimbursementScreen from '../screens/reimbursement/ReimbursementScreen';
 
-const Stack = createNativeStackNavigator();
+const RootStack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
+const ProfileStackNav = createNativeStackNavigator();
+const LeaveStackNav = createNativeStackNavigator();
+
+function ProfileStackScreen() {
+  return (
+    <ProfileStackNav.Navigator
+      screenOptions={{
+        headerTintColor: colors.text,
+      }}
+    >
+      <ProfileStackNav.Screen
+        name="MyProfile"
+        component={ProfileScreen}
+        options={{ title: 'My Profile' }}
+      />
+      <ProfileStackNav.Screen
+        name="TeamDirectory"
+        component={TeamDirectoryScreen}
+        options={{ title: 'Team Directory' }}
+      />
+    </ProfileStackNav.Navigator>
+  );
+}
+
+function LeaveStackScreen() {
+  return (
+    <LeaveStackNav.Navigator
+      screenOptions={{
+        headerTintColor: colors.text,
+      }}
+    >
+      <LeaveStackNav.Screen
+        name="LeaveList"
+        component={LeaveScreen}
+        options={{ title: 'My Leave' }}
+      />
+      <LeaveStackNav.Screen
+        name="NewLeaveRequest"
+        component={NewLeaveRequestScreen}
+        options={{ title: 'New Leave Request' }}
+      />
+      <LeaveStackNav.Screen
+        name="LeaveDetail"
+        component={LeaveDetailScreen}
+        options={{ title: 'Leave Details' }}
+      />
+    </LeaveStackNav.Navigator>
+  );
+}
 
 function MainTabs() {
   const { isModuleActive } = useAuth();
@@ -34,15 +85,11 @@ function MainTabs() {
         },
         tabBarLabelStyle: {
           fontSize: fontSize.xs,
-          fontWeight: '600',
         },
         headerStyle: {
           backgroundColor: colors.surface,
         },
-        headerTitleStyle: {
-          color: colors.text,
-          fontWeight: '700',
-        },
+        headerTintColor: colors.text,
       }}
     >
       <Tab.Screen
@@ -51,15 +98,16 @@ function MainTabs() {
         options={{
           headerShown: false,
           tabBarLabel: 'Home',
-          tabBarIcon: ({ color }) => <TabIcon label="H" color={color} />,
+          tabBarIcon: ({ color, size }) => <Feather name="home" size={size} color={color} />,
         }}
       />
       <Tab.Screen
         name="Leave"
-        component={LeaveScreen}
+        component={LeaveStackScreen}
         options={{
-          title: 'My Leave',
-          tabBarIcon: ({ color }) => <TabIcon label="L" color={color} />,
+          headerShown: false,
+          title: 'Leave',
+          tabBarIcon: ({ color, size }) => <Feather name="calendar" size={size} color={color} />,
         }}
       />
       {isModuleActive('attendance') && (
@@ -68,7 +116,7 @@ function MainTabs() {
           component={AttendanceScreen}
           options={{
             title: 'Attendance',
-            tabBarIcon: ({ color }) => <TabIcon label="A" color={color} />,
+            tabBarIcon: ({ color, size }) => <Feather name="clock" size={size} color={color} />,
           }}
         />
       )}
@@ -77,33 +125,19 @@ function MainTabs() {
         component={AnnouncementsScreen}
         options={{
           title: 'News',
-          tabBarIcon: ({ color }) => <TabIcon label="N" color={color} />,
+          tabBarIcon: ({ color, size }) => <Feather name="bell" size={size} color={color} />,
         }}
       />
       <Tab.Screen
         name="Profile"
-        component={ProfileScreen}
+        component={ProfileStackScreen}
         options={{
+          headerShown: false,
           title: 'Profile',
-          tabBarIcon: ({ color }) => <TabIcon label="P" color={color} />,
+          tabBarIcon: ({ color, size }) => <Feather name="user" size={size} color={color} />,
         }}
       />
     </Tab.Navigator>
-  );
-}
-
-function TabIcon({ label, color }: { label: string; color: string }) {
-  return (
-    <View
-      style={{
-        width: 24,
-        height: 24,
-        justifyContent: 'center',
-        alignItems: 'center',
-      }}
-    >
-      <Text style={{ color, fontSize: 16, fontWeight: '700' }}>{label}</Text>
-    </View>
   );
 }
 
@@ -120,13 +154,13 @@ export default function AppNavigator() {
 
   return (
     <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <RootStack.Navigator screenOptions={{ headerShown: false }}>
         {isAuthenticated ? (
-          <Stack.Screen name="Main" component={MainTabs} />
+          <RootStack.Screen name="Main" component={MainTabs} />
         ) : (
-          <Stack.Screen name="Login" component={LoginScreen} />
+          <RootStack.Screen name="Login" component={LoginScreen} />
         )}
-      </Stack.Navigator>
+      </RootStack.Navigator>
     </NavigationContainer>
   );
 }
