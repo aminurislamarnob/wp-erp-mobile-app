@@ -20,7 +20,7 @@ export default function LoginScreen() {
   const { connectSite, login } = useAuth();
   const toast = useToast();
   const [step, setStep] = useState<Step>('site');
-  const [siteUrl, setSiteUrl] = useState('https://erp-test.welabs.dev');
+  const [siteUrl, setSiteUrl] = useState('https://hr.welabs.dev');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -111,6 +111,7 @@ export default function LoginScreen() {
             <TextInput
               style={styles.input}
               placeholder="https://your-site.com"
+              placeholderTextColor={colors.textLight}
               value={siteUrl}
               onChangeText={setSiteUrl}
               autoCapitalize="none"
@@ -158,6 +159,7 @@ export default function LoginScreen() {
             <TextInput
               style={styles.input}
               placeholder="Your WordPress username"
+              placeholderTextColor={colors.textLight}
               value={username}
               onChangeText={setUsername}
               autoCapitalize="none"
@@ -169,6 +171,7 @@ export default function LoginScreen() {
             <TextInput
               style={styles.input}
               placeholder="Enter your password"
+              placeholderTextColor={colors.textLight}
               value={password}
               onChangeText={setPassword}
               secureTextEntry

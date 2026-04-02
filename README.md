@@ -53,6 +53,12 @@ npx expo run:ios        # Build debug and run on iOS
 
 Build the app locally on your machine. Requires Android SDK / Xcode installed.
 
+> **Note:** If the Android build fails with `SDK location not found`, create the `local.properties` file:
+> ```bash
+> echo "sdk.dir=$HOME/Library/Android/sdk" > android/local.properties
+> ```
+> This file is not committed to git since the `android/` directory is generated. You may need to recreate it after running `npx expo prebuild` or cloning the repo fresh.
+
 **Debug build:**
 
 ```bash
