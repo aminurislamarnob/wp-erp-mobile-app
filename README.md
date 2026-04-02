@@ -1,0 +1,145 @@
+# WPERP Mobile App
+
+Employee self-service mobile app for [WP-ERP](https://wperp.com) — the open-source HR, CRM & Accounting solution for WordPress.
+
+Built with **Expo** (React Native) and connects to any WordPress site running the WP-ERP plugin via its REST API.
+
+## Features
+
+- **Dashboard** — Live clock-in/out, quick actions, upcoming birthdays, who's out today, holidays, and interactive calendar
+- **Leave Management** — View leave requests with status filters, leave balance with progress bars, holiday list, and submit new requests with file attachments
+- **Attendance** — Clock in/out with shift details, attendance log calendar, and monthly report with summary statistics
+- **Announcements** — Browse and read company announcements
+- **Profile** — View personal info, contact details, job information, experience, education, and dependents. Upload profile photo
+- **Team Directory** — Searchable employee directory with pagination
+
+## Prerequisites
+
+- [Node.js](https://nodejs.org/) (v18 or later)
+- [Expo CLI](https://docs.expo.dev/get-started/installation/)
+- A WordPress site with [WP-ERP](https://wordpress.org/plugins/erp/) installed and activated
+- The **ERP Mobile Auth** companion plugin installed on the WordPress site (provides token-based authentication)
+
+## Getting Started
+
+### 1. Install dependencies
+
+```bash
+npm install
+```
+
+### 2. Start the development server
+
+```bash
+npx expo start
+```
+
+This opens the Expo developer tools. You can then:
+
+- Scan the QR code with the **Expo Go** app on your phone
+- Press `a` to open on an Android emulator
+- Press `i` to open on an iOS simulator
+
+### 3. Run on device/emulator (debug)
+
+```bash
+npx expo run:android    # Build debug and run on Android
+npx expo run:ios        # Build debug and run on iOS
+```
+
+## Building the App
+
+### Local Build
+
+Build the app locally on your machine. Requires Android SDK / Xcode installed.
+
+**Debug build:**
+
+```bash
+npx expo run:android                        # Android debug
+npx expo run:ios                            # iOS debug
+```
+
+**Release build:**
+
+```bash
+npx expo run:android --variant release      # Android release APK
+npx expo run:ios --configuration Release    # iOS release build
+```
+
+The release APK will be generated at `android/app/build/outputs/apk/release/app-release.apk`.
+
+### EAS Build (Cloud)
+
+Build on Expo's cloud servers using [EAS Build](https://docs.expo.dev/build/introduction/). Install the EAS CLI first:
+
+```bash
+npm install -g eas-cli
+```
+
+**Build profiles:**
+
+| Profile | Description | Command |
+|---------|-------------|---------|
+| `development` | Development client with dev tools | `eas build --profile development --platform android` |
+| `preview` | Internal distribution APK | `eas build --profile preview --platform android` |
+| `production` | Production release | `eas build --profile production --platform android` |
+
+Replace `android` with `ios` for iOS builds.
+
+## Project Structure
+
+```
+src/
+  api/
+    auth.ts          # Site validation, login, employee & module fetch
+    client.ts        # Axios client factory, credential storage, pagination
+    endpoints.ts     # All HRM/accounting API endpoint functions
+  components/
+    AppHeader.tsx    # Shared app header (avatar, name, logout)
+    Toast.tsx        # Toast notification provider
+  constants/
+    theme.ts         # Colors, spacing, font sizes
+  contexts/
+    AuthContext.tsx   # Authentication state & session management
+  navigation/
+    AppNavigator.tsx  # Tab & stack navigation setup
+  screens/
+    announcements/   # Announcement list & detail
+    attendance/      # Clock, log, report tabs
+    auth/            # Login screen
+    dashboard/       # Home screen with clock card, quick actions, calendar
+    leave/           # Leave requests, balance, new request, detail
+    profile/         # Profile info, team directory
+  types/
+    index.ts         # TypeScript interfaces for all API models
+```
+
+## Backend Requirements
+
+The app requires two WordPress plugins on the server:
+
+1. **WP-ERP** — Provides the HR management REST API (`/wp-json/erp/v1/hrm/...`)
+2. **ERP Mobile Auth** — Provides token-based authentication (`/wp-json/erp-mobile/v1/login`) so the app can authenticate without cookies
+
+### Authentication Flow
+
+1. User enters their WordPress site URL, username, and password
+2. App validates the site has WP-ERP installed via the REST API
+3. App authenticates via `POST /wp-json/erp-mobile/v1/login` and receives a Bearer token
+4. All subsequent API requests include the token in the `Authorization` header
+5. Credentials are stored securely on-device via `expo-secure-store` for session restore
+
+## Tech Stack
+
+- **Expo SDK 54** with React Native 0.81
+- **React 19** with TypeScript (strict mode)
+- **React Navigation** — Bottom tabs + native stack navigators
+- **Axios** — HTTP client for API calls
+- **Expo Secure Store** — Encrypted credential storage
+- **Expo Image Picker** — Profile photo upload
+- **Expo Document Picker** — Leave request attachments
+
+## License
+
+Proprietary - weLabs
