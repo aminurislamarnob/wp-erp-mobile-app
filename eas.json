@@ -8,6 +8,13 @@
       "android": {
         "buildType": "apk"
       }
+    },
+    "production-arm64": {
+      "channel": "production",
+      "android": {
+        "buildType": "apk",
+        "gradleCommand": ":app:assembleRelease"
+      }
     }
   },
   "submit": {
