@@ -38,6 +38,8 @@ export default function DashboardScreen() {
   const [birthdays, setBirthdays] = useState<Birthday[]>([]);
   const [whoIsOut, setWhoIsOut] = useState<LeaveRequest[]>([]);
   const [holidays, setHolidays] = useState<Holiday[]>([]);
+  const [allUpcomingHolidays, setAllUpcomingHolidays] = useState<Holiday[]>([]);
+  const [holidaysShown, setHolidaysShown] = useState(5);
   const [calendarEvents, setCalendarEvents] = useState<CalendarEvent[]>([]);
   const [todayLog, setTodayLog] = useState<SelfAttendance | null>(null);
   const [attLog, setAttLog] = useState<SelfAttendanceLog | null>(null);
@@ -70,7 +72,12 @@ export default function DashboardScreen() {
       ]);
       setBirthdays(bdays);
       setWhoIsOut(out.filter((r) => r.start_date <= today && r.end_date >= today));
-      setHolidays(hols.filter((h) => h.start_date >= today).slice(0, 5));
+      const upcoming = hols
+        .filter((h) => h.start_date >= today)
+        .sort((a, b) => a.start_date.localeCompare(b.start_date));
+      setAllUpcomingHolidays(upcoming);
+      setHolidaysShown(5);
+      setHolidays(upcoming.slice(0, 5));
     } catch {
       // best-effort
     }
@@ -439,17 +446,31 @@ export default function DashboardScreen() {
         onToggle={() => setShowHolidays(!showHolidays)}
       >
         {holidays.length > 0 ? (
-          holidays.map((h) => (
-            <View key={h.id} style={styles.listItem}>
-              <View style={[styles.miniAvatar, { backgroundColor: colors.success }]}>
-                <Text style={styles.miniAvatarText}>H</Text>
+          <>
+            {holidays.map((h) => (
+              <View key={h.id} style={styles.listItem}>
+                <View style={[styles.miniAvatar, { backgroundColor: colors.success }]}>
+                  <Text style={styles.miniAvatarText}>H</Text>
+                </View>
+                <View style={styles.listItemInfo}>
+                  <Text style={styles.listItemName}>{h.name}</Text>
+                  <Text style={styles.listItemSub}>{h.start_date}</Text>
+                </View>
               </View>
-              <View style={styles.listItemInfo}>
-                <Text style={styles.listItemName}>{h.name}</Text>
-                <Text style={styles.listItemSub}>{h.start_date}</Text>
-              </View>
-            </View>
-          ))
+            ))}
+            {holidaysShown < allUpcomingHolidays.length && (
+              <TouchableOpacity
+                style={styles.loadMoreBtn}
+                onPress={() => {
+                  const next = holidaysShown + 5;
+                  setHolidaysShown(next);
+                  setHolidays(allUpcomingHolidays.slice(0, next));
+                }}
+              >
+                <Text style={styles.loadMoreText}>Load More</Text>
+              </TouchableOpacity>
+            )}
+          </>
         ) : (
           <Text style={styles.emptyText}>No upcoming holidays</Text>
         )}
@@ -819,6 +840,16 @@ const styles = StyleSheet.create({
   listItemDate: {
     fontSize: fontSize.xs,
     color: colors.textSecondary,
+  },
+  loadMoreBtn: {
+    alignItems: 'center',
+    paddingVertical: spacing.sm,
+    marginTop: spacing.xs,
+  },
+  loadMoreText: {
+    fontSize: fontSize.sm,
+    color: colors.primary,
+    fontWeight: '600',
   },
   emptyText: {
     fontSize: fontSize.sm,

@@ -9,6 +9,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../../contexts/AuthContext';
@@ -101,7 +102,7 @@ export default function LoginScreen() {
         keyboardShouldPersistTaps="handled"
       >
         <View style={styles.header}>
-          <Text style={styles.title}>WP-ERP</Text>
+          <Image source={require('../../../assets/logo.png')} style={styles.logo} resizeMode="contain" />
           <Text style={styles.subtitle}>Employee Portal</Text>
         </View>
 
@@ -219,13 +220,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: spacing.xl,
   },
-  title: {
-    fontSize: fontSize.xxl,
-    fontWeight: '700',
-    color: colors.primary,
+  logo: {
+    width: 160,
+    height: 45,
   },
   subtitle: {
-    fontSize: fontSize.lg,
+    fontSize: fontSize.sm,
     color: colors.textSecondary,
     marginTop: spacing.xs,
   },
