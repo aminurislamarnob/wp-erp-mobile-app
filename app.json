@@ -36,6 +36,13 @@
       "eas": {
         "projectId": "6f589f61-7c8d-4dab-bef1-ab40bcd5516b"
       }
+    },
+    "owner": "aminur147",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/6f589f61-7c8d-4dab-bef1-ab40bcd5516b"
     }
   }
 }

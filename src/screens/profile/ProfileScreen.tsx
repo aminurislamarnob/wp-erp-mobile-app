@@ -174,11 +174,6 @@ export default function ProfileScreen() {
           {employee.designation?.title || ''}
           {employee.department ? ` · ${employee.department.title}` : ''}
         </Text>
-        {employee.reporting_to && (
-          <Text style={styles.reportingTo}>
-            Reports to {employee.reporting_to.full_name}
-          </Text>
-        )}
         <TouchableOpacity
           style={styles.teamBtn}
           onPress={() => navigation.navigate('TeamDirectory')}
