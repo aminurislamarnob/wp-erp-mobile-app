@@ -4,6 +4,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Feather } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '../contexts/AuthContext';
 import { colors, fontSize } from '../constants/theme';
 
@@ -44,6 +45,7 @@ function LeaveStackScreen() {
 
 function MainTabs() {
   const { isModuleActive } = useAuth();
+  const insets = useSafeAreaInsets();
 
   return (
     <Tab.Navigator
@@ -54,8 +56,8 @@ function MainTabs() {
         tabBarStyle: {
           backgroundColor: colors.surface,
           borderTopColor: colors.border,
-          paddingBottom: 4,
-          height: 56,
+          paddingBottom: Math.max(insets.bottom, 4),
+          height: 56 + Math.max(insets.bottom - 4, 0),
         },
         tabBarLabelStyle: {
           fontSize: fontSize.xs,

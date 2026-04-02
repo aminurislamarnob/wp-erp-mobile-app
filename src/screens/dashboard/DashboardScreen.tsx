@@ -239,9 +239,9 @@ export default function DashboardScreen() {
     weekday: 'long',
   });
 
-  // Shift time display
-  const shiftStart = todayLog?.ds_start_time ? formatTime12h(todayLog.ds_start_time) : '--:--';
-  const shiftEnd = todayLog?.ds_end_time ? formatTime12h(todayLog.ds_end_time) : '--:--';
+  // Shift time display — use attLog.start_time/end_time (time only, not full datetime)
+  const shiftStart = attLog?.start_time ? formatTime12h(attLog.start_time) : '--:--';
+  const shiftEnd = attLog?.end_time ? formatTime12h(attLog.end_time) : '--:--';
 
   const selectedEvents = selectedDate ? getEventsForDate(selectedDate) : [];
 
@@ -279,7 +279,12 @@ export default function DashboardScreen() {
 
           {/* Info rows */}
           <View style={styles.clockInfoRow}>
-            <Text style={styles.clockInfoLabel}>Shift Time</Text>
+            <Text style={styles.clockInfoLabel}>Shift</Text>
+            <Text style={styles.clockInfoColon}>:</Text>
+            <Text style={styles.clockInfoValue}>{todayLog?.shift_title || '--'}</Text>
+          </View>
+          <View style={styles.clockInfoRow}>
+            <Text style={styles.clockInfoLabel}>Schedule</Text>
             <Text style={styles.clockInfoColon}>:</Text>
             <Text style={styles.clockInfoValue}>{shiftStart} - {shiftEnd}</Text>
           </View>
@@ -292,18 +297,28 @@ export default function DashboardScreen() {
           </View>
 
           {/* Bottom: working time + button */}
-          <View style={styles.clockBottomRow}>
-            <View>
-              <Text style={styles.clockWorkingLabel}>Working :</Text>
-              <Text style={styles.clockWorkingTime}>{elapsed}</Text>
-            </View>
+          <View style={styles.clockInfoRow}>
+            <Text style={styles.clockInfoLabel}>Today Work Time</Text>
+            <Text style={styles.clockInfoColon}>:</Text>
+            <Text style={styles.clockInfoValue}>{elapsed}</Text>
+          </View>
+          <View style={styles.clockBtnRow}>
             <TouchableOpacity
-              style={[styles.clockBtn, isCheckedIn && styles.clockBtnOut]}
-              onPress={handleClockInOut}
-              disabled={clockLoading}
+              style={[styles.clockBtn, isCheckedIn && styles.clockBtnDisabled]}
+              onPress={() => !isCheckedIn && handleClockInOut()}
+              disabled={clockLoading || isCheckedIn}
             >
-              <Text style={[styles.clockBtnText, isCheckedIn && styles.clockBtnTextOut]}>
-                {clockLoading ? '...' : isCheckedIn ? 'Check-out' : 'Check-in'}
+              <Text style={[styles.clockBtnText, isCheckedIn && styles.clockBtnTextDisabled]}>
+                {clockLoading && !isCheckedIn ? '...' : 'Check-in'}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.clockBtn, styles.clockBtnOut, !isCheckedIn && styles.clockBtnDisabled]}
+              onPress={() => isCheckedIn && handleClockInOut()}
+              disabled={clockLoading || !isCheckedIn}
+            >
+              <Text style={[styles.clockBtnText, styles.clockBtnTextOut, !isCheckedIn && styles.clockBtnTextDisabled]}>
+                {clockLoading && isCheckedIn ? '...' : 'Check-out'}
               </Text>
             </TouchableOpacity>
           </View>
@@ -357,7 +372,7 @@ export default function DashboardScreen() {
 
       {/* ─── Celebrations ─── */}
       <CollapsibleSection
-        title="Celebrations"
+        title="Upcoming Birthdays"
         count={birthdays.length}
         expanded={showCelebrations}
         onToggle={() => setShowCelebrations(!showCelebrations)}
@@ -595,6 +610,8 @@ function formatLiveClock(): string {
 
 function formatTime12h(timeStr: string): string {
   if (!timeStr) return '--:--';
+  // Already formatted (contains AM/PM) — return as-is
+  if (/am|pm/i.test(timeStr)) return timeStr.trim();
   const parts = timeStr.split(':');
   let h = parseInt(parts[0], 10);
   const m = parts[1] || '00';
@@ -661,7 +678,7 @@ const styles = StyleSheet.create({
   clockInfoLabel: {
     color: 'rgba(255,255,255,0.85)',
     fontSize: fontSize.sm,
-    width: 100,
+    width: 120,
   },
   clockInfoColon: {
     color: 'rgba(255,255,255,0.85)',
@@ -675,38 +692,35 @@ const styles = StyleSheet.create({
     flex: 1,
     textAlign: 'right',
   },
-  clockBottomRow: {
+  clockBtnRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'flex-end',
-    marginTop: spacing.sm,
-  },
-  clockWorkingLabel: {
-    color: 'rgba(255,255,255,0.85)',
-    fontSize: fontSize.sm,
-  },
-  clockWorkingTime: {
-    color: '#fff',
-    fontSize: 24,
-    fontWeight: '700',
-    marginTop: 2,
+    marginTop: spacing.md,
+    gap: spacing.sm,
   },
   clockBtn: {
-    backgroundColor: 'rgba(255,255,255,0.9)',
-    paddingHorizontal: spacing.xl,
+    flex: 1,
+    backgroundColor: colors.success,
     paddingVertical: spacing.sm + 4,
     borderRadius: 24,
+    alignItems: 'center',
   },
   clockBtnOut: {
     backgroundColor: colors.error,
   },
+  clockBtnDisabled: {
+    opacity: 0.4,
+  },
   clockBtnText: {
-    color: colors.primary,
+    color: '#fff',
     fontSize: fontSize.md,
     fontWeight: '700',
   },
   clockBtnTextOut: {
     color: '#fff',
+  },
+  clockBtnTextDisabled: {
+    opacity: 0.7,
   },
 
   // Sections

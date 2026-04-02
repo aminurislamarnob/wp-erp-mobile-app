@@ -1,14 +1,16 @@
 import React from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import { Feather } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '../contexts/AuthContext';
 import { colors, spacing, fontSize } from '../constants/theme';
 
 export default function AppHeader() {
   const { employee, logout } = useAuth();
+  const insets = useSafeAreaInsets();
 
   return (
-    <View style={styles.header}>
+    <View style={[styles.header, { paddingTop: Math.max(insets.top, spacing.md) + spacing.md }]}>
       <View style={styles.headerLeft}>
         {employee?.avatar_url ? (
           <Image source={{ uri: employee.avatar_url }} style={styles.avatar} />
@@ -42,7 +44,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: colors.primary,
     paddingHorizontal: spacing.lg,
-    paddingTop: 56,
     paddingBottom: spacing.lg,
   },
   headerLeft: {

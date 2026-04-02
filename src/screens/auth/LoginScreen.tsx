@@ -10,6 +10,7 @@ import {
   Platform,
   ScrollView,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../../contexts/AuthContext';
 import { useToast } from '../../components/Toast';
 import { colors, spacing, fontSize } from '../../constants/theme';
@@ -90,8 +91,9 @@ export default function LoginScreen() {
   }
 
   return (
+    <SafeAreaView style={styles.container}>
     <KeyboardAvoidingView
-      style={styles.container}
+      style={{ flex: 1 }}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <ScrollView
@@ -199,6 +201,7 @@ export default function LoginScreen() {
         )}
       </ScrollView>
     </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 

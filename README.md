@@ -75,6 +75,22 @@ npx expo run:ios --configuration Release    # iOS release build
 
 The release APK will be generated at `android/app/build/outputs/apk/release/app-release.apk`.
 
+**Reducing APK size for local testing:**
+
+The default release APK is ~66MB because it includes native libraries for all 4 CPU architectures (arm64-v8a, armeabi-v7a, x86, x86_64). You can limit to a single architecture to significantly reduce the build size:
+
+```bash
+# For real devices (arm64 — all modern Android phones from ~2015+)
+cd android && ./gradlew app:assembleRelease -x lint -x test -PreactNativeArchitectures=arm64-v8a
+
+# For emulators (x86_64)
+cd android && ./gradlew app:assembleRelease -x lint -x test -PreactNativeArchitectures=x86_64
+```
+
+The APK will be at `android/app/build/outputs/apk/release/app-release.apk`.
+
+> **Note:** For Play Store submission, always use AAB (Android App Bundle) via EAS Build — Google Play automatically splits the bundle per device architecture, so users only download what their device needs (~15-20MB).
+
 ### EAS Build (Cloud)
 
 Build on Expo's cloud servers using [EAS Build](https://docs.expo.dev/build/introduction/). Install the EAS CLI first:
