@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "WPERP",
-    "slug": "wp-erp-mobile-app",
+    "name": "WPERP Suite",
+    "slug": "wperp-suite",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
