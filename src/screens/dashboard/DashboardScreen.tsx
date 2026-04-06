@@ -346,7 +346,7 @@ function useStyles() {
 export default function DashboardScreen() {
   const navigation = useNavigation<any>();
   const { employee, user, isModuleActive } = useAuth();
-  const { colors } = useTheme();
+  const { colors, isDark } = useTheme();
   const styles = useStyles();
   const toast = useToast();
   const [refreshing, setRefreshing] = useState(false);
@@ -584,77 +584,89 @@ export default function DashboardScreen() {
       <AppHeader />
 
       {/* ─── Clock In/Out Card ─── */}
-      {hasAttendance && (
-        <LinearGradient
-          colors={['#1E1B4B', '#312E81', '#3730A3']}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.clockCard}
-        >
-          {/* Top section: time + weather icon area */}
-          <View style={styles.clockTopRow}>
-            <View>
-              <Text style={styles.clockTime}>{currentTime}</Text>
-              <Text style={styles.clockDate}>{dateLabel}</Text>
+      {hasAttendance && (() => {
+        const clockContent = (
+          <>
+            {/* Top section: time + weather icon area */}
+            <View style={styles.clockTopRow}>
+              <View>
+                <Text style={styles.clockTime}>{currentTime}</Text>
+                <Text style={styles.clockDate}>{dateLabel}</Text>
+              </View>
+              <View style={styles.clockIconWrap}>
+                <Feather
+                  name={new Date().getHours() >= 18 || new Date().getHours() < 6 ? 'moon' : 'sun'}
+                  size={28}
+                  color={new Date().getHours() >= 18 || new Date().getHours() < 6 ? '#E2E8F0' : '#FDB813'}
+                />
+              </View>
             </View>
-            <View style={styles.clockIconWrap}>
-              <Feather
-                name={new Date().getHours() >= 18 || new Date().getHours() < 6 ? 'moon' : 'sun'}
-                size={28}
-                color={new Date().getHours() >= 18 || new Date().getHours() < 6 ? '#E2E8F0' : '#FDB813'}
-              />
+
+            <View style={styles.clockDivider} />
+
+            {/* Info rows */}
+            <View style={styles.clockInfoRow}>
+              <Text style={styles.clockInfoLabel}>Shift</Text>
+              <Text style={styles.clockInfoColon}>:</Text>
+              <Text style={styles.clockInfoValue}>{todayLog?.shift_title || '--'}</Text>
             </View>
-          </View>
-
-          <View style={styles.clockDivider} />
-
-          {/* Info rows */}
-          <View style={styles.clockInfoRow}>
-            <Text style={styles.clockInfoLabel}>Shift</Text>
-            <Text style={styles.clockInfoColon}>:</Text>
-            <Text style={styles.clockInfoValue}>{todayLog?.shift_title || '--'}</Text>
-          </View>
-          <View style={styles.clockInfoRow}>
-            <Text style={styles.clockInfoLabel}>Schedule</Text>
-            <Text style={styles.clockInfoColon}>:</Text>
-            <Text style={styles.clockInfoValue}>{shiftStart} - {shiftEnd}</Text>
-          </View>
-          <View style={styles.clockInfoRow}>
-            <Text style={styles.clockInfoLabel}>Checked-in</Text>
-            <Text style={styles.clockInfoColon}>:</Text>
-            <Text style={styles.clockInfoValue}>
-              {checkedIn ? formatTime12h(checkedIn) : '00:00:00'}
-            </Text>
-          </View>
-
-          {/* Bottom: working time + button */}
-          <View style={styles.clockInfoRow}>
-            <Text style={styles.clockInfoLabel}>Today Work Time</Text>
-            <Text style={styles.clockInfoColon}>:</Text>
-            <Text style={styles.clockInfoValue}>{elapsed}</Text>
-          </View>
-          <View style={styles.clockBtnRow}>
-            <TouchableOpacity
-              style={[styles.clockBtn, isCheckedIn && styles.clockBtnDisabled]}
-              onPress={() => !isCheckedIn && handleClockInOut()}
-              disabled={clockLoading || isCheckedIn}
-            >
-              <Text style={[styles.clockBtnText, isCheckedIn && styles.clockBtnTextDisabled]}>
-                {clockLoading && !isCheckedIn ? '...' : 'Check-in'}
+            <View style={styles.clockInfoRow}>
+              <Text style={styles.clockInfoLabel}>Schedule</Text>
+              <Text style={styles.clockInfoColon}>:</Text>
+              <Text style={styles.clockInfoValue}>{shiftStart} - {shiftEnd}</Text>
+            </View>
+            <View style={styles.clockInfoRow}>
+              <Text style={styles.clockInfoLabel}>Checked-in</Text>
+              <Text style={styles.clockInfoColon}>:</Text>
+              <Text style={styles.clockInfoValue}>
+                {checkedIn ? formatTime12h(checkedIn) : '00:00:00'}
               </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.clockBtn, styles.clockBtnOut, !isCheckedIn && styles.clockBtnDisabled]}
-              onPress={() => isCheckedIn && handleClockInOut()}
-              disabled={clockLoading || !isCheckedIn}
-            >
-              <Text style={[styles.clockBtnText, styles.clockBtnTextOut, !isCheckedIn && styles.clockBtnTextDisabled]}>
-                {clockLoading && isCheckedIn ? '...' : 'Check-out'}
-              </Text>
-            </TouchableOpacity>
+            </View>
+
+            {/* Bottom: working time + button */}
+            <View style={styles.clockInfoRow}>
+              <Text style={styles.clockInfoLabel}>Today Work Time</Text>
+              <Text style={styles.clockInfoColon}>:</Text>
+              <Text style={styles.clockInfoValue}>{elapsed}</Text>
+            </View>
+            <View style={styles.clockBtnRow}>
+              <TouchableOpacity
+                style={[styles.clockBtn, isCheckedIn && styles.clockBtnDisabled]}
+                onPress={() => !isCheckedIn && handleClockInOut()}
+                disabled={clockLoading || isCheckedIn}
+              >
+                <Text style={[styles.clockBtnText, isCheckedIn && styles.clockBtnTextDisabled]}>
+                  {clockLoading && !isCheckedIn ? '...' : 'Check-in'}
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.clockBtn, styles.clockBtnOut, !isCheckedIn && styles.clockBtnDisabled]}
+                onPress={() => isCheckedIn && handleClockInOut()}
+                disabled={clockLoading || !isCheckedIn}
+              >
+                <Text style={[styles.clockBtnText, styles.clockBtnTextOut, !isCheckedIn && styles.clockBtnTextDisabled]}>
+                  {clockLoading && isCheckedIn ? '...' : 'Check-out'}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </>
+        );
+
+        return isDark ? (
+          <LinearGradient
+            colors={['#1E1B4B', '#312E81', '#3730A3']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.clockCard}
+          >
+            {clockContent}
+          </LinearGradient>
+        ) : (
+          <View style={[styles.clockCard, { backgroundColor: colors.primary }]}>
+            {clockContent}
           </View>
-        </LinearGradient>
-      )}
+        );
+      })()}
 
       {/* ─── Quick Actions ─── */}
       <View style={styles.section}>
