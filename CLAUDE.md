@@ -21,14 +21,15 @@ EAS builds (requires `eas-cli`):
 ```bash
 eas build --profile development --platform android   # Dev client build
 eas build --profile preview --platform android        # Preview APK
-eas build --profile production --platform android     # Production build
+eas build --profile production --platform android     # Production AAB
+eas build --profile production-arm64 --platform android  # Production APK (arm64-v8a only)
 ```
 
 No test runner or linter is configured.
 
 ## Architecture
 
-**Entry:** `App.tsx` wraps the app in `AuthProvider` → `ToastProvider` → `AppNavigator`.
+**Entry:** `App.tsx` wraps the app in `ThemeProvider` → `AuthProvider` → `ToastProvider` → `AppNavigator`.
 
 **Navigation** (`src/navigation/AppNavigator.tsx`):
 - Unauthenticated: shows `LoginScreen`
@@ -52,7 +53,13 @@ No test runner or linter is configured.
 
 **Types** (`src/types/index.ts`): All TypeScript interfaces for API models. Leave status is numeric (not string).
 
-**Theme** (`src/constants/theme.ts`): Shared `colors`, `spacing`, `fontSize` constants.
+**Theme** (`src/constants/theme.ts` + `src/contexts/ThemeContext.tsx`):
+- `lightColors` and `darkColors` palettes defined in `theme.ts`; `spacing` and `fontSize` are shared
+- `ThemeContext` provides `useTheme()` hook returning `{ colors, isDark, mode, setMode }`
+- Theme mode (`light` | `dark` | `system`) persisted via `expo-secure-store`
+- System preference detected via React Native `useColorScheme()`
+- All screens use a `useStyles()` hook pattern: `function useStyles() { const { colors } = useTheme(); return React.useMemo(() => StyleSheet.create({...}), [colors]); }` — styles recompute reactively on theme change
+- Theme toggle (icon-only: monitor/sun/moon) lives on the Profile screen header
 
 ## Key Patterns
 
@@ -62,7 +69,7 @@ No test runner or linter is configured.
 - Pagination uses WP-style `X-WP-Total` / `X-WP-TotalPages` headers
 - Module-gated features: check `isModuleActive(moduleId)` from AuthContext before rendering
 - Announcements use employee-scoped endpoint (`/erp/v1/hrm/employees/{userId}/announcements`) — the main `/hrm/announcements` requires admin capability. Response returns raw WP post fields (`post_title`, `post_content`, `post_date`) normalized via `normalizeAnnouncement()`
-- Dashboard clock card shows live ticking time, shift info, check-in status, working elapsed timer, and check-in/out button
+- Dashboard clock card uses `expo-linear-gradient` with a dark indigo gradient; icon switches between sun (day) and moon (after 6 PM) automatically
 - Profile `InfoRow` supports `noCapitalize` prop — used for fields like email, country, state, nationality that should not be title-cased
 - WP-ERP API field names sometimes differ from display names (e.g., `hiring_source` for "Source of Hire")
 - Bundle ID: `com.welabs.wperpmobile` (both iOS and Android)
