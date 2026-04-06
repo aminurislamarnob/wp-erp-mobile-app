@@ -4,10 +4,7 @@
   },
   "build": {
     "production": {
-      "channel": "production",
-      "android": {
-        "buildType": "apk"
-      }
+      "channel": "production"
     },
     "production-arm64": {
       "channel": "production",

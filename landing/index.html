@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WPERP Suite - Employee Self-Service Mobile App</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --primary: #4F46E5;
+      --primary-light: #818CF8;
+      --primary-dark: #3730A3;
+      --accent: #06B6D4;
+      --bg: #050816;
+      --bg-card: rgba(255,255,255,0.04);
+      --bg-card-hover: rgba(255,255,255,0.08);
+      --surface: #0f1629;
+      --text: #E8EAED;
+      --text-secondary: #9CA3AF;
+      --text-muted: #6B7280;
+      --border: rgba(255,255,255,0.08);
+      --glow: rgba(79,70,229,0.4);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* ── Navbar ── */
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      padding: 18px 32px;
+      backdrop-filter: blur(20px);
+      background: rgba(5,8,22,0.7);
+      border-bottom: 1px solid var(--border);
+      transition: background 0.3s;
+    }
+    .navbar-inner {
+      max-width: 1170px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: var(--text);
+    }
+    .nav-brand img {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+    }
+    .nav-brand span {
+      font-weight: 800;
+      font-size: 1.15rem;
+      letter-spacing: -0.3px;
+    }
+    .nav-links { display: flex; gap: 32px; align-items: center; }
+    .nav-links a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: #fff; }
+    .nav-cta {
+      background: var(--primary) !important;
+      color: #fff !important;
+      padding: 10px 22px;
+      border-radius: 10px;
+      font-weight: 600 !important;
+      transition: transform 0.2s, box-shadow 0.2s !important;
+    }
+    .nav-cta:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 20px var(--glow);
+    }
+
+    /* ── Hero ── */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 120px 24px 80px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Animated gradient orbs */
+    .hero-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(100px);
+      opacity: 0.5;
+      animation: float 8s ease-in-out infinite;
+    }
+    .hero-orb-1 {
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, var(--primary) 0%, transparent 70%);
+      top: -100px; left: -100px;
+      animation-delay: 0s;
+    }
+    .hero-orb-2 {
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
+      bottom: -50px; right: -80px;
+      animation-delay: -4s;
+      opacity: 0.3;
+    }
+    .hero-orb-3 {
+      width: 300px; height: 300px;
+      background: radial-gradient(circle, #A78BFA 0%, transparent 70%);
+      top: 40%; left: 60%;
+      animation-delay: -2s;
+      opacity: 0.2;
+    }
+    @keyframes float {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33% { transform: translate(30px, -20px) scale(1.05); }
+      66% { transform: translate(-20px, 15px) scale(0.95); }
+    }
+
+    /* Grid pattern overlay */
+    .hero-grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+      mask-image: radial-gradient(ellipse 60% 60% at 50% 50%, black 20%, transparent 70%);
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      max-width: 720px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(79,70,229,0.15);
+      border: 1px solid rgba(79,70,229,0.3);
+      color: var(--primary-light);
+      padding: 8px 18px;
+      border-radius: 100px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+      margin-bottom: 32px;
+      backdrop-filter: blur(10px);
+    }
+    .badge-dot {
+      width: 8px; height: 8px;
+      background: var(--accent);
+      border-radius: 50%;
+      animation: pulse-dot 2s ease-in-out infinite;
+    }
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.8); }
+    }
+
+    .hero-icon-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 32px;
+    }
+    .hero-icon {
+      width: 88px;
+      height: 88px;
+      border-radius: 24px;
+      display: block;
+      box-shadow: 0 0 60px var(--glow), 0 0 120px rgba(79,70,229,0.15);
+      border: 2px solid rgba(255,255,255,0.1);
+      animation: icon-glow 4s ease-in-out infinite alternate;
+    }
+    @keyframes icon-glow {
+      0% { box-shadow: 0 0 40px var(--glow), 0 0 80px rgba(79,70,229,0.1); }
+      100% { box-shadow: 0 0 60px var(--glow), 0 0 140px rgba(79,70,229,0.2); }
+    }
+
+    .hero h1 {
+      font-size: 3.8rem;
+      font-weight: 900;
+      letter-spacing: -1.5px;
+      line-height: 1.1;
+      margin-bottom: 20px;
+      background: linear-gradient(135deg, #fff 0%, #fff 50%, var(--primary-light) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-sub {
+      font-size: 1.2rem;
+      color: var(--text-secondary);
+      max-width: 480px;
+      margin: 0 auto 44px;
+      line-height: 1.7;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: linear-gradient(135deg, var(--primary), #6366F1);
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 700;
+      padding: 16px 32px;
+      border-radius: 14px;
+      text-decoration: none;
+      border: 1px solid rgba(255,255,255,0.1);
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-primary::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.15), transparent);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 40px var(--glow);
+    }
+    .btn-primary:hover::before { opacity: 1; }
+    .btn-primary svg { width: 20px; height: 20px; flex-shrink: 0; }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--bg-card);
+      color: var(--text);
+      font-size: 1rem;
+      font-weight: 600;
+      padding: 16px 32px;
+      border-radius: 14px;
+      text-decoration: none;
+      border: 1px solid var(--border);
+      transition: all 0.3s;
+      backdrop-filter: blur(10px);
+    }
+    .btn-secondary:hover {
+      background: var(--bg-card-hover);
+      border-color: rgba(255,255,255,0.15);
+      transform: translateY(-2px);
+    }
+
+    .hero-stats {
+      display: flex;
+      gap: 48px;
+      justify-content: center;
+      margin-top: 64px;
+      padding-top: 40px;
+      border-top: 1px solid var(--border);
+      width: 100%;
+    }
+    .hero-stat { text-align: center; }
+    .hero-stat-value {
+      font-size: 1.6rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--primary-light), var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero-stat-label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-weight: 500;
+      margin-top: 4px;
+    }
+
+    /* ── Section styling ── */
+    .section {
+      padding: 100px 24px;
+      position: relative;
+    }
+    .section-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .section-label {
+      display: inline-block;
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--primary-light);
+      margin-bottom: 16px;
+    }
+    .section-title {
+      font-size: 2.4rem;
+      font-weight: 800;
+      letter-spacing: -1px;
+      margin-bottom: 16px;
+      line-height: 1.2;
+    }
+    .section-desc {
+      font-size: 1.05rem;
+      color: var(--text-secondary);
+      max-width: 500px;
+      margin-bottom: 56px;
+    }
+
+    /* ── SVG icon base ── */
+    .svg-icon {
+      width: 26px;
+      height: 26px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ── Features (Bento Grid) ── */
+    .bento-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: auto auto;
+      gap: 16px;
+    }
+    .bento-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 32px;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .bento-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at var(--mx, 50%) var(--my, 50%), rgba(79,70,229,0.08) 0%, transparent 60%);
+      opacity: 0;
+      transition: opacity 0.4s;
+    }
+    .bento-card:hover::before { opacity: 1; }
+    .bento-card:hover {
+      border-color: rgba(79,70,229,0.3);
+      transform: translateY(-4px);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3), 0 0 40px rgba(79,70,229,0.1);
+    }
+    .bento-card.span-2 { grid-column: span 2; }
+
+    .bento-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+      position: relative;
+    }
+    .bento-icon-bg {
+      position: absolute;
+      inset: 0;
+      border-radius: 14px;
+      opacity: 0.15;
+    }
+    .icon-indigo .bento-icon-bg { background: var(--primary); }
+    .icon-indigo .svg-icon { color: var(--primary-light); }
+    .icon-cyan .bento-icon-bg { background: var(--accent); }
+    .icon-cyan .svg-icon { color: #22D3EE; }
+    .icon-purple .bento-icon-bg { background: #A78BFA; }
+    .icon-purple .svg-icon { color: #C4B5FD; }
+    .icon-emerald .bento-icon-bg { background: #10B981; }
+    .icon-emerald .svg-icon { color: #34D399; }
+    .icon-amber .bento-icon-bg { background: #F59E0B; }
+    .icon-amber .svg-icon { color: #FBBF24; }
+    .icon-rose .bento-icon-bg { background: #F43F5E; }
+    .icon-rose .svg-icon { color: #FB7185; }
+
+    .bento-card h3 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      position: relative;
+    }
+    .bento-card p {
+      font-size: 0.92rem;
+      color: var(--text-secondary);
+      line-height: 1.65;
+      position: relative;
+    }
+
+    /* Decorative chart in wide cards */
+    .bento-visual {
+      margin-top: 24px;
+      height: 48px;
+      display: flex;
+      align-items: flex-end;
+      gap: 4px;
+      position: relative;
+    }
+    .bar {
+      flex: 1;
+      border-radius: 4px 4px 0 0;
+      opacity: 0.6;
+    }
+
+    /* ── How it works ── */
+    .steps-section { background: var(--surface); }
+    .steps-section .section-inner { text-align: center; }
+    .steps-section .section-desc { margin-left: auto; margin-right: auto; }
+    .steps-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      counter-reset: step;
+    }
+    .step-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 36px 28px;
+      text-align: center;
+      position: relative;
+      transition: all 0.3s;
+      counter-increment: step;
+    }
+    .step-card:hover {
+      border-color: rgba(79,70,229,0.3);
+      transform: translateY(-4px);
+      box-shadow: 0 16px 48px rgba(0,0,0,0.3);
+    }
+    .step-number {
+      width: 56px;
+      height: 56px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, var(--primary), #6366F1);
+      color: #fff;
+      font-size: 1.3rem;
+      font-weight: 800;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+      box-shadow: 0 8px 30px var(--glow);
+    }
+    .step-card h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .step-card p {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+
+    /* ── Requirements ── */
+    .req-section .section-inner { text-align: center; }
+    .req-section .section-desc { margin-left: auto; margin-right: auto; }
+    .req-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      max-width: 740px;
+      margin: 0 auto;
+    }
+    .req-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px 24px;
+      text-align: center;
+      transition: all 0.3s;
+    }
+    .req-card:hover {
+      border-color: rgba(79,70,229,0.3);
+      transform: translateY(-2px);
+    }
+    .req-card-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 14px;
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: rgba(79,70,229,0.1);
+    }
+    .req-card-icon svg {
+      width: 24px;
+      height: 24px;
+      color: var(--primary-light);
+    }
+    .req-card h4 {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+    .req-card p {
+      font-size: 1.05rem;
+      font-weight: 700;
+    }
+
+    /* ── CTA ── */
+    .cta-section {
+      padding: 120px 24px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .cta-glow {
+      position: absolute;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, var(--primary) 0%, transparent 70%);
+      filter: blur(120px);
+      opacity: 0.2;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+    .cta-content {
+      position: relative;
+      z-index: 2;
+    }
+    .cta-content h2 {
+      font-size: 2.8rem;
+      font-weight: 900;
+      letter-spacing: -1px;
+      margin-bottom: 16px;
+      background: linear-gradient(135deg, #fff, var(--primary-light));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .cta-content p {
+      font-size: 1.1rem;
+      color: var(--text-secondary);
+      margin-bottom: 36px;
+    }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center;
+      padding: 32px 24px;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      border-top: 1px solid var(--border);
+    }
+    footer a {
+      color: var(--primary-light);
+      text-decoration: none;
+      font-weight: 500;
+    }
+    footer a:hover { text-decoration: underline; }
+
+    /* ── Scroll Reveal ── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.7s cubic-bezier(0.4, 0, 0.2, 1), transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+      .navbar { padding: 14px 20px; }
+      .nav-links { gap: 16px; }
+      .nav-links a:not(.nav-cta) { display: none; }
+      .hero { padding: 100px 20px 60px; min-height: auto; }
+      .hero h1 { font-size: 2.4rem; }
+      .hero-sub { font-size: 1.05rem; }
+      .hero-stats { gap: 28px; flex-wrap: wrap; }
+      .hero-icon { width: 72px; height: 72px; border-radius: 20px; }
+      .section { padding: 60px 20px; }
+      .section-title { font-size: 1.8rem; }
+      .bento-grid { grid-template-columns: 1fr; }
+      .bento-card.span-2 { grid-column: span 1; }
+      .steps-row { grid-template-columns: 1fr; gap: 16px; }
+      .req-grid { grid-template-columns: 1fr; max-width: 300px; }
+      .cta-content h2 { font-size: 2rem; }
+      .hero-actions { flex-direction: column; align-items: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="#" class="nav-brand">
+        <img src="../assets/icon.png" alt="WPERP Suite">
+        <span>WPERP Suite</span>
+      </a>
+      <div class="nav-links">
+        <a href="#features">Features</a>
+        <a href="#how-it-works">Setup</a>
+        <a href="#requirements">Requirements</a>
+        <a href="#download" class="nav-cta">Download</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero" id="top">
+    <div class="hero-orb hero-orb-1"></div>
+    <div class="hero-orb hero-orb-2"></div>
+    <div class="hero-orb hero-orb-3"></div>
+    <div class="hero-grid"></div>
+
+    <div class="hero-content">
+      <div class="hero-badge">
+        <span class="badge-dot"></span>
+        Now available for Android
+      </div>
+
+      <div class="hero-icon-wrapper">
+        <img src="../assets/icon.png" alt="WPERP Suite" class="hero-icon">
+      </div>
+
+      <h1>Your workplace,<br>in your pocket</h1>
+      <p class="hero-sub">The complete employee self-service app for WP-ERP. Clock in, manage leaves, track attendance, and stay connected with your team.</p>
+
+      <div class="hero-actions">
+        <a href="#" class="btn-primary" id="downloadBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download APK
+        </a>
+        <a href="#features" class="btn-secondary">
+          Explore Features
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg>
+        </a>
+      </div>
+
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <div class="hero-stat-value">6+</div>
+          <div class="hero-stat-label">Core Modules</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-value">1-Tap</div>
+          <div class="hero-stat-label">Clock In/Out</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-value">Secure</div>
+          <div class="hero-stat-label">Token Auth</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section class="section" id="features">
+    <div class="section-inner">
+      <span class="section-label reveal">Features</span>
+      <h2 class="section-title reveal">Built for the modern<br>workforce</h2>
+      <p class="section-desc reveal">Everything your team needs to stay productive, connected, and organized — designed with simplicity in mind.</p>
+
+      <div class="bento-grid">
+        <!-- Clock In/Out -->
+        <div class="bento-card span-2 reveal">
+          <div class="bento-icon icon-indigo">
+            <div class="bento-icon-bg"></div>
+            <svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+            </svg>
+          </div>
+          <h3>Live Clock In & Out</h3>
+          <p>Start and end your workday with a single tap. A live ticking timer shows your active working hours, shift details, and check-in status in real time.</p>
+          <div class="bento-visual">
+            <div class="bar" style="height:60%;background:var(--primary)"></div>
+            <div class="bar" style="height:80%;background:var(--primary-light)"></div>
+            <div class="bar" style="height:45%;background:var(--primary)"></div>
+            <div class="bar" style="height:90%;background:var(--accent)"></div>
+            <div class="bar" style="height:70%;background:var(--primary-light)"></div>
+            <div class="bar" style="height:55%;background:var(--primary)"></div>
+            <div class="bar" style="height:85%;background:var(--accent)"></div>
+            <div class="bar" style="height:40%;background:var(--primary-light)"></div>
+            <div class="bar" style="height:75%;background:var(--primary)"></div>
+            <div class="bar" style="height:65%;background:var(--accent)"></div>
+          </div>
+        </div>
+
+        <!-- Leave Management -->
+        <div class="bento-card reveal">
+          <div class="bento-icon icon-cyan">
+            <div class="bento-icon-bg"></div>
+            <svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/>
+            </svg>
+          </div>
+          <h3>Leave Management</h3>
+          <p>Apply for leave, attach supporting documents, and track your approval status instantly.</p>
+        </div>
+
+        <!-- Attendance Tracking -->
+        <div class="bento-card reveal">
+          <div class="bento-icon icon-emerald">
+            <div class="bento-icon-bg"></div>
+            <svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+            </svg>
+          </div>
+          <h3>Attendance Tracking</h3>
+          <p>View your complete attendance history, shift schedules, and daily records at a glance.</p>
+        </div>
+
+        <!-- Employee Profile -->
+        <div class="bento-card span-2 reveal">
+          <div class="bento-icon icon-purple">
+            <div class="bento-icon-bg"></div>
+            <svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+            </svg>
+          </div>
+          <h3>Complete Employee Profile</h3>
+          <p>Access and manage your personal information, work experience, education history, and dependents — all in a beautifully organized tabbed interface.</p>
+        </div>
+
+        <!-- Announcements -->
+        <div class="bento-card span-2 reveal">
+          <div class="bento-icon icon-amber">
+            <div class="bento-icon-bg"></div>
+            <svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+            </svg>
+          </div>
+          <h3>Announcements</h3>
+          <p>Never miss an update. Get company announcements and important notices delivered directly to your phone.</p>
+        </div>
+
+        <!-- Team Directory -->
+        <div class="bento-card reveal">
+          <div class="bento-icon icon-rose">
+            <div class="bento-icon-bg"></div>
+            <svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+          </div>
+          <h3>Team Directory</h3>
+          <p>Browse and search your entire organization's employee directory with powerful search and filtering.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How it works -->
+  <section class="section steps-section" id="how-it-works">
+    <div class="section-inner">
+      <span class="section-label reveal">Getting Started</span>
+      <h2 class="section-title reveal">Up and running<br>in minutes</h2>
+      <p class="section-desc reveal">Three simple steps to connect your employee portal to your phone.</p>
+
+      <div class="steps-row">
+        <div class="step-card reveal">
+          <div class="step-number">1</div>
+          <h3>Download the app</h3>
+          <p>Download the APK file and install it on your Android device. Allow installation from unknown sources if prompted.</p>
+        </div>
+        <div class="step-card reveal">
+          <div class="step-number">2</div>
+          <h3>Connect your site</h3>
+          <p>Enter your company's WordPress site URL that's running WP-ERP. The app will validate the connection automatically.</p>
+        </div>
+        <div class="step-card reveal">
+          <div class="step-number">3</div>
+          <h3>Log in & go</h3>
+          <p>Sign in with your employee credentials and start managing your work life on the go. It's that simple.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Requirements -->
+  <section class="section req-section" id="requirements">
+    <div class="section-inner">
+      <span class="section-label reveal">Compatibility</span>
+      <h2 class="section-title reveal">Requirements</h2>
+      <p class="section-desc reveal">Make sure your setup meets these before downloading.</p>
+
+      <div class="req-grid">
+        <div class="req-card reveal">
+          <div class="req-card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/>
+            </svg>
+          </div>
+          <h4>Platform</h4>
+          <p>Android 7.0+</p>
+        </div>
+        <div class="req-card reveal">
+          <div class="req-card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="4" y="4" width="16" height="16" rx="2" ry="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/>
+            </svg>
+          </div>
+          <h4>Architecture</h4>
+          <p>ARM64 (v8a)</p>
+        </div>
+        <div class="req-card reveal">
+          <div class="req-card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+            </svg>
+          </div>
+          <h4>Backend</h4>
+          <p>WP-ERP Plugin</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-section" id="download">
+    <div class="cta-glow"></div>
+    <div class="cta-content">
+      <h2 class="reveal">Ready to get started?</h2>
+      <p class="reveal">Download WPERP Suite and take your workplace with you.</p>
+      <a href="#" class="btn-primary reveal" id="downloadBtn2" style="font-size:1.1rem;padding:18px 40px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Download for Android
+      </a>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <p>&copy; 2026 WPERP Suite &mdash; Employee Self-Service Portal.</p>
+  </footer>
+
+  <script>
+    // ── APK Download URL ──
+    const APK_DOWNLOAD_URL = '#';
+    document.getElementById('downloadBtn').href = APK_DOWNLOAD_URL;
+    document.getElementById('downloadBtn2').href = APK_DOWNLOAD_URL;
+
+    // ── Scroll Reveal ──
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry, i) => {
+        if (entry.isIntersecting) {
+          setTimeout(() => entry.target.classList.add('visible'), i * 80);
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    // ── Bento card mouse glow ──
+    document.querySelectorAll('.bento-card').forEach(card => {
+      card.addEventListener('mousemove', (e) => {
+        const rect = card.getBoundingClientRect();
+        const x = ((e.clientX - rect.left) / rect.width) * 100;
+        const y = ((e.clientY - rect.top) / rect.height) * 100;
+        card.style.setProperty('--mx', x + '%');
+        card.style.setProperty('--my', y + '%');
+      });
+    });
+
+    // ── Navbar background on scroll ──
+    const navbar = document.querySelector('.navbar');
+    window.addEventListener('scroll', () => {
+      navbar.style.background = window.scrollY > 50
+        ? 'rgba(5,8,22,0.9)'
+        : 'rgba(5,8,22,0.7)';
+    });
+  </script>
+</body>
+</html>
