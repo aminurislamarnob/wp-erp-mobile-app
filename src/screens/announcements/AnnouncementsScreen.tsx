@@ -11,18 +11,21 @@ import {
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../contexts/AuthContext';
+import { useTheme } from '../../contexts/ThemeContext';
 import { useToast } from '../../components/Toast';
 import { getMyAnnouncements } from '../../api/endpoints';
 import { Announcement } from '../../types';
-import { colors, spacing, fontSize } from '../../constants/theme';
+import { spacing, fontSize } from '../../constants/theme';
 import AppHeader from '../../components/AppHeader';
-
-const ACCENT_COLORS = [colors.primary, colors.success, colors.warning, colors.info, colors.error];
 
 export default function AnnouncementsScreen() {
   const navigation = useNavigation<any>();
   const { user } = useAuth();
+  const { colors } = useTheme();
   const toast = useToast();
+  const styles = useStyles();
+
+  const ACCENT_COLORS = [colors.primary, colors.success, colors.warning, colors.info, colors.error];
 
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [loading, setLoading] = useState(true);
@@ -143,87 +146,90 @@ export default function AnnouncementsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  center: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  list: {
-    padding: spacing.md,
-    paddingBottom: 40,
-  },
-  card: {
-    backgroundColor: colors.surface,
-    borderRadius: 16,
-    marginBottom: spacing.md,
-    flexDirection: 'row',
-    overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    elevation: 2,
-  },
-  cardAccent: {
-    width: 5,
-  },
-  cardContent: {
-    flex: 1,
-    padding: spacing.md,
-  },
-  cardTop: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: spacing.xs,
-  },
-  cardDate: {
-    fontSize: fontSize.xs,
-    color: colors.textLight,
-    fontWeight: '500',
-  },
-  cardTitle: {
-    fontSize: fontSize.md,
-    fontWeight: '700',
-    color: colors.text,
-    marginBottom: 6,
-  },
-  cardBody: {
-    fontSize: fontSize.sm,
-    color: colors.textSecondary,
-    lineHeight: 20,
-    marginBottom: spacing.sm,
-  },
-  cardBottom: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  authorChip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.primary + '10',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
-    gap: 4,
-  },
-  authorText: {
-    fontSize: fontSize.xs,
-    color: colors.primary,
-    fontWeight: '600',
-  },
-  empty: {
-    alignItems: 'center',
-    paddingVertical: spacing.xl * 3,
-    gap: spacing.md,
-  },
-  emptyText: {
-    fontSize: fontSize.md,
-    color: colors.textLight,
-  },
-});
+function useStyles() {
+  const { colors } = useTheme();
+  return React.useMemo(() => StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    center: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    list: {
+      padding: spacing.md,
+      paddingBottom: 40,
+    },
+    card: {
+      backgroundColor: colors.surface,
+      borderRadius: 16,
+      marginBottom: spacing.md,
+      flexDirection: 'row',
+      overflow: 'hidden',
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.06,
+      shadowRadius: 8,
+      elevation: 2,
+    },
+    cardAccent: {
+      width: 5,
+    },
+    cardContent: {
+      flex: 1,
+      padding: spacing.md,
+    },
+    cardTop: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: spacing.xs,
+    },
+    cardDate: {
+      fontSize: fontSize.xs,
+      color: colors.textLight,
+      fontWeight: '500',
+    },
+    cardTitle: {
+      fontSize: fontSize.md,
+      fontWeight: '700',
+      color: colors.text,
+      marginBottom: 6,
+    },
+    cardBody: {
+      fontSize: fontSize.sm,
+      color: colors.textSecondary,
+      lineHeight: 20,
+      marginBottom: spacing.sm,
+    },
+    cardBottom: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    authorChip: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.primary + '10',
+      paddingHorizontal: 10,
+      paddingVertical: 4,
+      borderRadius: 12,
+      gap: 4,
+    },
+    authorText: {
+      fontSize: fontSize.xs,
+      color: colors.primary,
+      fontWeight: '600',
+    },
+    empty: {
+      alignItems: 'center',
+      paddingVertical: spacing.xl * 3,
+      gap: spacing.md,
+    },
+    emptyText: {
+      fontSize: fontSize.md,
+      color: colors.textLight,
+    },
+  }), [colors]);
+}

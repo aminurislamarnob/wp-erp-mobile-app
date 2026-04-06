@@ -1,12 +1,13 @@
 import React from 'react';
 import { ActivityIndicator, View } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Feather } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '../contexts/AuthContext';
-import { colors, fontSize } from '../constants/theme';
+import { useTheme } from '../contexts/ThemeContext';
+import { fontSize } from '../constants/theme';
 
 import LoginScreen from '../screens/auth/LoginScreen';
 import DashboardScreen from '../screens/dashboard/DashboardScreen';
@@ -45,6 +46,7 @@ function LeaveStackScreen() {
 
 function MainTabs() {
   const { isModuleActive } = useAuth();
+  const { colors } = useTheme();
   const insets = useSafeAreaInsets();
 
   return (
@@ -104,6 +106,19 @@ function MainTabs() {
 
 export default function AppNavigator() {
   const { isLoading, isAuthenticated } = useAuth();
+  const { colors, isDark } = useTheme();
+
+  const navTheme = {
+    ...(isDark ? DarkTheme : DefaultTheme),
+    colors: {
+      ...(isDark ? DarkTheme : DefaultTheme).colors,
+      background: colors.background,
+      card: colors.surface,
+      text: colors.text,
+      border: colors.border,
+      primary: colors.primary,
+    },
+  };
 
   if (isLoading) {
     return (
@@ -114,7 +129,7 @@ export default function AppNavigator() {
   }
 
   return (
-    <NavigationContainer>
+    <NavigationContainer theme={navTheme}>
       <RootStack.Navigator screenOptions={{ headerShown: false }}>
         {isAuthenticated ? (
           <>

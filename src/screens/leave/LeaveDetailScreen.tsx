@@ -9,21 +9,191 @@ import {
 import { useRoute } from '@react-navigation/native';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../contexts/AuthContext';
+import { useTheme } from '../../contexts/ThemeContext';
 import { getLeaveRequestDetail } from '../../api/endpoints';
 import { LeaveRequest } from '../../types';
-import { colors, spacing, fontSize } from '../../constants/theme';
+import { spacing, fontSize } from '../../constants/theme';
 import AppHeader from '../../components/AppHeader';
 
-const STATUS_MAP: Record<number, { label: string; color: string; icon: keyof typeof Feather.glyphMap }> = {
-  1: { label: 'Approved', color: colors.success, icon: 'check-circle' },
-  2: { label: 'Pending', color: colors.warning, icon: 'clock' },
-  3: { label: 'Rejected', color: colors.error, icon: 'x-circle' },
-};
+function useStyles() {
+  const { colors } = useTheme();
+  return React.useMemo(() => StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    content: {
+      padding: spacing.md,
+      paddingBottom: spacing.xl * 2,
+    },
+    center: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      gap: spacing.md,
+    },
+    errorText: {
+      fontSize: fontSize.sm,
+      color: colors.textLight,
+    },
+
+    // Status banner
+    statusBanner: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: spacing.sm,
+      padding: spacing.lg,
+      borderRadius: 16,
+      marginBottom: spacing.md,
+    },
+    statusLabel: {
+      fontSize: fontSize.xl,
+      fontWeight: '700',
+    },
+
+    // Card
+    card: {
+      backgroundColor: colors.surface,
+      borderRadius: 14,
+      padding: spacing.md,
+      marginBottom: spacing.sm,
+    },
+    cardRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    policyDot: {
+      width: 12,
+      height: 12,
+      borderRadius: 6,
+      marginRight: spacing.sm,
+    },
+    policyName: {
+      fontSize: fontSize.lg,
+      fontWeight: '700',
+      color: colors.text,
+    },
+
+    sectionLabel: {
+      fontSize: fontSize.xs,
+      fontWeight: '600',
+      color: colors.textSecondary,
+      textTransform: 'uppercase',
+      letterSpacing: 0.5,
+      marginBottom: spacing.md,
+    },
+
+    // Dates
+    dateBlock: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    dateItem: {
+      flex: 1,
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.sm,
+    },
+    dateInfo: {},
+    dateLabel: {
+      fontSize: fontSize.xs,
+      color: colors.textLight,
+    },
+    dateValue: {
+      fontSize: fontSize.sm,
+      fontWeight: '600',
+      color: colors.text,
+      marginTop: 2,
+    },
+    dateDivider: {
+      width: 1,
+      height: 36,
+      backgroundColor: colors.border,
+      marginHorizontal: spacing.md,
+    },
+    daysSummary: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
+      marginTop: spacing.md,
+      paddingTop: spacing.sm,
+      borderTopWidth: StyleSheet.hairlineWidth,
+      borderTopColor: colors.border,
+    },
+    daysText: {
+      fontSize: fontSize.sm,
+      fontWeight: '600',
+      color: colors.primary,
+    },
+
+    // Reason
+    reasonText: {
+      fontSize: fontSize.sm,
+      color: colors.text,
+      lineHeight: 22,
+    },
+
+    // Comments
+    commentBox: {
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      gap: spacing.sm,
+      backgroundColor: colors.background,
+      padding: spacing.md,
+      borderRadius: 10,
+    },
+    commentText: {
+      fontSize: fontSize.sm,
+      color: colors.text,
+      flex: 1,
+      lineHeight: 22,
+    },
+
+    // Timeline
+    timelineStep: {
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      minHeight: 48,
+    },
+    timelineLeft: {
+      alignItems: 'center',
+      width: 32,
+      marginRight: spacing.md,
+    },
+    timelineDot: {
+      width: 28,
+      height: 28,
+      borderRadius: 14,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    timelineLine: {
+      width: 2,
+      flex: 1,
+      marginVertical: 4,
+      minHeight: 16,
+    },
+    timelineLabel: {
+      fontSize: fontSize.sm,
+      color: colors.textLight,
+      paddingTop: 4,
+    },
+  }), [colors]);
+}
 
 export default function LeaveDetailScreen() {
   const route = useRoute<any>();
   const { user } = useAuth();
+  const { colors } = useTheme();
+  const styles = useStyles();
   const { requestId } = route.params;
+
+  const STATUS_MAP: Record<number, { label: string; color: string; icon: keyof typeof Feather.glyphMap }> = {
+    1: { label: 'Approved', color: colors.success, icon: 'check-circle' },
+    2: { label: 'Pending', color: colors.warning, icon: 'clock' },
+    3: { label: 'Rejected', color: colors.error, icon: 'x-circle' },
+  };
 
   const [request, setRequest] = useState<LeaveRequest | null>(null);
   const [loading, setLoading] = useState(true);
@@ -190,6 +360,8 @@ function TimelineStep({
   color: string;
   isLast: boolean;
 }) {
+  const { colors } = useTheme();
+  const styles = useStyles();
   return (
     <View style={styles.timelineStep}>
       <View style={styles.timelineLeft}>
@@ -225,169 +397,3 @@ function getDayCount(start: string, end: string): number {
   const e = new Date(end + 'T00:00:00');
   return Math.max(1, Math.round((e.getTime() - s.getTime()) / 86400000) + 1);
 }
-
-// ─── Styles ───
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  content: {
-    padding: spacing.md,
-    paddingBottom: spacing.xl * 2,
-  },
-  center: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: spacing.md,
-  },
-  errorText: {
-    fontSize: fontSize.sm,
-    color: colors.textLight,
-  },
-
-  // Status banner
-  statusBanner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: spacing.sm,
-    padding: spacing.lg,
-    borderRadius: 16,
-    marginBottom: spacing.md,
-  },
-  statusLabel: {
-    fontSize: fontSize.xl,
-    fontWeight: '700',
-  },
-
-  // Card
-  card: {
-    backgroundColor: colors.surface,
-    borderRadius: 14,
-    padding: spacing.md,
-    marginBottom: spacing.sm,
-  },
-  cardRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  policyDot: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    marginRight: spacing.sm,
-  },
-  policyName: {
-    fontSize: fontSize.lg,
-    fontWeight: '700',
-    color: colors.text,
-  },
-
-  sectionLabel: {
-    fontSize: fontSize.xs,
-    fontWeight: '600',
-    color: colors.textSecondary,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-    marginBottom: spacing.md,
-  },
-
-  // Dates
-  dateBlock: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  dateItem: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-  },
-  dateInfo: {},
-  dateLabel: {
-    fontSize: fontSize.xs,
-    color: colors.textLight,
-  },
-  dateValue: {
-    fontSize: fontSize.sm,
-    fontWeight: '600',
-    color: colors.text,
-    marginTop: 2,
-  },
-  dateDivider: {
-    width: 1,
-    height: 36,
-    backgroundColor: colors.border,
-    marginHorizontal: spacing.md,
-  },
-  daysSummary: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    marginTop: spacing.md,
-    paddingTop: spacing.sm,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: colors.border,
-  },
-  daysText: {
-    fontSize: fontSize.sm,
-    fontWeight: '600',
-    color: colors.primary,
-  },
-
-  // Reason
-  reasonText: {
-    fontSize: fontSize.sm,
-    color: colors.text,
-    lineHeight: 22,
-  },
-
-  // Comments
-  commentBox: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: spacing.sm,
-    backgroundColor: colors.background,
-    padding: spacing.md,
-    borderRadius: 10,
-  },
-  commentText: {
-    fontSize: fontSize.sm,
-    color: colors.text,
-    flex: 1,
-    lineHeight: 22,
-  },
-
-  // Timeline
-  timelineStep: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    minHeight: 48,
-  },
-  timelineLeft: {
-    alignItems: 'center',
-    width: 32,
-    marginRight: spacing.md,
-  },
-  timelineDot: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  timelineLine: {
-    width: 2,
-    flex: 1,
-    marginVertical: 4,
-    minHeight: 16,
-  },
-  timelineLabel: {
-    fontSize: fontSize.sm,
-    color: colors.textLight,
-    paddingTop: 4,
-  },
-});

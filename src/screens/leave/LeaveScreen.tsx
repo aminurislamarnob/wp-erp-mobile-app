@@ -11,6 +11,7 @@ import {
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../contexts/AuthContext';
+import { useTheme } from '../../contexts/ThemeContext';
 import { useToast } from '../../components/Toast';
 import {
   getMyLeaveRequests,
@@ -18,17 +19,11 @@ import {
   getHolidays,
 } from '../../api/endpoints';
 import { LeaveRequest, Holiday } from '../../types';
-import { colors, spacing, fontSize } from '../../constants/theme';
+import { spacing, fontSize } from '../../constants/theme';
 import AppHeader from '../../components/AppHeader';
 
 type TabKey = 'requests' | 'balance' | 'holidays';
 type StatusFilter = 'all' | 'pending' | 'approved' | 'rejected';
-
-const STATUS_MAP: Record<number, { label: string; color: string }> = {
-  1: { label: 'Approved', color: colors.success },
-  2: { label: 'Pending', color: colors.warning },
-  3: { label: 'Rejected', color: colors.error },
-};
 
 const STATUS_FILTERS: { key: StatusFilter; label: string; value?: number }[] = [
   { key: 'all', label: 'All' },
@@ -37,10 +32,292 @@ const STATUS_FILTERS: { key: StatusFilter; label: string; value?: number }[] = [
   { key: 'rejected', label: 'Rejected', value: 3 },
 ];
 
+function useStyles() {
+  const { colors } = useTheme();
+  return React.useMemo(() => StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    center: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+
+    // Tabs
+    tabBar: {
+      flexDirection: 'row',
+      backgroundColor: colors.surface,
+      borderBottomWidth: StyleSheet.hairlineWidth,
+      borderBottomColor: colors.border,
+    },
+    tab: {
+      flex: 1,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingVertical: spacing.sm + 4,
+      borderBottomWidth: 2,
+      borderBottomColor: 'transparent',
+    },
+    tabActive: {
+      borderBottomColor: colors.primary,
+    },
+    tabText: {
+      fontSize: fontSize.sm,
+      color: colors.textLight,
+      fontWeight: '500',
+    },
+    tabTextActive: {
+      color: colors.primary,
+      fontWeight: '600',
+    },
+
+    // Filter chips
+    filterRow: {
+      flexDirection: 'row',
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      backgroundColor: colors.surface,
+    },
+    chip: {
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.xs + 2,
+      borderRadius: 16,
+      backgroundColor: colors.background,
+      marginRight: spacing.sm,
+    },
+    chipActive: {
+      backgroundColor: colors.primary,
+    },
+    chipText: {
+      fontSize: fontSize.xs,
+      color: colors.textSecondary,
+      fontWeight: '500',
+    },
+    chipTextActive: {
+      color: '#fff',
+    },
+
+    // List
+    list: {
+      padding: spacing.md,
+      paddingBottom: 80,
+    },
+
+    // Card
+    card: {
+      backgroundColor: colors.surface,
+      borderRadius: 14,
+      padding: spacing.md,
+      marginBottom: spacing.sm,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.04,
+      shadowRadius: 4,
+      elevation: 1,
+    },
+    cardPast: {
+      opacity: 0.5,
+    },
+    cardHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: spacing.sm,
+    },
+    cardTitleRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      flex: 1,
+    },
+    policyDot: {
+      width: 10,
+      height: 10,
+      borderRadius: 5,
+      marginRight: spacing.sm,
+    },
+    policyName: {
+      fontSize: fontSize.md,
+      fontWeight: '600',
+      color: colors.text,
+      flex: 1,
+    },
+    badge: {
+      paddingHorizontal: spacing.sm,
+      paddingVertical: spacing.xs,
+      borderRadius: 8,
+    },
+    badgeText: {
+      fontSize: fontSize.xs,
+      fontWeight: '600',
+    },
+    cardBody: {
+      marginBottom: spacing.sm,
+    },
+    dateRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
+    },
+    dateText: {
+      fontSize: fontSize.sm,
+      color: colors.text,
+      fontWeight: '500',
+    },
+    daysBadge: {
+      backgroundColor: colors.primary + '15',
+      paddingHorizontal: 6,
+      paddingVertical: 1,
+      borderRadius: 6,
+    },
+    daysText: {
+      fontSize: fontSize.xs,
+      fontWeight: '600',
+      color: colors.primary,
+    },
+    reason: {
+      fontSize: fontSize.sm,
+      color: colors.textSecondary,
+      marginTop: spacing.xs,
+    },
+    cardFooter: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'flex-end',
+      borderTopWidth: StyleSheet.hairlineWidth,
+      borderTopColor: colors.border,
+      paddingTop: spacing.sm,
+    },
+    viewDetail: {
+      fontSize: fontSize.xs,
+      color: colors.textLight,
+      marginRight: 4,
+    },
+
+    // Balance
+    balanceHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: spacing.md,
+    },
+    balancePolicyName: {
+      fontSize: fontSize.md,
+      fontWeight: '600',
+      color: colors.text,
+    },
+    progressBarBg: {
+      height: 6,
+      backgroundColor: colors.background,
+      borderRadius: 3,
+      marginBottom: spacing.md,
+      overflow: 'hidden',
+    },
+    progressBarFill: {
+      height: 6,
+      borderRadius: 3,
+    },
+    balanceRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-around',
+    },
+    balanceStat: {
+      alignItems: 'center',
+    },
+    balanceValue: {
+      fontSize: fontSize.lg,
+      fontWeight: '700',
+      color: colors.text,
+    },
+    balanceLabel: {
+      fontSize: fontSize.xs,
+      color: colors.textSecondary,
+      marginTop: 2,
+    },
+
+    // Holiday
+    holidayRow: {
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+    },
+    holidayIcon: {
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+      backgroundColor: colors.background,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginRight: spacing.md,
+    },
+    holidayIconUpcoming: {
+      backgroundColor: colors.warning + '15',
+    },
+    holidayInfo: {
+      flex: 1,
+    },
+    holidayName: {
+      fontSize: fontSize.md,
+      fontWeight: '600',
+      color: colors.text,
+      marginBottom: 4,
+    },
+    holidayDate: {
+      fontSize: fontSize.sm,
+      color: colors.textSecondary,
+    },
+    holidayDesc: {
+      fontSize: fontSize.xs,
+      color: colors.textLight,
+      marginTop: 4,
+    },
+    textPast: {
+      color: colors.textLight,
+    },
+
+    // Empty
+    empty: {
+      alignItems: 'center',
+      paddingVertical: spacing.xl * 3,
+      gap: spacing.md,
+    },
+    emptyText: {
+      fontSize: fontSize.md,
+      color: colors.textLight,
+    },
+
+    // FAB
+    fab: {
+      position: 'absolute',
+      bottom: spacing.lg,
+      right: spacing.lg,
+      width: 56,
+      height: 56,
+      borderRadius: 28,
+      backgroundColor: colors.primary,
+      justifyContent: 'center',
+      alignItems: 'center',
+      shadowColor: colors.primary,
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.3,
+      shadowRadius: 8,
+      elevation: 4,
+    },
+  }), [colors]);
+}
+
 export default function LeaveScreen() {
   const navigation = useNavigation<any>();
   const { user } = useAuth();
+  const { colors } = useTheme();
+  const styles = useStyles();
   const toast = useToast();
+
+  const STATUS_MAP: Record<number, { label: string; color: string }> = {
+    1: { label: 'Approved', color: colors.success },
+    2: { label: 'Pending', color: colors.warning },
+    3: { label: 'Rejected', color: colors.error },
+  };
 
   const [activeTab, setActiveTab] = useState<TabKey>('requests');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
@@ -167,6 +444,7 @@ export default function LeaveScreen() {
           renderItem={({ item }) => (
             <RequestCard
               item={item}
+              statusMap={STATUS_MAP}
               onPress={() => navigation.navigate('LeaveDetail', { requestId: item.id })}
             />
           )}
@@ -224,8 +502,10 @@ export default function LeaveScreen() {
 
 // ─── Request Card ───
 
-function RequestCard({ item, onPress }: { item: LeaveRequest; onPress: () => void }) {
-  const status = STATUS_MAP[Number(item.status)] || STATUS_MAP[2];
+function RequestCard({ item, statusMap, onPress }: { item: LeaveRequest; statusMap: Record<number, { label: string; color: string }>; onPress: () => void }) {
+  const { colors } = useTheme();
+  const styles = useStyles();
+  const status = statusMap[Number(item.status)] || statusMap[2];
   const startDate = formatDate(item.start_date);
   const endDate = formatDate(item.end_date);
   const days = getDayCount(item.start_date, item.end_date);
@@ -264,6 +544,8 @@ function RequestCard({ item, onPress }: { item: LeaveRequest; onPress: () => voi
 // ─── Balance Card ───
 
 function BalanceCard({ item }: { item: any }) {
+  const { colors } = useTheme();
+  const styles = useStyles();
   const policyName = item.policy || item.policy_name || 'Leave Policy';
   const total = Number(item.entitlement || item.total || 0);
   const used = Number(item.spent || 0);
@@ -309,6 +591,8 @@ function BalanceCard({ item }: { item: any }) {
 // ─── Holiday Card ───
 
 function HolidayCard({ item }: { item: Holiday }) {
+  const { colors } = useTheme();
+  const styles = useStyles();
   const today = new Date().toISOString().split('T')[0];
   const isPast = item.end_date < today;
   const isUpcoming = item.start_date > today;
@@ -357,276 +641,3 @@ function getDayCount(start: string, end: string): number {
   const e = new Date(end + 'T00:00:00');
   return Math.max(1, Math.round((e.getTime() - s.getTime()) / 86400000) + 1);
 }
-
-// ─── Styles ───
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  center: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-
-  // Tabs
-  tabBar: {
-    flexDirection: 'row',
-    backgroundColor: colors.surface,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.border,
-  },
-  tab: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: spacing.sm + 4,
-    borderBottomWidth: 2,
-    borderBottomColor: 'transparent',
-  },
-  tabActive: {
-    borderBottomColor: colors.primary,
-  },
-  tabText: {
-    fontSize: fontSize.sm,
-    color: colors.textLight,
-    fontWeight: '500',
-  },
-  tabTextActive: {
-    color: colors.primary,
-    fontWeight: '600',
-  },
-
-  // Filter chips
-  filterRow: {
-    flexDirection: 'row',
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    backgroundColor: colors.surface,
-  },
-  chip: {
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs + 2,
-    borderRadius: 16,
-    backgroundColor: colors.background,
-    marginRight: spacing.sm,
-  },
-  chipActive: {
-    backgroundColor: colors.primary,
-  },
-  chipText: {
-    fontSize: fontSize.xs,
-    color: colors.textSecondary,
-    fontWeight: '500',
-  },
-  chipTextActive: {
-    color: '#fff',
-  },
-
-  // List
-  list: {
-    padding: spacing.md,
-    paddingBottom: 80,
-  },
-
-  // Card
-  card: {
-    backgroundColor: colors.surface,
-    borderRadius: 14,
-    padding: spacing.md,
-    marginBottom: spacing.sm,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.04,
-    shadowRadius: 4,
-    elevation: 1,
-  },
-  cardPast: {
-    opacity: 0.5,
-  },
-  cardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: spacing.sm,
-  },
-  cardTitleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-  },
-  policyDot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    marginRight: spacing.sm,
-  },
-  policyName: {
-    fontSize: fontSize.md,
-    fontWeight: '600',
-    color: colors.text,
-    flex: 1,
-  },
-  badge: {
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
-    borderRadius: 8,
-  },
-  badgeText: {
-    fontSize: fontSize.xs,
-    fontWeight: '600',
-  },
-  cardBody: {
-    marginBottom: spacing.sm,
-  },
-  dateRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  dateText: {
-    fontSize: fontSize.sm,
-    color: colors.text,
-    fontWeight: '500',
-  },
-  daysBadge: {
-    backgroundColor: colors.primary + '15',
-    paddingHorizontal: 6,
-    paddingVertical: 1,
-    borderRadius: 6,
-  },
-  daysText: {
-    fontSize: fontSize.xs,
-    fontWeight: '600',
-    color: colors.primary,
-  },
-  reason: {
-    fontSize: fontSize.sm,
-    color: colors.textSecondary,
-    marginTop: spacing.xs,
-  },
-  cardFooter: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: colors.border,
-    paddingTop: spacing.sm,
-  },
-  viewDetail: {
-    fontSize: fontSize.xs,
-    color: colors.textLight,
-    marginRight: 4,
-  },
-
-  // Balance
-  balanceHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: spacing.md,
-  },
-  balancePolicyName: {
-    fontSize: fontSize.md,
-    fontWeight: '600',
-    color: colors.text,
-  },
-  progressBarBg: {
-    height: 6,
-    backgroundColor: colors.background,
-    borderRadius: 3,
-    marginBottom: spacing.md,
-    overflow: 'hidden',
-  },
-  progressBarFill: {
-    height: 6,
-    borderRadius: 3,
-  },
-  balanceRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-  },
-  balanceStat: {
-    alignItems: 'center',
-  },
-  balanceValue: {
-    fontSize: fontSize.lg,
-    fontWeight: '700',
-    color: colors.text,
-  },
-  balanceLabel: {
-    fontSize: fontSize.xs,
-    color: colors.textSecondary,
-    marginTop: 2,
-  },
-
-  // Holiday
-  holidayRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-  },
-  holidayIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: colors.background,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: spacing.md,
-  },
-  holidayIconUpcoming: {
-    backgroundColor: colors.warning + '15',
-  },
-  holidayInfo: {
-    flex: 1,
-  },
-  holidayName: {
-    fontSize: fontSize.md,
-    fontWeight: '600',
-    color: colors.text,
-    marginBottom: 4,
-  },
-  holidayDate: {
-    fontSize: fontSize.sm,
-    color: colors.textSecondary,
-  },
-  holidayDesc: {
-    fontSize: fontSize.xs,
-    color: colors.textLight,
-    marginTop: 4,
-  },
-  textPast: {
-    color: colors.textLight,
-  },
-
-  // Empty
-  empty: {
-    alignItems: 'center',
-    paddingVertical: spacing.xl * 3,
-    gap: spacing.md,
-  },
-  emptyText: {
-    fontSize: fontSize.md,
-    color: colors.textLight,
-  },
-
-  // FAB
-  fab: {
-    position: 'absolute',
-    bottom: spacing.lg,
-    right: spacing.lg,
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: colors.primary,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: colors.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-});

@@ -11,6 +11,7 @@ import {
 import { Feather } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { useAuth } from '../../contexts/AuthContext';
+import { useTheme } from '../../contexts/ThemeContext';
 import { useToast } from '../../components/Toast';
 import {
   getSelfAttendance,
@@ -18,7 +19,7 @@ import {
   getMyAttendanceReport,
 } from '../../api/endpoints';
 import { SelfAttendance, SelfAttendanceLog, AttendanceReportDay } from '../../types';
-import { colors, spacing, fontSize } from '../../constants/theme';
+import { spacing, fontSize } from '../../constants/theme';
 import AppHeader from '../../components/AppHeader';
 
 type Tab = 'clock' | 'log' | 'report';
@@ -31,15 +32,397 @@ const TABS: { key: Tab; label: string; icon: keyof typeof Feather.glyphMap }[] =
 
 const DAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
-const STATUS_COLORS: Record<string, string> = {
-  present: colors.success,
-  absent: colors.error,
-  holiday: colors.info,
-  leave: '#8B5CF6',
-};
+function useStatusColors() {
+  const { colors } = useTheme();
+  return React.useMemo<Record<string, string>>(() => ({
+    present: colors.success,
+    absent: colors.error,
+    holiday: colors.info,
+    leave: '#8B5CF6',
+  }), [colors]);
+}
+
+function useStyles() {
+  const { colors } = useTheme();
+  return React.useMemo(() => StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    center: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    scrollContent: {
+      padding: spacing.md,
+      paddingBottom: spacing.xl * 2,
+    },
+
+    // Tabs
+    tabBar: {
+      flexDirection: 'row',
+      backgroundColor: colors.surface,
+      borderBottomWidth: StyleSheet.hairlineWidth,
+      borderBottomColor: colors.border,
+    },
+    tabItem: {
+      flex: 1,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 6,
+      paddingVertical: 14,
+    },
+    tabItemActive: {
+      borderBottomWidth: 2,
+      borderBottomColor: colors.primary,
+    },
+    tabLabel: {
+      fontSize: fontSize.sm,
+      color: colors.textLight,
+      fontWeight: '500',
+    },
+    tabLabelActive: {
+      color: colors.primary,
+      fontWeight: '700',
+    },
+
+    // Clock card
+    clockCard: {
+      backgroundColor: colors.surface,
+      borderRadius: 16,
+      padding: spacing.lg,
+      alignItems: 'center',
+      marginBottom: spacing.md,
+    },
+    clockTime: {
+      fontSize: 36,
+      fontWeight: '700',
+      color: colors.text,
+      fontVariant: ['tabular-nums'],
+    },
+    clockDate: {
+      fontSize: fontSize.sm,
+      color: colors.textSecondary,
+      marginTop: spacing.xs,
+    },
+
+    // Info card
+    infoCard: {
+      backgroundColor: colors.surface,
+      borderRadius: 14,
+      padding: spacing.md,
+      marginBottom: spacing.md,
+    },
+    infoRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.sm,
+      paddingVertical: spacing.xs,
+    },
+    infoLabel: {
+      fontSize: fontSize.sm,
+      color: colors.textSecondary,
+      flex: 1,
+    },
+    infoValue: {
+      fontSize: fontSize.sm,
+      fontWeight: '600',
+      color: colors.text,
+    },
+
+    // Status row
+    statusRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    statusItem: {
+      flex: 1,
+      alignItems: 'center',
+      gap: 6,
+    },
+    statusLabel: {
+      fontSize: fontSize.xs,
+      color: colors.textSecondary,
+    },
+    statusTime: {
+      fontSize: fontSize.lg,
+      fontWeight: '700',
+      color: colors.text,
+    },
+    statusDivider: {
+      width: 1,
+      height: 48,
+      backgroundColor: colors.border,
+    },
+    elapsedRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 6,
+      marginTop: spacing.md,
+      paddingTop: spacing.sm,
+      borderTopWidth: StyleSheet.hairlineWidth,
+      borderTopColor: colors.border,
+    },
+    elapsedText: {
+      fontSize: fontSize.sm,
+      fontWeight: '600',
+      color: colors.primary,
+      fontVariant: ['tabular-nums'],
+    },
+
+    // Clock button
+    clockBtn: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: spacing.sm,
+      paddingVertical: 18,
+      borderRadius: 16,
+      marginTop: spacing.sm,
+    },
+    clockInBtn: {
+      backgroundColor: colors.success,
+    },
+    clockOutBtn: {
+      backgroundColor: colors.error,
+    },
+    clockBtnText: {
+      fontSize: fontSize.lg,
+      fontWeight: '700',
+      color: '#fff',
+    },
+
+    // Month nav
+    monthNav: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      marginBottom: spacing.md,
+    },
+    monthArrow: {
+      padding: spacing.sm,
+    },
+    monthLabel: {
+      fontSize: fontSize.lg,
+      fontWeight: '700',
+      color: colors.text,
+    },
+
+    // Calendar
+    calendarLoading: {
+      paddingVertical: spacing.xl * 2,
+      alignItems: 'center',
+    },
+    calendarRow: {
+      flexDirection: 'row',
+    },
+    calendarCell: {
+      width: '14.285%' as any,
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingVertical: 10,
+    },
+    calendarCellSelected: {
+      backgroundColor: colors.primary + '20',
+      borderRadius: 10,
+    },
+    calendarCellToday: {
+      backgroundColor: colors.primaryLight + '15',
+      borderRadius: 10,
+    },
+    dayHeader: {
+      fontSize: fontSize.xs,
+      fontWeight: '600',
+      color: colors.textSecondary,
+    },
+    calendarDay: {
+      fontSize: fontSize.sm,
+      color: colors.text,
+      fontWeight: '500',
+    },
+    calendarDaySelected: {
+      color: colors.primary,
+      fontWeight: '700',
+    },
+    calendarDayToday: {
+      color: colors.primary,
+      fontWeight: '700',
+    },
+    statusDot: {
+      width: 6,
+      height: 6,
+      borderRadius: 3,
+      marginTop: 3,
+    },
+
+    // Legend
+    legend: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: spacing.md,
+      marginTop: spacing.md,
+      marginBottom: spacing.md,
+    },
+    legendItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 4,
+    },
+    legendDot: {
+      width: 8,
+      height: 8,
+      borderRadius: 4,
+    },
+    legendText: {
+      fontSize: fontSize.xs,
+      color: colors.textSecondary,
+      textTransform: 'capitalize',
+    },
+
+    // Day detail
+    dayDetailGrid: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: spacing.sm,
+      marginTop: spacing.sm,
+    },
+    dayDetailItem: {
+      width: '30%' as any,
+      alignItems: 'center',
+      gap: 4,
+      paddingVertical: spacing.sm,
+    },
+    dayDetailLabel: {
+      fontSize: 10,
+      color: colors.textSecondary,
+      textTransform: 'uppercase',
+    },
+    dayDetailValue: {
+      fontSize: fontSize.sm,
+      fontWeight: '600',
+      color: colors.text,
+    },
+
+    // Section label
+    sectionLabel: {
+      fontSize: fontSize.xs,
+      fontWeight: '600',
+      color: colors.textSecondary,
+      textTransform: 'uppercase',
+      letterSpacing: 0.5,
+      marginBottom: spacing.sm,
+    },
+
+    // Summary grid
+    summaryGrid: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: spacing.sm,
+      marginBottom: spacing.lg,
+    },
+    summaryCard: {
+      width: '31%' as any,
+      backgroundColor: colors.surface,
+      borderRadius: 14,
+      padding: spacing.md,
+      alignItems: 'center',
+      gap: 6,
+    },
+    summaryIcon: {
+      width: 36,
+      height: 36,
+      borderRadius: 18,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    summaryValue: {
+      fontSize: fontSize.md,
+      fontWeight: '700',
+      color: colors.text,
+    },
+    summaryLabel: {
+      fontSize: 10,
+      color: colors.textSecondary,
+      textTransform: 'uppercase',
+    },
+
+    // Section title
+    sectionTitle: {
+      fontSize: fontSize.md,
+      fontWeight: '700',
+      color: colors.text,
+      marginBottom: spacing.md,
+    },
+
+    // Empty state
+    emptyState: {
+      alignItems: 'center',
+      paddingVertical: spacing.xl,
+      gap: spacing.sm,
+    },
+    emptyText: {
+      fontSize: fontSize.sm,
+      color: colors.textLight,
+    },
+
+    // Day row (report)
+    dayRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.surface,
+      borderRadius: 12,
+      padding: spacing.md,
+      marginBottom: spacing.sm,
+    },
+    dayRowLeft: {
+      width: 70,
+    },
+    dayRowDate: {
+      fontSize: fontSize.sm,
+      fontWeight: '600',
+      color: colors.text,
+    },
+    dayRowShift: {
+      fontSize: 10,
+      color: colors.textLight,
+      marginTop: 2,
+    },
+    dayRowCenter: {
+      flex: 1,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 6,
+    },
+    dayRowTime: {
+      fontSize: fontSize.xs,
+      color: colors.textSecondary,
+      fontVariant: ['tabular-nums'],
+    },
+    dayRowRight: {
+      alignItems: 'flex-end',
+      width: 70,
+    },
+    dayRowHours: {
+      fontSize: fontSize.sm,
+      fontWeight: '700',
+      color: colors.primary,
+    },
+    dayRowLate: {
+      fontSize: 10,
+      color: colors.warning,
+      marginTop: 2,
+    },
+  }), [colors]);
+}
 
 export default function AttendanceScreen() {
   const { user } = useAuth();
+  const { colors } = useTheme();
+  const styles = useStyles();
   const [tab, setTab] = useState<Tab>('clock');
 
   return (
@@ -75,6 +458,8 @@ export default function AttendanceScreen() {
 // ─── Clock Tab ───
 
 function ClockTab({ userId }: { userId?: number }) {
+  const { colors } = useTheme();
+  const styles = useStyles();
   const toast = useToast();
   const [attendance, setAttendance] = useState<SelfAttendance | null>(null);
   const [log, setLog] = useState<SelfAttendanceLog | null>(null);
@@ -270,6 +655,9 @@ function ClockTab({ userId }: { userId?: number }) {
 // ─── Log Tab (Calendar) ───
 
 function LogTab({ userId }: { userId?: number }) {
+  const { colors } = useTheme();
+  const styles = useStyles();
+  const STATUS_COLORS = useStatusColors();
   const [monthDate, setMonthDate] = useState(() => {
     const d = new Date();
     return new Date(d.getFullYear(), d.getMonth(), 1);
@@ -354,7 +742,9 @@ function LogTab({ userId }: { userId?: number }) {
             month,
             reportMap,
             selectedDate,
-            setSelectedDate
+            setSelectedDate,
+            styles,
+            STATUS_COLORS
           )}
 
           {/* Legend */}
@@ -396,7 +786,9 @@ function renderCalendarGrid(
   month: number,
   reportMap: Map<string, AttendanceReportDay>,
   selectedDate: string | null,
-  setSelectedDate: (d: string | null) => void
+  setSelectedDate: (d: string | null) => void,
+  styles: ReturnType<typeof useStyles>,
+  STATUS_COLORS: Record<string, string>
 ) {
   const rows: React.ReactNode[] = [];
   let cells: React.ReactNode[] = [];
@@ -463,6 +855,8 @@ function renderCalendarGrid(
 // ─── Report Tab ───
 
 function ReportTab({ userId }: { userId?: number }) {
+  const { colors } = useTheme();
+  const styles = useStyles();
   const [monthDate, setMonthDate] = useState(() => {
     const d = new Date();
     return new Date(d.getFullYear(), d.getMonth(), 1);
@@ -593,6 +987,7 @@ function SummaryCard({ icon, label, value, color }: {
   value: string;
   color: string;
 }) {
+  const styles = useStyles();
   return (
     <View style={styles.summaryCard}>
       <View style={[styles.summaryIcon, { backgroundColor: color + '15' }]}>
@@ -609,6 +1004,8 @@ function DayDetailItem({ icon, label, value }: {
   label: string;
   value: string;
 }) {
+  const { colors } = useTheme();
+  const styles = useStyles();
   return (
     <View style={styles.dayDetailItem}>
       <Feather name={icon} size={14} color={colors.primary} />
@@ -679,379 +1076,3 @@ function formatDateShort(dateStr: string): string {
   const d = new Date(dateStr + 'T00:00:00');
   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
-
-// ─── Styles ───
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  center: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  scrollContent: {
-    padding: spacing.md,
-    paddingBottom: spacing.xl * 2,
-  },
-
-  // Tabs
-  tabBar: {
-    flexDirection: 'row',
-    backgroundColor: colors.surface,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.border,
-  },
-  tabItem: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 6,
-    paddingVertical: 14,
-  },
-  tabItemActive: {
-    borderBottomWidth: 2,
-    borderBottomColor: colors.primary,
-  },
-  tabLabel: {
-    fontSize: fontSize.sm,
-    color: colors.textLight,
-    fontWeight: '500',
-  },
-  tabLabelActive: {
-    color: colors.primary,
-    fontWeight: '700',
-  },
-
-  // Clock card
-  clockCard: {
-    backgroundColor: colors.surface,
-    borderRadius: 16,
-    padding: spacing.lg,
-    alignItems: 'center',
-    marginBottom: spacing.md,
-  },
-  clockTime: {
-    fontSize: 36,
-    fontWeight: '700',
-    color: colors.text,
-    fontVariant: ['tabular-nums'],
-  },
-  clockDate: {
-    fontSize: fontSize.sm,
-    color: colors.textSecondary,
-    marginTop: spacing.xs,
-  },
-
-  // Info card
-  infoCard: {
-    backgroundColor: colors.surface,
-    borderRadius: 14,
-    padding: spacing.md,
-    marginBottom: spacing.md,
-  },
-  infoRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    paddingVertical: spacing.xs,
-  },
-  infoLabel: {
-    fontSize: fontSize.sm,
-    color: colors.textSecondary,
-    flex: 1,
-  },
-  infoValue: {
-    fontSize: fontSize.sm,
-    fontWeight: '600',
-    color: colors.text,
-  },
-
-  // Status row
-  statusRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  statusItem: {
-    flex: 1,
-    alignItems: 'center',
-    gap: 6,
-  },
-  statusLabel: {
-    fontSize: fontSize.xs,
-    color: colors.textSecondary,
-  },
-  statusTime: {
-    fontSize: fontSize.lg,
-    fontWeight: '700',
-    color: colors.text,
-  },
-  statusDivider: {
-    width: 1,
-    height: 48,
-    backgroundColor: colors.border,
-  },
-  elapsedRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 6,
-    marginTop: spacing.md,
-    paddingTop: spacing.sm,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: colors.border,
-  },
-  elapsedText: {
-    fontSize: fontSize.sm,
-    fontWeight: '600',
-    color: colors.primary,
-    fontVariant: ['tabular-nums'],
-  },
-
-  // Clock button
-  clockBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: spacing.sm,
-    paddingVertical: 18,
-    borderRadius: 16,
-    marginTop: spacing.sm,
-  },
-  clockInBtn: {
-    backgroundColor: colors.success,
-  },
-  clockOutBtn: {
-    backgroundColor: colors.error,
-  },
-  clockBtnText: {
-    fontSize: fontSize.lg,
-    fontWeight: '700',
-    color: '#fff',
-  },
-
-  // Month nav
-  monthNav: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: spacing.md,
-  },
-  monthArrow: {
-    padding: spacing.sm,
-  },
-  monthLabel: {
-    fontSize: fontSize.lg,
-    fontWeight: '700',
-    color: colors.text,
-  },
-
-  // Calendar
-  calendarLoading: {
-    paddingVertical: spacing.xl * 2,
-    alignItems: 'center',
-  },
-  calendarRow: {
-    flexDirection: 'row',
-  },
-  calendarCell: {
-    width: '14.285%' as any,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 10,
-  },
-  calendarCellSelected: {
-    backgroundColor: colors.primary + '20',
-    borderRadius: 10,
-  },
-  calendarCellToday: {
-    backgroundColor: colors.primaryLight + '15',
-    borderRadius: 10,
-  },
-  dayHeader: {
-    fontSize: fontSize.xs,
-    fontWeight: '600',
-    color: colors.textSecondary,
-  },
-  calendarDay: {
-    fontSize: fontSize.sm,
-    color: colors.text,
-    fontWeight: '500',
-  },
-  calendarDaySelected: {
-    color: colors.primary,
-    fontWeight: '700',
-  },
-  calendarDayToday: {
-    color: colors.primary,
-    fontWeight: '700',
-  },
-  statusDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    marginTop: 3,
-  },
-
-  // Legend
-  legend: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.md,
-    marginTop: spacing.md,
-    marginBottom: spacing.md,
-  },
-  legendItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  legendDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-  },
-  legendText: {
-    fontSize: fontSize.xs,
-    color: colors.textSecondary,
-    textTransform: 'capitalize',
-  },
-
-  // Day detail
-  dayDetailGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.sm,
-    marginTop: spacing.sm,
-  },
-  dayDetailItem: {
-    width: '30%' as any,
-    alignItems: 'center',
-    gap: 4,
-    paddingVertical: spacing.sm,
-  },
-  dayDetailLabel: {
-    fontSize: 10,
-    color: colors.textSecondary,
-    textTransform: 'uppercase',
-  },
-  dayDetailValue: {
-    fontSize: fontSize.sm,
-    fontWeight: '600',
-    color: colors.text,
-  },
-
-  // Section label
-  sectionLabel: {
-    fontSize: fontSize.xs,
-    fontWeight: '600',
-    color: colors.textSecondary,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-    marginBottom: spacing.sm,
-  },
-
-  // Summary grid
-  summaryGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.sm,
-    marginBottom: spacing.lg,
-  },
-  summaryCard: {
-    width: '31%' as any,
-    backgroundColor: colors.surface,
-    borderRadius: 14,
-    padding: spacing.md,
-    alignItems: 'center',
-    gap: 6,
-  },
-  summaryIcon: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  summaryValue: {
-    fontSize: fontSize.md,
-    fontWeight: '700',
-    color: colors.text,
-  },
-  summaryLabel: {
-    fontSize: 10,
-    color: colors.textSecondary,
-    textTransform: 'uppercase',
-  },
-
-  // Section title
-  sectionTitle: {
-    fontSize: fontSize.md,
-    fontWeight: '700',
-    color: colors.text,
-    marginBottom: spacing.md,
-  },
-
-  // Empty state
-  emptyState: {
-    alignItems: 'center',
-    paddingVertical: spacing.xl,
-    gap: spacing.sm,
-  },
-  emptyText: {
-    fontSize: fontSize.sm,
-    color: colors.textLight,
-  },
-
-  // Day row (report)
-  dayRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.surface,
-    borderRadius: 12,
-    padding: spacing.md,
-    marginBottom: spacing.sm,
-  },
-  dayRowLeft: {
-    width: 70,
-  },
-  dayRowDate: {
-    fontSize: fontSize.sm,
-    fontWeight: '600',
-    color: colors.text,
-  },
-  dayRowShift: {
-    fontSize: 10,
-    color: colors.textLight,
-    marginTop: 2,
-  },
-  dayRowCenter: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 6,
-  },
-  dayRowTime: {
-    fontSize: fontSize.xs,
-    color: colors.textSecondary,
-    fontVariant: ['tabular-nums'],
-  },
-  dayRowRight: {
-    alignItems: 'flex-end',
-    width: 70,
-  },
-  dayRowHours: {
-    fontSize: fontSize.sm,
-    fontWeight: '700',
-    color: colors.primary,
-  },
-  dayRowLate: {
-    fontSize: 10,
-    color: colors.warning,
-    marginTop: 2,
-  },
-});

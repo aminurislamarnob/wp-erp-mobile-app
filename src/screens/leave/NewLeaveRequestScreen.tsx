@@ -16,9 +16,10 @@ import * as DocumentPicker from 'expo-document-picker';
 import { useNavigation } from '@react-navigation/native';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../contexts/AuthContext';
+import { useTheme } from '../../contexts/ThemeContext';
 import { getMyLeaveBalance, submitLeaveRequest } from '../../api/endpoints';
 import { LeavePolicy } from '../../types';
-import { colors, spacing, fontSize } from '../../constants/theme';
+import { spacing, fontSize } from '../../constants/theme';
 import AppHeader from '../../components/AppHeader';
 
 interface AttachedFile {
@@ -28,9 +29,229 @@ interface AttachedFile {
   size?: number;
 }
 
+function useStyles() {
+  const { colors } = useTheme();
+  return React.useMemo(() => StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    content: {
+      padding: spacing.md,
+      paddingBottom: spacing.xl * 2,
+    },
+    center: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+
+    label: {
+      fontSize: fontSize.sm,
+      fontWeight: '600',
+      color: colors.text,
+      marginTop: spacing.md,
+      marginBottom: spacing.xs,
+    },
+
+    // Selector
+    selector: {
+      backgroundColor: colors.surface,
+      borderRadius: 12,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm + 4,
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    selectedPolicyRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    policyDot: {
+      width: 10,
+      height: 10,
+      borderRadius: 5,
+      marginRight: spacing.sm,
+    },
+    selectorText: {
+      fontSize: fontSize.sm,
+      color: colors.text,
+    },
+    selectorPlaceholder: {
+      fontSize: fontSize.sm,
+      color: colors.textLight,
+    },
+    dateDisplay: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
+    },
+
+    // Policy picker list
+    pickerList: {
+      backgroundColor: colors.surface,
+      borderRadius: 12,
+      marginTop: spacing.xs,
+      borderWidth: 1,
+      borderColor: colors.border,
+      overflow: 'hidden',
+    },
+    pickerItem: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm + 4,
+      borderBottomWidth: StyleSheet.hairlineWidth,
+      borderBottomColor: colors.border,
+    },
+    pickerItemActive: {
+      backgroundColor: colors.primary + '10',
+    },
+    pickerItemLeft: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    pickerItemText: {
+      fontSize: fontSize.sm,
+      color: colors.text,
+    },
+    pickerItemBal: {
+      fontSize: fontSize.xs,
+      color: colors.success,
+      fontWeight: '600',
+    },
+    noDataText: {
+      fontSize: fontSize.sm,
+      color: colors.textLight,
+      textAlign: 'center',
+      paddingVertical: spacing.md,
+    },
+
+    // Balance preview
+    balancePreview: {
+      flexDirection: 'row',
+      justifyContent: 'space-around',
+      backgroundColor: colors.surface,
+      borderRadius: 12,
+      padding: spacing.md,
+      marginTop: spacing.md,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    balanceStat: {
+      alignItems: 'center',
+    },
+    balanceValue: {
+      fontSize: fontSize.lg,
+      fontWeight: '700',
+      color: colors.text,
+    },
+    balanceLabel: {
+      fontSize: fontSize.xs,
+      color: colors.textSecondary,
+      marginTop: 2,
+    },
+
+    // Duration
+    durationRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
+      marginTop: spacing.sm,
+      paddingVertical: spacing.xs,
+    },
+    durationText: {
+      fontSize: fontSize.sm,
+      color: colors.primary,
+      fontWeight: '600',
+    },
+
+    // Text area
+    textArea: {
+      backgroundColor: colors.surface,
+      borderRadius: 12,
+      padding: spacing.md,
+      fontSize: fontSize.sm,
+      color: colors.text,
+      minHeight: 100,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+
+    // File picker
+    filePickerBtn: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
+      backgroundColor: colors.surface,
+      borderRadius: 12,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm + 4,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderStyle: 'dashed',
+    },
+    filePickerText: {
+      fontSize: fontSize.sm,
+      color: colors.primary,
+      fontWeight: '500',
+    },
+    fileList: {
+      marginTop: spacing.sm,
+      gap: spacing.xs,
+    },
+    fileItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.surface,
+      borderRadius: 10,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      gap: spacing.sm,
+    },
+    fileInfo: {
+      flex: 1,
+    },
+    fileName: {
+      fontSize: fontSize.sm,
+      color: colors.text,
+    },
+    fileSize: {
+      fontSize: fontSize.xs,
+      color: colors.textLight,
+      marginTop: 1,
+    },
+
+    // Submit
+    submitBtn: {
+      backgroundColor: colors.primary,
+      borderRadius: 12,
+      paddingVertical: spacing.sm + 6,
+      flexDirection: 'row',
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginTop: spacing.lg,
+    },
+    submitBtnDisabled: {
+      opacity: 0.6,
+    },
+    submitBtnText: {
+      color: '#fff',
+      fontSize: fontSize.md,
+      fontWeight: '600',
+    },
+  }), [colors]);
+}
+
 export default function NewLeaveRequestScreen() {
   const navigation = useNavigation<any>();
   const { user } = useAuth();
+  const { colors } = useTheme();
+  const styles = useStyles();
   const toast = useToast();
 
   const [policies, setPolicies] = useState<LeavePolicy[]>([]);
@@ -390,218 +611,3 @@ export default function NewLeaveRequestScreen() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  content: {
-    padding: spacing.md,
-    paddingBottom: spacing.xl * 2,
-  },
-  center: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-
-  label: {
-    fontSize: fontSize.sm,
-    fontWeight: '600',
-    color: colors.text,
-    marginTop: spacing.md,
-    marginBottom: spacing.xs,
-  },
-
-  // Selector
-  selector: {
-    backgroundColor: colors.surface,
-    borderRadius: 12,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm + 4,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  selectedPolicyRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  policyDot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    marginRight: spacing.sm,
-  },
-  selectorText: {
-    fontSize: fontSize.sm,
-    color: colors.text,
-  },
-  selectorPlaceholder: {
-    fontSize: fontSize.sm,
-    color: colors.textLight,
-  },
-  dateDisplay: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-
-  // Policy picker list
-  pickerList: {
-    backgroundColor: colors.surface,
-    borderRadius: 12,
-    marginTop: spacing.xs,
-    borderWidth: 1,
-    borderColor: colors.border,
-    overflow: 'hidden',
-  },
-  pickerItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm + 4,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.border,
-  },
-  pickerItemActive: {
-    backgroundColor: colors.primary + '10',
-  },
-  pickerItemLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  pickerItemText: {
-    fontSize: fontSize.sm,
-    color: colors.text,
-  },
-  pickerItemBal: {
-    fontSize: fontSize.xs,
-    color: colors.success,
-    fontWeight: '600',
-  },
-  noDataText: {
-    fontSize: fontSize.sm,
-    color: colors.textLight,
-    textAlign: 'center',
-    paddingVertical: spacing.md,
-  },
-
-  // Balance preview
-  balancePreview: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    backgroundColor: colors.surface,
-    borderRadius: 12,
-    padding: spacing.md,
-    marginTop: spacing.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  balanceStat: {
-    alignItems: 'center',
-  },
-  balanceValue: {
-    fontSize: fontSize.lg,
-    fontWeight: '700',
-    color: colors.text,
-  },
-  balanceLabel: {
-    fontSize: fontSize.xs,
-    color: colors.textSecondary,
-    marginTop: 2,
-  },
-
-  // Duration
-  durationRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    marginTop: spacing.sm,
-    paddingVertical: spacing.xs,
-  },
-  durationText: {
-    fontSize: fontSize.sm,
-    color: colors.primary,
-    fontWeight: '600',
-  },
-
-  // Text area
-  textArea: {
-    backgroundColor: colors.surface,
-    borderRadius: 12,
-    padding: spacing.md,
-    fontSize: fontSize.sm,
-    color: colors.text,
-    minHeight: 100,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-
-  // File picker
-  filePickerBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    backgroundColor: colors.surface,
-    borderRadius: 12,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm + 4,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderStyle: 'dashed',
-  },
-  filePickerText: {
-    fontSize: fontSize.sm,
-    color: colors.primary,
-    fontWeight: '500',
-  },
-  fileList: {
-    marginTop: spacing.sm,
-    gap: spacing.xs,
-  },
-  fileItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.surface,
-    borderRadius: 10,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    gap: spacing.sm,
-  },
-  fileInfo: {
-    flex: 1,
-  },
-  fileName: {
-    fontSize: fontSize.sm,
-    color: colors.text,
-  },
-  fileSize: {
-    fontSize: fontSize.xs,
-    color: colors.textLight,
-    marginTop: 1,
-  },
-
-  // Submit
-  submitBtn: {
-    backgroundColor: colors.primary,
-    borderRadius: 12,
-    paddingVertical: spacing.sm + 6,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: spacing.lg,
-  },
-  submitBtnDisabled: {
-    opacity: 0.6,
-  },
-  submitBtnText: {
-    color: '#fff',
-    fontSize: fontSize.md,
-    fontWeight: '600',
-  },
-});

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -14,13 +14,122 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../../contexts/AuthContext';
 import { useToast } from '../../components/Toast';
-import { colors, spacing, fontSize } from '../../constants/theme';
+import { spacing, fontSize } from '../../constants/theme';
+import { useTheme } from '../../contexts/ThemeContext';
 
 type Step = 'site' | 'login';
+
+function useStyles() {
+  const { colors } = useTheme();
+  return useMemo(() => StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    scrollContent: {
+      flexGrow: 1,
+      justifyContent: 'center',
+      padding: spacing.lg,
+    },
+    header: {
+      alignItems: 'center',
+      marginBottom: spacing.xl,
+    },
+    logo: {
+      width: 160,
+      height: 45,
+    },
+    subtitle: {
+      fontSize: fontSize.sm,
+      color: colors.textSecondary,
+      marginTop: spacing.xs,
+    },
+    form: {
+      backgroundColor: colors.surface,
+      borderRadius: 16,
+      padding: spacing.lg,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.05,
+      shadowRadius: 8,
+      elevation: 2,
+    },
+    stepLabel: {
+      fontSize: fontSize.md,
+      fontWeight: '600',
+      color: colors.primary,
+      marginBottom: spacing.sm,
+    },
+    siteInfoRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'flex-start',
+      marginBottom: spacing.sm,
+    },
+    siteInfoLeft: {
+      flex: 1,
+      marginRight: spacing.md,
+    },
+    siteUrlText: {
+      fontSize: fontSize.xs,
+      color: colors.textSecondary,
+    },
+    changeLink: {
+      fontSize: fontSize.sm,
+      color: colors.primary,
+      fontWeight: '600',
+      marginTop: spacing.xs,
+    },
+    label: {
+      fontSize: fontSize.sm,
+      fontWeight: '600',
+      color: colors.text,
+      marginBottom: spacing.xs,
+      marginTop: spacing.md,
+    },
+    input: {
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: 10,
+      padding: spacing.md,
+      fontSize: fontSize.md,
+      backgroundColor: colors.background,
+      color: colors.text,
+    },
+    hint: {
+      fontSize: fontSize.xs,
+      color: colors.textLight,
+      marginTop: spacing.sm,
+      lineHeight: 18,
+    },
+    statusText: {
+      fontSize: fontSize.sm,
+      color: colors.success,
+      marginTop: spacing.sm,
+    },
+    button: {
+      backgroundColor: colors.primary,
+      borderRadius: 10,
+      padding: spacing.md,
+      alignItems: 'center',
+      marginTop: spacing.lg,
+    },
+    buttonDisabled: {
+      opacity: 0.6,
+    },
+    buttonText: {
+      color: '#fff',
+      fontSize: fontSize.md,
+      fontWeight: '600',
+    },
+  }), [colors]);
+}
 
 export default function LoginScreen() {
   const { connectSite, login } = useAuth();
   const toast = useToast();
+  const { colors } = useTheme();
+  const styles = useStyles();
   const [step, setStep] = useState<Step>('site');
   const [siteUrl, setSiteUrl] = useState('https://hr.welabs.dev');
   const [username, setUsername] = useState('');
@@ -205,106 +314,3 @@ export default function LoginScreen() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  scrollContent: {
-    flexGrow: 1,
-    justifyContent: 'center',
-    padding: spacing.lg,
-  },
-  header: {
-    alignItems: 'center',
-    marginBottom: spacing.xl,
-  },
-  logo: {
-    width: 160,
-    height: 45,
-  },
-  subtitle: {
-    fontSize: fontSize.sm,
-    color: colors.textSecondary,
-    marginTop: spacing.xs,
-  },
-  form: {
-    backgroundColor: colors.surface,
-    borderRadius: 16,
-    padding: spacing.lg,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
-  },
-  stepLabel: {
-    fontSize: fontSize.md,
-    fontWeight: '600',
-    color: colors.primary,
-    marginBottom: spacing.sm,
-  },
-  siteInfoRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: spacing.sm,
-  },
-  siteInfoLeft: {
-    flex: 1,
-    marginRight: spacing.md,
-  },
-  siteUrlText: {
-    fontSize: fontSize.xs,
-    color: colors.textSecondary,
-  },
-  changeLink: {
-    fontSize: fontSize.sm,
-    color: colors.primary,
-    fontWeight: '600',
-    marginTop: spacing.xs,
-  },
-  label: {
-    fontSize: fontSize.sm,
-    fontWeight: '600',
-    color: colors.text,
-    marginBottom: spacing.xs,
-    marginTop: spacing.md,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 10,
-    padding: spacing.md,
-    fontSize: fontSize.md,
-    backgroundColor: colors.background,
-    color: colors.text,
-  },
-  hint: {
-    fontSize: fontSize.xs,
-    color: colors.textLight,
-    marginTop: spacing.sm,
-    lineHeight: 18,
-  },
-  statusText: {
-    fontSize: fontSize.sm,
-    color: colors.success,
-    marginTop: spacing.sm,
-  },
-  button: {
-    backgroundColor: colors.primary,
-    borderRadius: 10,
-    padding: spacing.md,
-    alignItems: 'center',
-    marginTop: spacing.lg,
-  },
-  buttonDisabled: {
-    opacity: 0.6,
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: fontSize.md,
-    fontWeight: '600',
-  },
-});

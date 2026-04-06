@@ -10,9 +10,11 @@ import {
 } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { Feather } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '../../contexts/AuthContext';
 import { useToast } from '../../components/Toast';
-import { colors, spacing, fontSize } from '../../constants/theme';
+import { spacing, fontSize } from '../../constants/theme';
+import { useTheme } from '../../contexts/ThemeContext';
 import AppHeader from '../../components/AppHeader';
 import {
   getUpcomingBirthdays,
@@ -30,9 +32,322 @@ const MONTHS = [
   'July', 'August', 'September', 'October', 'November', 'December',
 ];
 
+function useStyles() {
+  const { colors } = useTheme();
+  return React.useMemo(() => StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+
+    // Clock Card
+    clockCard: {
+      marginHorizontal: spacing.md,
+      marginTop: spacing.md,
+      borderRadius: 20,
+      padding: spacing.lg,
+      shadowColor: '#1E1B4B',
+      shadowOffset: { width: 0, height: 8 },
+      shadowOpacity: 0.3,
+      shadowRadius: 16,
+      elevation: 8,
+      overflow: 'hidden',
+    },
+    clockTopRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'flex-start',
+    },
+    clockTime: {
+      color: '#fff',
+      fontSize: 28,
+      fontWeight: '700',
+      letterSpacing: 0.5,
+    },
+    clockDate: {
+      color: 'rgba(255,255,255,0.7)',
+      fontSize: fontSize.sm,
+      marginTop: 2,
+    },
+    clockIconWrap: {
+      width: 48,
+      height: 48,
+      borderRadius: 24,
+      backgroundColor: 'rgba(255,255,255,0.15)',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    clockDivider: {
+      height: 1,
+      backgroundColor: 'rgba(255,255,255,0.2)',
+      marginVertical: spacing.md,
+    },
+    clockInfoRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: spacing.sm,
+    },
+    clockInfoLabel: {
+      color: 'rgba(255,255,255,0.85)',
+      fontSize: fontSize.sm,
+      width: 120,
+    },
+    clockInfoColon: {
+      color: 'rgba(255,255,255,0.85)',
+      fontSize: fontSize.sm,
+      marginRight: spacing.md,
+    },
+    clockInfoValue: {
+      color: '#fff',
+      fontSize: fontSize.sm,
+      fontWeight: '500',
+      flex: 1,
+      textAlign: 'right',
+    },
+    clockBtnRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      marginTop: spacing.md,
+      gap: spacing.sm,
+    },
+    clockBtn: {
+      flex: 1,
+      backgroundColor: colors.success,
+      paddingVertical: spacing.sm + 4,
+      borderRadius: 24,
+      alignItems: 'center',
+    },
+    clockBtnOut: {
+      backgroundColor: colors.error,
+    },
+    clockBtnDisabled: {
+      opacity: 0.4,
+    },
+    clockBtnText: {
+      color: '#fff',
+      fontSize: fontSize.md,
+      fontWeight: '700',
+    },
+    clockBtnTextOut: {
+      color: '#fff',
+    },
+    clockBtnTextDisabled: {
+      opacity: 0.7,
+    },
+
+    // Sections
+    section: {
+      backgroundColor: colors.surface,
+      marginHorizontal: spacing.md,
+      marginTop: spacing.md,
+      borderRadius: 16,
+      padding: spacing.md,
+    },
+    sectionHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+    },
+    sectionTitleRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    sectionTitle: {
+      fontSize: fontSize.md,
+      fontWeight: '700',
+      color: colors.text,
+    },
+    countBadge: {
+      backgroundColor: colors.primary + '15',
+      borderRadius: 10,
+      paddingHorizontal: 8,
+      paddingVertical: 2,
+      marginLeft: spacing.sm,
+    },
+    countBadgeText: {
+      color: colors.primary,
+      fontSize: fontSize.xs,
+      fontWeight: '600',
+    },
+
+    // Quick Actions
+    quickActions: {
+      flexDirection: 'row',
+      justifyContent: 'space-around',
+      paddingTop: spacing.md,
+    },
+    quickAction: {
+      alignItems: 'center',
+      width: 76,
+    },
+    quickActionIcon: {
+      width: 48,
+      height: 48,
+      borderRadius: 24,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginBottom: spacing.xs,
+    },
+    quickActionLabel: {
+      fontSize: fontSize.xs,
+      color: colors.textSecondary,
+      textAlign: 'center',
+    },
+
+    // List Items
+    listItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingVertical: spacing.sm,
+      borderBottomWidth: StyleSheet.hairlineWidth,
+      borderBottomColor: colors.border,
+    },
+    miniAvatar: {
+      width: 36,
+      height: 36,
+      borderRadius: 18,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    miniAvatarText: {
+      color: '#fff',
+      fontWeight: '600',
+      fontSize: fontSize.sm,
+    },
+    listItemInfo: {
+      marginLeft: spacing.md,
+      flex: 1,
+    },
+    listItemName: {
+      fontSize: fontSize.sm,
+      fontWeight: '600',
+      color: colors.text,
+    },
+    listItemSub: {
+      fontSize: fontSize.xs,
+      color: colors.textLight,
+      marginTop: 2,
+    },
+    listItemDate: {
+      fontSize: fontSize.xs,
+      color: colors.textSecondary,
+    },
+    loadMoreBtn: {
+      alignItems: 'center',
+      paddingVertical: spacing.sm,
+      marginTop: spacing.xs,
+    },
+    loadMoreText: {
+      fontSize: fontSize.sm,
+      color: colors.primary,
+      fontWeight: '600',
+    },
+    emptyText: {
+      fontSize: fontSize.sm,
+      color: colors.textLight,
+      textAlign: 'center',
+      paddingVertical: spacing.md,
+    },
+
+    // Calendar
+    calMonthRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginTop: spacing.sm,
+      marginBottom: spacing.md,
+    },
+    calArrow: {
+      padding: spacing.sm,
+    },
+    calMonthLabel: {
+      fontSize: fontSize.md,
+      fontWeight: '700',
+      color: colors.text,
+    },
+    calRow: {
+      flexDirection: 'row',
+    },
+    calGrid: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+    },
+    calCell: {
+      width: '14.285%',
+      alignItems: 'center',
+      paddingVertical: 4,
+    },
+    calDayHeader: {
+      fontSize: fontSize.xs,
+      color: colors.textLight,
+      fontWeight: '600',
+    },
+    calDayCircle: {
+      width: 32,
+      height: 32,
+      borderRadius: 16,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    calDayToday: {
+      borderWidth: 1.5,
+      borderColor: colors.primary,
+    },
+    calDaySelected: {
+      backgroundColor: colors.primary,
+    },
+    calDayText: {
+      fontSize: fontSize.sm,
+      color: colors.text,
+    },
+    calDayTextToday: {
+      color: colors.primary,
+      fontWeight: '700',
+    },
+    calDayTextSelected: {
+      color: '#fff',
+      fontWeight: '700',
+    },
+    calDots: {
+      flexDirection: 'row',
+      marginTop: 2,
+      height: 6,
+    },
+    calDot: {
+      width: 5,
+      height: 5,
+      borderRadius: 2.5,
+      marginHorizontal: 1,
+    },
+    calEventList: {
+      marginTop: spacing.md,
+      borderTopWidth: StyleSheet.hairlineWidth,
+      borderTopColor: colors.border,
+      paddingTop: spacing.sm,
+    },
+    calEventItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingVertical: spacing.xs,
+    },
+    calEventDot: {
+      width: 8,
+      height: 8,
+      borderRadius: 4,
+      marginRight: spacing.sm,
+    },
+    calEventText: {
+      fontSize: fontSize.sm,
+      color: colors.text,
+    },
+  }), [colors]);
+}
+
 export default function DashboardScreen() {
   const navigation = useNavigation<any>();
   const { employee, user, isModuleActive } = useAuth();
+  const { colors } = useTheme();
+  const styles = useStyles();
   const toast = useToast();
   const [refreshing, setRefreshing] = useState(false);
   const [birthdays, setBirthdays] = useState<Birthday[]>([]);
@@ -270,7 +585,12 @@ export default function DashboardScreen() {
 
       {/* ─── Clock In/Out Card ─── */}
       {hasAttendance && (
-        <View style={styles.clockCard}>
+        <LinearGradient
+          colors={['#1E1B4B', '#312E81', '#3730A3']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.clockCard}
+        >
           {/* Top section: time + weather icon area */}
           <View style={styles.clockTopRow}>
             <View>
@@ -278,7 +598,11 @@ export default function DashboardScreen() {
               <Text style={styles.clockDate}>{dateLabel}</Text>
             </View>
             <View style={styles.clockIconWrap}>
-              <Feather name="sun" size={28} color="#FDB813" />
+              <Feather
+                name={new Date().getHours() >= 18 || new Date().getHours() < 6 ? 'moon' : 'sun'}
+                size={28}
+                color={new Date().getHours() >= 18 || new Date().getHours() < 6 ? '#E2E8F0' : '#FDB813'}
+              />
             </View>
           </View>
 
@@ -329,7 +653,7 @@ export default function DashboardScreen() {
               </Text>
             </TouchableOpacity>
           </View>
-        </View>
+        </LinearGradient>
       )}
 
       {/* ─── Quick Actions ─── */}
@@ -578,6 +902,7 @@ function QuickAction({
   iconColor: string;
   onPress?: () => void;
 }) {
+  const styles = useStyles();
   return (
     <TouchableOpacity style={styles.quickAction} onPress={onPress}>
       <View style={[styles.quickActionIcon, { backgroundColor: bgColor }]}>
@@ -601,6 +926,8 @@ function CollapsibleSection({
   onToggle: () => void;
   children: React.ReactNode;
 }) {
+  const { colors } = useTheme();
+  const styles = useStyles();
   return (
     <View style={styles.section}>
       <TouchableOpacity style={styles.sectionHeader} onPress={onToggle}>
@@ -645,308 +972,3 @@ function extractAvatarUrl(avatarHtml: string): string {
   const match = avatarHtml.match(/src=['"]([^'"]+)['"]/);
   return match ? match[1] : '';
 }
-
-// ─── Styles ───
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-
-  // Clock Card
-  clockCard: {
-    backgroundColor: colors.primary,
-    marginHorizontal: spacing.md,
-    marginTop: spacing.md,
-    borderRadius: 20,
-    padding: spacing.lg,
-  },
-  clockTopRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-  },
-  clockTime: {
-    color: '#fff',
-    fontSize: 28,
-    fontWeight: '700',
-    letterSpacing: 0.5,
-  },
-  clockDate: {
-    color: 'rgba(255,255,255,0.7)',
-    fontSize: fontSize.sm,
-    marginTop: 2,
-  },
-  clockIconWrap: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: 'rgba(255,255,255,0.15)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  clockDivider: {
-    height: 1,
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    marginVertical: spacing.md,
-  },
-  clockInfoRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: spacing.sm,
-  },
-  clockInfoLabel: {
-    color: 'rgba(255,255,255,0.85)',
-    fontSize: fontSize.sm,
-    width: 120,
-  },
-  clockInfoColon: {
-    color: 'rgba(255,255,255,0.85)',
-    fontSize: fontSize.sm,
-    marginRight: spacing.md,
-  },
-  clockInfoValue: {
-    color: '#fff',
-    fontSize: fontSize.sm,
-    fontWeight: '500',
-    flex: 1,
-    textAlign: 'right',
-  },
-  clockBtnRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: spacing.md,
-    gap: spacing.sm,
-  },
-  clockBtn: {
-    flex: 1,
-    backgroundColor: colors.success,
-    paddingVertical: spacing.sm + 4,
-    borderRadius: 24,
-    alignItems: 'center',
-  },
-  clockBtnOut: {
-    backgroundColor: colors.error,
-  },
-  clockBtnDisabled: {
-    opacity: 0.4,
-  },
-  clockBtnText: {
-    color: '#fff',
-    fontSize: fontSize.md,
-    fontWeight: '700',
-  },
-  clockBtnTextOut: {
-    color: '#fff',
-  },
-  clockBtnTextDisabled: {
-    opacity: 0.7,
-  },
-
-  // Sections
-  section: {
-    backgroundColor: colors.surface,
-    marginHorizontal: spacing.md,
-    marginTop: spacing.md,
-    borderRadius: 16,
-    padding: spacing.md,
-  },
-  sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  sectionTitleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  sectionTitle: {
-    fontSize: fontSize.md,
-    fontWeight: '700',
-    color: colors.text,
-  },
-  countBadge: {
-    backgroundColor: colors.primary + '15',
-    borderRadius: 10,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    marginLeft: spacing.sm,
-  },
-  countBadgeText: {
-    color: colors.primary,
-    fontSize: fontSize.xs,
-    fontWeight: '600',
-  },
-
-  // Quick Actions
-  quickActions: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    paddingTop: spacing.md,
-  },
-  quickAction: {
-    alignItems: 'center',
-    width: 76,
-  },
-  quickActionIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: spacing.xs,
-  },
-  quickActionLabel: {
-    fontSize: fontSize.xs,
-    color: colors.textSecondary,
-    textAlign: 'center',
-  },
-
-  // List Items
-  listItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: spacing.sm,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.border,
-  },
-  miniAvatar: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  miniAvatarText: {
-    color: '#fff',
-    fontWeight: '600',
-    fontSize: fontSize.sm,
-  },
-  listItemInfo: {
-    marginLeft: spacing.md,
-    flex: 1,
-  },
-  listItemName: {
-    fontSize: fontSize.sm,
-    fontWeight: '600',
-    color: colors.text,
-  },
-  listItemSub: {
-    fontSize: fontSize.xs,
-    color: colors.textLight,
-    marginTop: 2,
-  },
-  listItemDate: {
-    fontSize: fontSize.xs,
-    color: colors.textSecondary,
-  },
-  loadMoreBtn: {
-    alignItems: 'center',
-    paddingVertical: spacing.sm,
-    marginTop: spacing.xs,
-  },
-  loadMoreText: {
-    fontSize: fontSize.sm,
-    color: colors.primary,
-    fontWeight: '600',
-  },
-  emptyText: {
-    fontSize: fontSize.sm,
-    color: colors.textLight,
-    textAlign: 'center',
-    paddingVertical: spacing.md,
-  },
-
-  // Calendar
-  calMonthRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: spacing.sm,
-    marginBottom: spacing.md,
-  },
-  calArrow: {
-    padding: spacing.sm,
-  },
-  calMonthLabel: {
-    fontSize: fontSize.md,
-    fontWeight: '700',
-    color: colors.text,
-  },
-  calRow: {
-    flexDirection: 'row',
-  },
-  calGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-  },
-  calCell: {
-    width: '14.285%',
-    alignItems: 'center',
-    paddingVertical: 4,
-  },
-  calDayHeader: {
-    fontSize: fontSize.xs,
-    color: colors.textLight,
-    fontWeight: '600',
-  },
-  calDayCircle: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  calDayToday: {
-    borderWidth: 1.5,
-    borderColor: colors.primary,
-  },
-  calDaySelected: {
-    backgroundColor: colors.primary,
-  },
-  calDayText: {
-    fontSize: fontSize.sm,
-    color: colors.text,
-  },
-  calDayTextToday: {
-    color: colors.primary,
-    fontWeight: '700',
-  },
-  calDayTextSelected: {
-    color: '#fff',
-    fontWeight: '700',
-  },
-  calDots: {
-    flexDirection: 'row',
-    marginTop: 2,
-    height: 6,
-  },
-  calDot: {
-    width: 5,
-    height: 5,
-    borderRadius: 2.5,
-    marginHorizontal: 1,
-  },
-  calEventList: {
-    marginTop: spacing.md,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: colors.border,
-    paddingTop: spacing.sm,
-  },
-  calEventItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: spacing.xs,
-  },
-  calEventDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    marginRight: spacing.sm,
-  },
-  calEventText: {
-    fontSize: fontSize.sm,
-    color: colors.text,
-  },
-});

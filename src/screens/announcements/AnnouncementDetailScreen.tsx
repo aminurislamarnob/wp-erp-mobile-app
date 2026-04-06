@@ -9,14 +9,17 @@ import {
 import { useRoute } from '@react-navigation/native';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../contexts/AuthContext';
+import { useTheme } from '../../contexts/ThemeContext';
 import { getAnnouncementDetail } from '../../api/endpoints';
 import { Announcement } from '../../types';
-import { colors, spacing, fontSize } from '../../constants/theme';
+import { spacing, fontSize } from '../../constants/theme';
 import AppHeader from '../../components/AppHeader';
 
 export default function AnnouncementDetailScreen() {
   const route = useRoute<any>();
   const { user } = useAuth();
+  const { colors } = useTheme();
+  const styles = useStyles();
   const { announcementId } = route.params;
 
   const [announcement, setAnnouncement] = useState<Announcement | null>(null);
@@ -117,73 +120,76 @@ export default function AnnouncementDetailScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  content: {
-    padding: spacing.md,
-    paddingBottom: spacing.xl * 2,
-  },
-  center: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: spacing.md,
-  },
-  errorText: {
-    fontSize: fontSize.sm,
-    color: colors.textLight,
-  },
+function useStyles() {
+  const { colors } = useTheme();
+  return React.useMemo(() => StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    content: {
+      padding: spacing.md,
+      paddingBottom: spacing.xl * 2,
+    },
+    center: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      gap: spacing.md,
+    },
+    errorText: {
+      fontSize: fontSize.sm,
+      color: colors.textLight,
+    },
 
-  // Header card
-  headerCard: {
-    backgroundColor: colors.surface,
-    borderRadius: 16,
-    padding: spacing.lg,
-    alignItems: 'center',
-    marginBottom: spacing.md,
-  },
-  iconWrap: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
-    backgroundColor: colors.primary + '15',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: spacing.md,
-  },
-  title: {
-    fontSize: fontSize.xl,
-    fontWeight: '700',
-    color: colors.text,
-    textAlign: 'center',
-    marginBottom: spacing.md,
-  },
-  metaRow: {
-    flexDirection: 'row',
-    gap: spacing.lg,
-  },
-  metaItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  metaText: {
-    fontSize: fontSize.sm,
-    color: colors.textSecondary,
-  },
+    // Header card
+    headerCard: {
+      backgroundColor: colors.surface,
+      borderRadius: 16,
+      padding: spacing.lg,
+      alignItems: 'center',
+      marginBottom: spacing.md,
+    },
+    iconWrap: {
+      width: 52,
+      height: 52,
+      borderRadius: 26,
+      backgroundColor: colors.primary + '15',
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginBottom: spacing.md,
+    },
+    title: {
+      fontSize: fontSize.xl,
+      fontWeight: '700',
+      color: colors.text,
+      textAlign: 'center',
+      marginBottom: spacing.md,
+    },
+    metaRow: {
+      flexDirection: 'row',
+      gap: spacing.lg,
+    },
+    metaItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
+    },
+    metaText: {
+      fontSize: fontSize.sm,
+      color: colors.textSecondary,
+    },
 
-  // Body card
-  bodyCard: {
-    backgroundColor: colors.surface,
-    borderRadius: 16,
-    padding: spacing.lg,
-  },
-  bodyText: {
-    fontSize: fontSize.sm,
-    color: colors.text,
-    lineHeight: 24,
-  },
-});
+    // Body card
+    bodyCard: {
+      backgroundColor: colors.surface,
+      borderRadius: 16,
+      padding: spacing.lg,
+    },
+    bodyText: {
+      fontSize: fontSize.sm,
+      color: colors.text,
+      lineHeight: 24,
+    },
+  }), [colors]);
+}

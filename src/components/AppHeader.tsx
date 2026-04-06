@@ -3,19 +3,21 @@ import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '../contexts/AuthContext';
-import { colors, spacing, fontSize } from '../constants/theme';
+import { useTheme } from '../contexts/ThemeContext';
+import { spacing, fontSize } from '../constants/theme';
 
 export default function AppHeader() {
   const { employee, logout } = useAuth();
+  const { colors } = useTheme();
   const insets = useSafeAreaInsets();
 
   return (
-    <View style={[styles.header, { paddingTop: Math.max(insets.top, spacing.md) + spacing.md }]}>
+    <View style={[styles.header, { paddingTop: Math.max(insets.top, spacing.md) + spacing.md, backgroundColor: colors.primary }]}>
       <View style={styles.headerLeft}>
         {employee?.avatar_url ? (
           <Image source={{ uri: employee.avatar_url }} style={styles.avatar} />
         ) : (
-          <View style={[styles.avatar, styles.avatarPlaceholder]}>
+          <View style={[styles.avatar, styles.avatarPlaceholder, { backgroundColor: colors.primaryDark }]}>
             <Text style={styles.avatarInitial}>
               {employee?.first_name?.[0] || 'E'}
             </Text>
@@ -42,7 +44,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: colors.primary,
     paddingHorizontal: spacing.lg,
     paddingBottom: spacing.lg,
   },
@@ -59,7 +60,6 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255,255,255,0.4)',
   },
   avatarPlaceholder: {
-    backgroundColor: colors.primaryDark,
     justifyContent: 'center',
     alignItems: 'center',
   },

@@ -14,7 +14,8 @@ import * as ImagePicker from 'expo-image-picker';
 import { Feather } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../../contexts/AuthContext';
-import { colors, spacing, fontSize } from '../../constants/theme';
+import { useTheme, ThemeMode } from '../../contexts/ThemeContext';
+import { spacing, fontSize } from '../../constants/theme';
 import AppHeader from '../../components/AppHeader';
 import {
   getMyProfile,
@@ -34,9 +35,206 @@ const TABS: { key: TabKey; label: string }[] = [
   { key: 'dependents', label: 'Dependents' },
 ];
 
+function useStyles() {
+  const { colors } = useTheme();
+  return React.useMemo(() => StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    center: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      paddingVertical: spacing.xl,
+    },
+
+    // Header
+    header: {
+      alignItems: 'center',
+      paddingTop: spacing.lg,
+      paddingBottom: spacing.md,
+      backgroundColor: colors.surface,
+    },
+    avatarWrap: {
+      position: 'relative',
+      marginBottom: spacing.md,
+    },
+    avatar: {
+      width: 88,
+      height: 88,
+      borderRadius: 44,
+    },
+    avatarPlaceholder: {
+      backgroundColor: colors.primary,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    avatarText: {
+      color: '#fff',
+      fontSize: fontSize.xxl,
+      fontWeight: '700',
+    },
+    avatarOverlay: {
+      ...StyleSheet.absoluteFillObject,
+      backgroundColor: 'rgba(0,0,0,0.4)',
+      borderRadius: 44,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    cameraIcon: {
+      position: 'absolute',
+      bottom: 0,
+      right: 0,
+      width: 28,
+      height: 28,
+      borderRadius: 14,
+      backgroundColor: colors.surface,
+      justifyContent: 'center',
+      alignItems: 'center',
+      borderWidth: 2,
+      borderColor: colors.background,
+    },
+    name: {
+      fontSize: fontSize.xl,
+      fontWeight: '700',
+      color: colors.text,
+    },
+    designation: {
+      fontSize: fontSize.sm,
+      color: colors.textSecondary,
+      marginTop: spacing.xs,
+    },
+    reportingTo: {
+      fontSize: fontSize.xs,
+      color: colors.textLight,
+      marginTop: spacing.xs,
+    },
+    teamBtn: {
+      marginTop: spacing.md,
+      paddingHorizontal: spacing.lg,
+      paddingVertical: spacing.sm,
+      borderRadius: 20,
+      borderWidth: 1,
+      borderColor: colors.primary,
+    },
+    teamBtnText: {
+      fontSize: fontSize.sm,
+      color: colors.primary,
+      fontWeight: '600',
+    },
+
+    // Theme toggle
+    themeToggle: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginTop: spacing.sm,
+      backgroundColor: colors.background,
+      borderRadius: 100,
+      padding: 4,
+      gap: 4,
+    },
+    themeOption: {
+      width: 34,
+      height: 34,
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderRadius: 17,
+    },
+    themeOptionActive: {
+      backgroundColor: colors.surface,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.12,
+      shadowRadius: 4,
+      elevation: 2,
+    },
+
+    // Tabs
+    tabBar: {
+      backgroundColor: colors.surface,
+      borderBottomWidth: StyleSheet.hairlineWidth,
+      borderBottomColor: colors.border,
+    },
+    tabBarContent: {
+      paddingHorizontal: spacing.md,
+    },
+    tab: {
+      paddingVertical: spacing.sm + 2,
+      paddingHorizontal: spacing.md,
+      marginRight: spacing.xs,
+      borderBottomWidth: 2,
+      borderBottomColor: 'transparent',
+    },
+    tabActive: {
+      borderBottomColor: colors.primary,
+    },
+    tabText: {
+      fontSize: fontSize.sm,
+      color: colors.textSecondary,
+    },
+    tabTextActive: {
+      color: colors.primary,
+      fontWeight: '600',
+    },
+
+    // Tab content
+    tabContent: {
+      minHeight: 200,
+    },
+
+    // Cards
+    card: {
+      backgroundColor: colors.surface,
+      marginHorizontal: spacing.md,
+      marginTop: spacing.md,
+      borderRadius: 16,
+      padding: spacing.md,
+    },
+    cardTitle: {
+      fontSize: fontSize.md,
+      fontWeight: '700',
+      color: colors.text,
+      marginBottom: spacing.sm,
+    },
+    infoRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      paddingVertical: spacing.sm,
+      borderBottomWidth: StyleSheet.hairlineWidth,
+      borderBottomColor: colors.border,
+    },
+    infoLabel: {
+      fontSize: fontSize.sm,
+      color: colors.textSecondary,
+      flex: 1,
+    },
+    infoValue: {
+      fontSize: fontSize.sm,
+      color: colors.text,
+      fontWeight: '500',
+      flex: 1,
+      textAlign: 'right',
+      textTransform: 'capitalize',
+    },
+
+    // Empty
+    emptyState: {
+      alignItems: 'center',
+      paddingVertical: spacing.xl * 2,
+    },
+    emptyText: {
+      fontSize: fontSize.sm,
+      color: colors.textLight,
+    },
+  }), [colors]);
+}
+
 export default function ProfileScreen() {
   const navigation = useNavigation<any>();
   const { user, employee: authEmployee } = useAuth();
+  const { colors, mode, setMode } = useTheme();
+  const styles = useStyles();
   const toast = useToast();
   const [employee, setEmployee] = useState<Employee | null>(authEmployee);
   const [activeTab, setActiveTab] = useState<TabKey>('info');
@@ -180,6 +378,24 @@ export default function ProfileScreen() {
         >
           <Text style={styles.teamBtnText}>Team Directory</Text>
         </TouchableOpacity>
+
+        {/* Theme Toggle */}
+        <View style={styles.themeToggle}>
+          {(['system', 'light', 'dark'] as ThemeMode[]).map((m) => (
+            <TouchableOpacity
+              key={m}
+              style={[styles.themeOption, mode === m && styles.themeOptionActive]}
+              onPress={() => setMode(m)}
+              activeOpacity={0.7}
+            >
+              <Feather
+                name={m === 'light' ? 'sun' : m === 'dark' ? 'moon' : 'monitor'}
+                size={16}
+                color={mode === m ? colors.text : colors.textLight}
+              />
+            </TouchableOpacity>
+          ))}
+        </View>
       </View>
 
       {/* ── Tabs ── */}
@@ -228,6 +444,7 @@ export default function ProfileScreen() {
 // ─── Profile Info Tab ───
 
 function ProfileInfo({ employee }: { employee: Employee }) {
+  const styles = useStyles();
   return (
     <>
       <Card title="Personal Information">
@@ -343,6 +560,7 @@ function SubResourceList({ tab, data }: { tab: TabKey; data: any[] }) {
 // ─── Shared Components ───
 
 function Card({ title, children }: { title: string; children: React.ReactNode }) {
+  const styles = useStyles();
   return (
     <View style={styles.card}>
       <Text style={styles.cardTitle}>{title}</Text>
@@ -352,6 +570,7 @@ function Card({ title, children }: { title: string; children: React.ReactNode })
 }
 
 function InfoRow({ label, value, noCapitalize }: { label: string; value?: string; noCapitalize?: boolean }) {
+  const styles = useStyles();
   if (!value) return null;
   return (
     <View style={styles.infoRow}>
@@ -373,171 +592,3 @@ function parseDateValue(value: string | number | undefined): string | undefined 
   }
   return String(value);
 }
-
-// ─── Styles ───
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  center: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingVertical: spacing.xl,
-  },
-
-  // Header
-  header: {
-    alignItems: 'center',
-    paddingTop: spacing.lg,
-    paddingBottom: spacing.md,
-    backgroundColor: colors.surface,
-  },
-  avatarWrap: {
-    position: 'relative',
-    marginBottom: spacing.md,
-  },
-  avatar: {
-    width: 88,
-    height: 88,
-    borderRadius: 44,
-  },
-  avatarPlaceholder: {
-    backgroundColor: colors.primary,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  avatarText: {
-    color: '#fff',
-    fontSize: fontSize.xxl,
-    fontWeight: '700',
-  },
-  avatarOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0,0,0,0.4)',
-    borderRadius: 44,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  cameraIcon: {
-    position: 'absolute',
-    bottom: 0,
-    right: 0,
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: colors.surface,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: colors.background,
-  },
-  name: {
-    fontSize: fontSize.xl,
-    fontWeight: '700',
-    color: colors.text,
-  },
-  designation: {
-    fontSize: fontSize.sm,
-    color: colors.textSecondary,
-    marginTop: spacing.xs,
-  },
-  reportingTo: {
-    fontSize: fontSize.xs,
-    color: colors.textLight,
-    marginTop: spacing.xs,
-  },
-  teamBtn: {
-    marginTop: spacing.md,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.sm,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: colors.primary,
-  },
-  teamBtnText: {
-    fontSize: fontSize.sm,
-    color: colors.primary,
-    fontWeight: '600',
-  },
-
-  // Tabs
-  tabBar: {
-    backgroundColor: colors.surface,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.border,
-  },
-  tabBarContent: {
-    paddingHorizontal: spacing.md,
-  },
-  tab: {
-    paddingVertical: spacing.sm + 2,
-    paddingHorizontal: spacing.md,
-    marginRight: spacing.xs,
-    borderBottomWidth: 2,
-    borderBottomColor: 'transparent',
-  },
-  tabActive: {
-    borderBottomColor: colors.primary,
-  },
-  tabText: {
-    fontSize: fontSize.sm,
-    color: colors.textSecondary,
-  },
-  tabTextActive: {
-    color: colors.primary,
-    fontWeight: '600',
-  },
-
-  // Tab content
-  tabContent: {
-    minHeight: 200,
-  },
-
-  // Cards
-  card: {
-    backgroundColor: colors.surface,
-    marginHorizontal: spacing.md,
-    marginTop: spacing.md,
-    borderRadius: 16,
-    padding: spacing.md,
-  },
-  cardTitle: {
-    fontSize: fontSize.md,
-    fontWeight: '700',
-    color: colors.text,
-    marginBottom: spacing.sm,
-  },
-  infoRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: spacing.sm,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.border,
-  },
-  infoLabel: {
-    fontSize: fontSize.sm,
-    color: colors.textSecondary,
-    flex: 1,
-  },
-  infoValue: {
-    fontSize: fontSize.sm,
-    color: colors.text,
-    fontWeight: '500',
-    flex: 1,
-    textAlign: 'right',
-    textTransform: 'capitalize',
-  },
-
-  // Empty
-  emptyState: {
-    alignItems: 'center',
-    paddingVertical: spacing.xl * 2,
-  },
-  emptyText: {
-    fontSize: fontSize.sm,
-    color: colors.textLight,
-  },
-});

@@ -10,10 +10,87 @@ import {
 } from 'react-native';
 import { getTeamDirectory } from '../../api/endpoints';
 import { Employee } from '../../types';
-import { colors, spacing, fontSize } from '../../constants/theme';
+import { useTheme } from '../../contexts/ThemeContext';
+import { spacing, fontSize } from '../../constants/theme';
 import AppHeader from '../../components/AppHeader';
 
+function useStyles() {
+  const { colors } = useTheme();
+  return React.useMemo(() => StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    searchWrap: {
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      backgroundColor: colors.surface,
+    },
+    searchInput: {
+      backgroundColor: colors.background,
+      borderRadius: 10,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm + 2,
+      fontSize: fontSize.sm,
+      color: colors.text,
+    },
+    center: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      paddingVertical: spacing.xl * 2,
+    },
+    list: {
+      paddingHorizontal: spacing.md,
+      paddingTop: spacing.sm,
+    },
+    item: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.surface,
+      borderRadius: 12,
+      padding: spacing.md,
+      marginBottom: spacing.sm,
+    },
+    avatar: {
+      width: 44,
+      height: 44,
+      borderRadius: 22,
+    },
+    avatarPlaceholder: {
+      backgroundColor: colors.primaryLight,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    avatarText: {
+      color: '#fff',
+      fontSize: fontSize.md,
+      fontWeight: '600',
+    },
+    itemInfo: {
+      marginLeft: spacing.md,
+      flex: 1,
+    },
+    itemName: {
+      fontSize: fontSize.sm,
+      fontWeight: '600',
+      color: colors.text,
+    },
+    itemSub: {
+      fontSize: fontSize.xs,
+      color: colors.textSecondary,
+      marginTop: 2,
+    },
+    emptyText: {
+      fontSize: fontSize.sm,
+      color: colors.textLight,
+    },
+  }), [colors]);
+}
+
 export default function TeamDirectoryScreen() {
+  const { colors } = useTheme();
+  const styles = useStyles();
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
@@ -125,74 +202,3 @@ export default function TeamDirectoryScreen() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  searchWrap: {
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    backgroundColor: colors.surface,
-  },
-  searchInput: {
-    backgroundColor: colors.background,
-    borderRadius: 10,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm + 2,
-    fontSize: fontSize.sm,
-    color: colors.text,
-  },
-  center: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingVertical: spacing.xl * 2,
-  },
-  list: {
-    paddingHorizontal: spacing.md,
-    paddingTop: spacing.sm,
-  },
-  item: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.surface,
-    borderRadius: 12,
-    padding: spacing.md,
-    marginBottom: spacing.sm,
-  },
-  avatar: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-  },
-  avatarPlaceholder: {
-    backgroundColor: colors.primaryLight,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  avatarText: {
-    color: '#fff',
-    fontSize: fontSize.md,
-    fontWeight: '600',
-  },
-  itemInfo: {
-    marginLeft: spacing.md,
-    flex: 1,
-  },
-  itemName: {
-    fontSize: fontSize.sm,
-    fontWeight: '600',
-    color: colors.text,
-  },
-  itemSub: {
-    fontSize: fontSize.xs,
-    color: colors.textSecondary,
-    marginTop: 2,
-  },
-  emptyText: {
-    fontSize: fontSize.sm,
-    color: colors.textLight,
-  },
-});
