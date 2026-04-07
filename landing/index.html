@@ -622,7 +622,177 @@
       .req-grid { grid-template-columns: 1fr; max-width: 300px; }
       .cta-content h2 { font-size: 2rem; }
       .hero-actions { flex-direction: column; align-items: center; }
+      .preview-scroll { gap: 20px; }
+      .phone-frame { width: 220px; }
     }
+
+    /* ── App Preview ── */
+    .preview-section {
+      padding: 100px 24px;
+      position: relative;
+      overflow: hidden;
+    }
+    .preview-section .section-inner {
+      max-width: 1170px;
+      margin: 0 auto;
+      text-align: center;
+    }
+    .preview-section .section-desc {
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .preview-toggle {
+      display: inline-flex;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      padding: 4px;
+      gap: 4px;
+      margin-bottom: 48px;
+    }
+    .preview-toggle-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 24px;
+      border-radius: 100px;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .preview-toggle-btn.active {
+      background: var(--primary);
+      color: #fff;
+      box-shadow: 0 4px 16px var(--glow);
+    }
+    .preview-toggle-btn svg {
+      width: 16px;
+      height: 16px;
+    }
+    .preview-scroll-wrapper {
+      position: relative;
+      margin: 0 -24px;
+      padding: 0 24px;
+      overflow: visible;
+    }
+    .preview-scroll {
+      display: flex;
+      gap: 28px;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      padding: 40px 40px 50px;
+      scrollbar-width: none;
+    }
+    .preview-scroll::-webkit-scrollbar { display: none; }
+    .phone-frame {
+      flex-shrink: 0;
+      width: 240px;
+      scroll-snap-align: center;
+      transition: all 0.6s cubic-bezier(0.4,0,0.2,1);
+      opacity: 0.35;
+      transform: scale(0.88) perspective(800px) rotateY(0deg);
+      filter: blur(1.5px) saturate(0.7);
+      cursor: pointer;
+    }
+    .phone-frame.active {
+      opacity: 1;
+      transform: scale(1.1) perspective(800px) rotateY(0deg);
+      filter: none;
+      z-index: 3;
+    }
+    .phone-frame.active .phone-mockup {
+      border-color: rgba(99,102,241,0.6);
+      box-shadow:
+        0 30px 80px rgba(0,0,0,0.5),
+        0 0 60px rgba(79,70,229,0.2),
+        0 0 0 1px rgba(99,102,241,0.4),
+        inset 0 1px 0 rgba(255,255,255,0.1);
+    }
+    .phone-frame.active .phone-label {
+      color: var(--primary-light);
+    }
+    .phone-mockup {
+      position: relative;
+      border-radius: 20px;
+      overflow: hidden;
+      border: 3px solid rgba(255,255,255,0.08);
+      box-shadow:
+        0 16px 48px rgba(0,0,0,0.35),
+        0 0 0 1px rgba(255,255,255,0.04);
+      background: #0a0a14;
+      transition: all 0.6s cubic-bezier(0.4,0,0.2,1);
+    }
+    .phone-mockup::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 17px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.06) 0%, transparent 30%);
+      pointer-events: none;
+    }
+    .phone-mockup img {
+      width: 100%;
+      display: block;
+    }
+    .phone-label {
+      margin-top: 16px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      transition: color 0.4s;
+    }
+    .preview-fade-left,
+    .preview-fade-right {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 80px;
+      pointer-events: none;
+      z-index: 2;
+    }
+    .preview-fade-left {
+      left: 0;
+      background: linear-gradient(90deg, var(--bg), transparent);
+    }
+    .preview-fade-right {
+      right: 0;
+      background: linear-gradient(-90deg, var(--bg), transparent);
+    }
+    .slider-arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.06);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 5;
+      transition: all 0.3s;
+      color: var(--text-secondary);
+    }
+    .slider-arrow:hover {
+      background: rgba(255,255,255,0.12);
+      border-color: rgba(255,255,255,0.2);
+      color: #fff;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    }
+    .slider-arrow-left { left: 12px; }
+    .slider-arrow-right { right: 12px; }
   </style>
 </head>
 <body>
@@ -636,6 +806,7 @@
       </a>
       <div class="nav-links">
         <a href="#features">Features</a>
+        <a href="#preview">Preview</a>
         <a href="#how-it-works">Setup</a>
         <a href="#requirements">Requirements</a>
         <a href="#download" class="nav-cta">Download</a>
@@ -786,6 +957,81 @@
     </div>
   </section>
 
+  <!-- App Preview -->
+  <section class="preview-section" id="preview">
+    <div class="section-inner">
+      <span class="section-label reveal">App Preview</span>
+      <h2 class="section-title reveal">See it in action</h2>
+      <p class="section-desc reveal">Beautiful interface in both light and dark mode. Swipe through the screens.</p>
+
+      <div class="reveal">
+        <div class="preview-toggle">
+          <button class="preview-toggle-btn active" data-mode="light" onclick="switchPreview('light')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+            Light
+          </button>
+          <button class="preview-toggle-btn" data-mode="dark" onclick="switchPreview('dark')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            Dark
+          </button>
+        </div>
+      </div>
+
+      <div class="preview-scroll-wrapper reveal">
+        <div class="preview-fade-left"></div>
+        <div class="preview-fade-right"></div>
+        <button class="slider-arrow slider-arrow-left" onclick="slidePreview(-1)" aria-label="Previous">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <button class="slider-arrow slider-arrow-right" onclick="slidePreview(1)" aria-label="Next">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"/></svg>
+        </button>
+        <div class="preview-scroll" id="previewScroll">
+          <div class="phone-frame">
+            <div class="phone-mockup"><img src="" alt="Login" data-light="./app-screens/light-mode/login-screen.png" data-dark="./app-screens/dark-mode/login-screen-1.png"></div>
+            <div class="phone-label">Login</div>
+          </div>
+          <div class="phone-frame">
+            <div class="phone-mockup"><img src="" alt="Dashboard" data-light="./app-screens/light-mode/dashboard.png" data-dark="./app-screens/dark-mode/dashboard.png"></div>
+            <div class="phone-label">Dashboard</div>
+          </div>
+          <div class="phone-frame">
+            <div class="phone-mockup"><img src="" alt="Clock In/Out" data-light="./app-screens/light-mode/checkin.png" data-dark="./app-screens/dark-mode/checkin-checkout-clock.png"></div>
+            <div class="phone-label">Clock In/Out</div>
+          </div>
+          <div class="phone-frame">
+            <div class="phone-mockup"><img src="" alt="Leave Requests" data-light="./app-screens/light-mode/leave-requests.png" data-dark="./app-screens/dark-mode/leave-request.png"></div>
+            <div class="phone-label">Leave Requests</div>
+          </div>
+          <div class="phone-frame">
+            <div class="phone-mockup"><img src="" alt="Leave Balance" data-light="./app-screens/light-mode/leave-balance.png" data-dark="./app-screens/dark-mode/leave-balance.png"></div>
+            <div class="phone-label">Leave Balance</div>
+          </div>
+          <div class="phone-frame">
+            <div class="phone-mockup"><img src="" alt="Holidays" data-light="./app-screens/light-mode/holidays.png" data-dark="./app-screens/dark-mode/holidays.png"></div>
+            <div class="phone-label">Holidays</div>
+          </div>
+          <div class="phone-frame">
+            <div class="phone-mockup"><img src="" alt="Attendance Logs" data-light="./app-screens/light-mode/logs.png" data-dark="./app-screens/dark-mode/logs.png"></div>
+            <div class="phone-label">Attendance Logs</div>
+          </div>
+          <div class="phone-frame">
+            <div class="phone-mockup"><img src="" alt="Reports" data-light="./app-screens/light-mode/reports.png" data-dark="./app-screens/dark-mode/reports.png"></div>
+            <div class="phone-label">Reports</div>
+          </div>
+          <div class="phone-frame">
+            <div class="phone-mockup"><img src="" alt="Profile" data-light="./app-screens/light-mode/profile.png" data-dark="./app-screens/dark-mode/profile.png"></div>
+            <div class="phone-label">Profile</div>
+          </div>
+          <div class="phone-frame">
+            <div class="phone-mockup"><img src="" alt="Team Directory" data-light="./app-screens/light-mode/team-members.png" data-dark="./app-screens/dark-mode/team-members.png"></div>
+            <div class="phone-label">Team Directory</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- How it works -->
   <section class="section steps-section" id="how-it-works">
     <div class="section-inner">
@@ -896,6 +1142,55 @@
         const y = ((e.clientY - rect.top) / rect.height) * 100;
         card.style.setProperty('--mx', x + '%');
         card.style.setProperty('--my', y + '%');
+      });
+    });
+
+    // ── App Preview toggle ──
+    function switchPreview(mode) {
+      document.querySelectorAll('.preview-toggle-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.mode === mode);
+      });
+      document.querySelectorAll('#previewScroll img').forEach(img => {
+        img.src = mode === 'dark' ? img.dataset.dark : img.dataset.light;
+      });
+    }
+    // Init with light mode
+    switchPreview('light');
+
+    // ── Slide preview arrows ──
+    function slidePreview(dir) {
+      const scroll = document.getElementById('previewScroll');
+      const frame = scroll.querySelector('.phone-frame');
+      const scrollAmount = (frame.offsetWidth + 28) * dir;
+      scroll.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    }
+
+    // ── Highlight centered phone ──
+    const scrollEl = document.getElementById('previewScroll');
+    function updateActivePhone() {
+      const frames = scrollEl.querySelectorAll('.phone-frame');
+      const scrollCenter = scrollEl.scrollLeft + scrollEl.offsetWidth / 2;
+      let closestIdx = 0;
+      let closestDist = Infinity;
+      frames.forEach((frame, i) => {
+        const frameCenter = frame.offsetLeft + frame.offsetWidth / 2;
+        const dist = Math.abs(scrollCenter - frameCenter);
+        if (dist < closestDist) {
+          closestDist = dist;
+          closestIdx = i;
+        }
+      });
+      frames.forEach((frame, i) => frame.classList.toggle('active', i === closestIdx));
+    }
+    scrollEl.addEventListener('scroll', updateActivePhone, { passive: true });
+    // Set initial active after images load
+    setTimeout(updateActivePhone, 100);
+
+    // Click to scroll to center
+    scrollEl.querySelectorAll('.phone-frame').forEach(frame => {
+      frame.addEventListener('click', () => {
+        const scrollCenter = frame.offsetLeft - (scrollEl.offsetWidth / 2) + (frame.offsetWidth / 2);
+        scrollEl.scrollTo({ left: scrollCenter, behavior: 'smooth' });
       });
     });
 
