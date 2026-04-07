@@ -435,7 +435,7 @@ export default function NewLeaveRequestScreen() {
 
   return (
     <View style={styles.container}>
-    <AppHeader />
+    <AppHeader showBack />
     <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.content}>
       {/* Policy Selector */}
       <Text style={styles.label}>Leave Policy</Text>

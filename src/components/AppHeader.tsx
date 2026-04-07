@@ -2,18 +2,25 @@ import React from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { spacing, fontSize } from '../constants/theme';
 
-export default function AppHeader() {
+export default function AppHeader({ showBack }: { showBack?: boolean } = {}) {
   const { employee, logout } = useAuth();
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
+  const navigation = useNavigation();
 
   return (
     <View style={[styles.header, { paddingTop: Math.max(insets.top, spacing.md) + spacing.md, backgroundColor: colors.primary }]}>
       <View style={styles.headerLeft}>
+        {showBack && (
+          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn} activeOpacity={0.7}>
+            <Feather name="arrow-left" size={22} color="#fff" />
+          </TouchableOpacity>
+        )}
         {employee?.avatar_url ? (
           <Image source={{ uri: employee.avatar_url }} style={styles.avatar} />
         ) : (
@@ -51,6 +58,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     flex: 1,
+  },
+  backBtn: {
+    marginRight: spacing.sm,
+    padding: 2,
   },
   avatar: {
     width: 44,

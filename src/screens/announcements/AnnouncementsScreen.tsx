@@ -85,7 +85,7 @@ export default function AnnouncementsScreen() {
   if (loading) {
     return (
       <View style={styles.container}>
-        <AppHeader />
+        <AppHeader showBack />
         <View style={styles.center}>
           <ActivityIndicator size="large" color={colors.primary} />
         </View>
@@ -95,7 +95,7 @@ export default function AnnouncementsScreen() {
 
   return (
     <View style={styles.container}>
-    <AppHeader />
+    <AppHeader showBack />
     <FlatList
       style={{ flex: 1 }}
       data={announcements}

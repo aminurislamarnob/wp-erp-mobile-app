@@ -9,7 +9,7 @@ import {
   RefreshControl,
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useRoute } from '@react-navigation/native';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useToast } from '../../components/Toast';
@@ -556,10 +556,20 @@ function useStyles() {
 }
 
 export default function AttendanceScreen() {
+  const route = useRoute<any>();
   const { user } = useAuth();
   const { colors } = useTheme();
   const styles = useStyles();
   const [tab, setTab] = useState<Tab>('clock');
+
+  // Reset to clock tab when navigated with initialTab param
+  useFocusEffect(
+    useCallback(() => {
+      if (route.params?.initialTab) {
+        setTab(route.params.initialTab);
+      }
+    }, [route.params?.initialTab])
+  );
 
   return (
     <View style={styles.container}>

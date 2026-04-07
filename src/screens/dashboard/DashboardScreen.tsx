@@ -762,7 +762,18 @@ export default function DashboardScreen() {
         expanded={showCelebrations}
         onToggle={() => setShowCelebrations(!showCelebrations)}
       >
-        {birthdays.length > 0 ? (
+        {dataLoading ? (
+          [1, 2, 3, 4, 5].map((i) => (
+            <View key={i} style={styles.listItem}>
+              <Skeleton width={36} height={36} radius={18} />
+              <View style={styles.listItemInfo}>
+                <Skeleton width={130} height={14} />
+                <Skeleton width={160} height={12} style={{ marginTop: 4 }} />
+              </View>
+              <Skeleton width={50} height={12} />
+            </View>
+          ))
+        ) : birthdays.length > 0 ? (
           birthdays.map((b) => (
             <View key={b.id} style={styles.listItem}>
               {b.avatar ? (
@@ -793,7 +804,17 @@ export default function DashboardScreen() {
         expanded={showWhoIsOut}
         onToggle={() => setShowWhoIsOut(!showWhoIsOut)}
       >
-        {whoIsOut.length > 0 ? (
+        {dataLoading ? (
+          [1, 2, 3, 4, 5].map((i) => (
+            <View key={i} style={styles.listItem}>
+              <Skeleton width={36} height={36} radius={18} />
+              <View style={styles.listItemInfo}>
+                <Skeleton width={120} height={14} />
+                <Skeleton width={150} height={12} style={{ marginTop: 4 }} />
+              </View>
+            </View>
+          ))
+        ) : whoIsOut.length > 0 ? (
           whoIsOut.map((r) => (
             <View key={r.id} style={styles.listItem}>
               {r.avatar_url ? (

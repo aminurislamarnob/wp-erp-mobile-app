@@ -43,7 +43,7 @@ export default function AnnouncementDetailScreen() {
   if (loading) {
     return (
       <View style={styles.container}>
-        <AppHeader />
+        <AppHeader showBack />
         <View style={styles.center}>
           <ActivityIndicator size="large" color={colors.primary} />
         </View>
@@ -54,7 +54,7 @@ export default function AnnouncementDetailScreen() {
   if (!announcement) {
     return (
       <View style={styles.container}>
-        <AppHeader />
+        <AppHeader showBack />
         <View style={styles.center}>
           <Feather name="alert-circle" size={48} color={colors.textLight} />
           <Text style={styles.errorText}>Could not load announcement</Text>
@@ -92,7 +92,7 @@ export default function AnnouncementDetailScreen() {
 
   return (
     <View style={styles.container}>
-    <AppHeader />
+    <AppHeader showBack />
     <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.content}>
       {/* Header */}
       <View style={styles.headerCard}>

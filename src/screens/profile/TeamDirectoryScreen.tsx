@@ -14,6 +14,8 @@ import { useTheme } from '../../contexts/ThemeContext';
 import { spacing, fontSize } from '../../constants/theme';
 import AppHeader from '../../components/AppHeader';
 import ClockFAB from '../../components/ClockFAB';
+import { Skeleton } from '../../components/Skeleton';
+import { ScrollView } from 'react-native';
 
 function useStyles() {
   const { colors } = useTheme();
@@ -161,7 +163,7 @@ export default function TeamDirectoryScreen() {
 
   return (
     <View style={styles.container}>
-      <AppHeader />
+      <AppHeader showBack />
       <View style={styles.searchWrap}>
         <TextInput
           style={styles.searchInput}
@@ -175,9 +177,17 @@ export default function TeamDirectoryScreen() {
       </View>
 
       {loading ? (
-        <View style={styles.center}>
-          <ActivityIndicator color={colors.primary} size="large" />
-        </View>
+        <ScrollView contentContainerStyle={styles.list}>
+          {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => (
+            <View key={i} style={styles.item}>
+              <Skeleton width={44} height={44} radius={22} />
+              <View style={styles.itemInfo}>
+                <Skeleton width={140} height={14} />
+                <Skeleton width={180} height={12} style={{ marginTop: 4 }} />
+              </View>
+            </View>
+          ))}
+        </ScrollView>
       ) : (
         <FlatList
           data={employees}
