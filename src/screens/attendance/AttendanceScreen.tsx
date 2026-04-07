@@ -21,6 +21,7 @@ import {
 import { SelfAttendance, SelfAttendanceLog, AttendanceReportDay } from '../../types';
 import { spacing, fontSize } from '../../constants/theme';
 import AppHeader from '../../components/AppHeader';
+import { Skeleton } from '../../components/Skeleton';
 
 type Tab = 'clock' | 'log' | 'report';
 
@@ -40,6 +41,141 @@ function useStatusColors() {
     holiday: colors.info,
     leave: '#8B5CF6',
   }), [colors]);
+}
+
+// ─── Skeleton Loaders ───
+
+function SkeletonClockTab() {
+  const styles = useStyles();
+  return (
+    <ScrollView contentContainerStyle={styles.scrollContent}>
+      {/* Time card */}
+      <View style={[styles.clockCard, { alignItems: 'center' }]}>
+        <Skeleton width={220} height={36} radius={8} />
+        <Skeleton width={260} height={14} radius={6} style={{ marginTop: spacing.xs }} />
+      </View>
+
+      {/* Shift info */}
+      <View style={styles.infoCard}>
+        <View style={styles.infoRow}>
+          <Skeleton width={16} height={16} radius={8} />
+          <Skeleton width={40} height={14} />
+          <View style={{ flex: 1, alignItems: 'flex-end' }}>
+            <Skeleton width={100} height={14} />
+          </View>
+        </View>
+        <View style={styles.infoRow}>
+          <Skeleton width={16} height={16} radius={8} />
+          <Skeleton width={60} height={14} />
+          <View style={{ flex: 1, alignItems: 'flex-end' }}>
+            <Skeleton width={130} height={14} />
+          </View>
+        </View>
+      </View>
+
+      {/* Check in/out status */}
+      <View style={styles.infoCard}>
+        <View style={styles.statusRow}>
+          <View style={styles.statusItem}>
+            <Skeleton width={20} height={20} radius={10} />
+            <Skeleton width={55} height={12} />
+            <Skeleton width={70} height={18} radius={6} />
+          </View>
+          <View style={styles.statusDivider} />
+          <View style={styles.statusItem}>
+            <Skeleton width={20} height={20} radius={10} />
+            <Skeleton width={60} height={12} />
+            <Skeleton width={70} height={18} radius={6} />
+          </View>
+        </View>
+        <View style={styles.elapsedRow}>
+          <Skeleton width={14} height={14} radius={7} />
+          <Skeleton width={110} height={14} />
+        </View>
+      </View>
+
+      {/* Clock button */}
+      <Skeleton width="100%" height={56} radius={16} style={{ marginTop: spacing.sm }} />
+    </ScrollView>
+  );
+}
+
+function SkeletonLogTab() {
+  const styles = useStyles();
+  const DAY_COUNT = 7;
+  return (
+    <ScrollView contentContainerStyle={styles.scrollContent}>
+      {/* Day headers */}
+      <View style={styles.calendarRow}>
+        {DAY_LABELS.map((d) => (
+          <View key={d} style={styles.calendarCell}>
+            <Skeleton width={24} height={12} />
+          </View>
+        ))}
+      </View>
+
+      {/* Calendar grid — 5 rows */}
+      {[1, 2, 3, 4, 5].map((row) => (
+        <View key={row} style={styles.calendarRow}>
+          {[1, 2, 3, 4, 5, 6, 7].map((cell) => (
+            <View key={cell} style={[styles.calendarCell, { gap: 3 }]}>
+              <Skeleton width={28} height={28} radius={14} />
+              <Skeleton width={6} height={6} radius={3} />
+            </View>
+          ))}
+        </View>
+      ))}
+
+      {/* Legend */}
+      <View style={styles.legend}>
+        {[1, 2, 3, 4].map((i) => (
+          <View key={i} style={styles.legendItem}>
+            <Skeleton width={8} height={8} radius={4} />
+            <Skeleton width={45} height={12} />
+          </View>
+        ))}
+      </View>
+    </ScrollView>
+  );
+}
+
+function SkeletonReportTab() {
+  const styles = useStyles();
+  return (
+    <ScrollView contentContainerStyle={styles.scrollContent}>
+      {/* Summary cards */}
+      <View style={styles.summaryGrid}>
+        {[1, 2, 3, 4, 5, 6].map((i) => (
+          <View key={i} style={styles.summaryCard}>
+            <Skeleton width={36} height={36} radius={18} />
+            <Skeleton width={30} height={16} />
+            <Skeleton width={48} height={10} />
+          </View>
+        ))}
+      </View>
+
+      {/* Section title */}
+      <Skeleton width={140} height={16} style={{ marginBottom: spacing.md }} />
+
+      {/* Day rows */}
+      {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+        <View key={i} style={styles.dayRow}>
+          <View style={styles.dayRowLeft}>
+            <Skeleton width={50} height={14} />
+            <Skeleton width={35} height={10} style={{ marginTop: 4 }} />
+          </View>
+          <View style={styles.dayRowCenter}>
+            <Skeleton width={55} height={12} />
+            <Skeleton width={10} height={10} radius={5} />
+            <Skeleton width={55} height={12} />
+          </View>
+          <View style={styles.dayRowRight}>
+            <Skeleton width={40} height={14} />
+          </View>
+        </View>
+      ))}
+    </ScrollView>
+  );
 }
 
 function useStyles() {
@@ -559,11 +695,7 @@ function ClockTab({ userId }: { userId?: number }) {
   }
 
   if (loading) {
-    return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" color={colors.primary} />
-      </View>
-    );
+    return <SkeletonClockTab />;
   }
 
   return (
@@ -720,9 +852,7 @@ function LogTab({ userId }: { userId?: number }) {
       </View>
 
       {loading ? (
-        <View style={styles.calendarLoading}>
-          <ActivityIndicator size="small" color={colors.primary} />
-        </View>
+        <SkeletonLogTab />
       ) : (
         <>
           {/* Day headers */}
@@ -925,9 +1055,7 @@ function ReportTab({ userId }: { userId?: number }) {
       </View>
 
       {loading ? (
-        <View style={styles.calendarLoading}>
-          <ActivityIndicator size="large" color={colors.primary} />
-        </View>
+        <SkeletonReportTab />
       ) : (
         <>
           {/* Summary Cards */}

@@ -16,6 +16,7 @@ import { useToast } from '../../components/Toast';
 import { spacing, fontSize } from '../../constants/theme';
 import { useTheme } from '../../contexts/ThemeContext';
 import AppHeader from '../../components/AppHeader';
+import { Skeleton } from '../../components/Skeleton';
 import {
   getUpcomingBirthdays,
   getWhoIsOut,
@@ -340,6 +341,7 @@ function useStyles() {
       fontSize: fontSize.sm,
       color: colors.text,
     },
+
   }), [colors]);
 }
 
@@ -359,6 +361,7 @@ export default function DashboardScreen() {
   const [todayLog, setTodayLog] = useState<SelfAttendance | null>(null);
   const [attLog, setAttLog] = useState<SelfAttendanceLog | null>(null);
   const [clockLoading, setClockLoading] = useState(false);
+  const [dataLoading, setDataLoading] = useState(true);
 
   // Collapsible sections
   const [showCelebrations, setShowCelebrations] = useState(true);
@@ -422,6 +425,7 @@ export default function DashboardScreen() {
         // ignore
       }
     }
+    setDataLoading(false);
   }, [user, hasAttendance]);
 
   // Refresh data on mount and when screen is focused (e.g. navigating back)
@@ -577,15 +581,53 @@ export default function DashboardScreen() {
   const todayStr = new Date().toISOString().split('T')[0];
 
   return (
+    <View style={styles.container}>
     <ScrollView
-      style={styles.container}
+      style={{ flex: 1 }}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
     >
       <AppHeader />
 
       {/* ─── Clock In/Out Card ─── */}
       {hasAttendance && (() => {
-        const clockContent = (
+        const clockContent = dataLoading ? (
+          <>
+            {/* Skeleton: time + icon */}
+            <View style={styles.clockTopRow}>
+              <View>
+                <Skeleton width={160} height={28} />
+                <Skeleton width={200} height={12} style={{ marginTop: 8 }} />
+              </View>
+              <Skeleton width={48} height={48} radius={24} />
+            </View>
+
+            <View style={styles.clockDivider} />
+
+            {/* Skeleton: info rows */}
+            <View style={styles.clockInfoRow}>
+              <Skeleton width={80} height={13} />
+              <Skeleton width={100} height={13} style={{ marginLeft: 'auto' }} />
+            </View>
+            <View style={styles.clockInfoRow}>
+              <Skeleton width={70} height={13} />
+              <Skeleton width={120} height={13} style={{ marginLeft: 'auto' }} />
+            </View>
+            <View style={styles.clockInfoRow}>
+              <Skeleton width={85} height={13} />
+              <Skeleton width={80} height={13} style={{ marginLeft: 'auto' }} />
+            </View>
+            <View style={styles.clockInfoRow}>
+              <Skeleton width={110} height={13} />
+              <Skeleton width={70} height={13} style={{ marginLeft: 'auto' }} />
+            </View>
+
+            {/* Skeleton: buttons */}
+            <View style={styles.clockBtnRow}>
+              <Skeleton width="48%" height={40} radius={24} />
+              <Skeleton width="48%" height={40} radius={24} />
+            </View>
+          </>
+        ) : (
           <>
             {/* Top section: time + weather icon area */}
             <View style={styles.clockTopRow}>
@@ -781,7 +823,17 @@ export default function DashboardScreen() {
         expanded={showHolidays}
         onToggle={() => setShowHolidays(!showHolidays)}
       >
-        {holidays.length > 0 ? (
+        {dataLoading ? (
+          [1, 2, 3, 4, 5].map((i) => (
+            <View key={i} style={styles.listItem}>
+              <Skeleton width={36} height={36} radius={18} />
+              <View style={styles.listItemInfo}>
+                <Skeleton width={140} height={14} />
+                <Skeleton width={90} height={12} style={{ marginTop: 4 }} />
+              </View>
+            </View>
+          ))
+        ) : holidays.length > 0 ? (
           <>
             {holidays.map((h) => (
               <View key={h.id} style={styles.listItem}>
@@ -896,6 +948,8 @@ export default function DashboardScreen() {
 
       <View style={{ height: spacing.xl }} />
     </ScrollView>
+
+    </View>
   );
 }
 

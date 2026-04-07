@@ -17,6 +17,7 @@ import { getMyAnnouncements } from '../../api/endpoints';
 import { Announcement } from '../../types';
 import { spacing, fontSize } from '../../constants/theme';
 import AppHeader from '../../components/AppHeader';
+import ClockFAB from '../../components/ClockFAB';
 
 export default function AnnouncementsScreen() {
   const navigation = useNavigation<any>();
@@ -142,6 +143,7 @@ export default function AnnouncementsScreen() {
         ) : null
       }
     />
+    <ClockFAB />
     </View>
   );
 }

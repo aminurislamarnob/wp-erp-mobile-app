@@ -21,6 +21,7 @@ import { getMyLeaveBalance, submitLeaveRequest } from '../../api/endpoints';
 import { LeavePolicy } from '../../types';
 import { spacing, fontSize } from '../../constants/theme';
 import AppHeader from '../../components/AppHeader';
+import ClockFAB from '../../components/ClockFAB';
 
 interface AttachedFile {
   uri: string;
@@ -608,6 +609,7 @@ export default function NewLeaveRequestScreen() {
         )}
       </TouchableOpacity>
     </ScrollView>
+    <ClockFAB />
     </View>
   );
 }

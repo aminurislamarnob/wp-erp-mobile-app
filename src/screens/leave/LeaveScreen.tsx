@@ -4,9 +4,9 @@ import {
   Text,
   StyleSheet,
   FlatList,
+  ScrollView,
   TouchableOpacity,
   RefreshControl,
-  ActivityIndicator,
 } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { Feather } from '@expo/vector-icons';
@@ -21,6 +21,7 @@ import {
 import { LeaveRequest, Holiday } from '../../types';
 import { spacing, fontSize } from '../../constants/theme';
 import AppHeader from '../../components/AppHeader';
+import { Skeleton } from '../../components/Skeleton';
 
 type TabKey = 'requests' | 'balance' | 'holidays';
 type StatusFilter = 'all' | 'pending' | 'approved' | 'rejected';
@@ -31,6 +32,76 @@ const STATUS_FILTERS: { key: StatusFilter; label: string; value?: number }[] = [
   { key: 'approved', label: 'Approved', value: 1 },
   { key: 'rejected', label: 'Rejected', value: 3 },
 ];
+
+function SkeletonRequestCard() {
+  const styles = useStyles();
+  return (
+    <View style={styles.card}>
+      <View style={styles.cardHeader}>
+        <View style={styles.cardTitleRow}>
+          <Skeleton width={10} height={10} radius={5} />
+          <View style={{ marginLeft: spacing.sm, flex: 1 }}>
+            <Skeleton width="65%" height={16} />
+          </View>
+        </View>
+        <Skeleton width={68} height={24} radius={8} />
+      </View>
+      <View style={styles.cardBody}>
+        <View style={styles.dateRow}>
+          <Skeleton width={14} height={14} radius={7} />
+          <Skeleton width="50%" height={14} />
+          <Skeleton width={28} height={18} radius={6} />
+        </View>
+        <Skeleton width="85%" height={14} style={{ marginTop: spacing.xs }} />
+      </View>
+      <View style={styles.cardFooter}>
+        <Skeleton width={72} height={12} />
+        <Skeleton width={16} height={16} radius={8} style={{ marginLeft: 4 }} />
+      </View>
+    </View>
+  );
+}
+
+function SkeletonBalanceCard() {
+  const styles = useStyles();
+  return (
+    <View style={styles.card}>
+      <View style={styles.balanceHeader}>
+        <Skeleton width={10} height={10} radius={5} />
+        <Skeleton width={120} height={16} style={{ marginLeft: spacing.sm }} />
+      </View>
+      <View style={{ marginBottom: spacing.md }}>
+        <Skeleton width="100%" height={6} radius={3} />
+      </View>
+      <View style={styles.balanceRow}>
+        {[1, 2, 3].map((i) => (
+          <View key={i} style={styles.balanceStat}>
+            <Skeleton width={30} height={20} />
+            <Skeleton width={50} height={12} style={{ marginTop: 4 }} />
+          </View>
+        ))}
+      </View>
+    </View>
+  );
+}
+
+function SkeletonHolidayCard() {
+  const styles = useStyles();
+  return (
+    <View style={styles.card}>
+      <View style={styles.holidayRow}>
+        <Skeleton width={40} height={40} radius={20} />
+        <View style={{ flex: 1, marginLeft: spacing.md }}>
+          <Skeleton width="60%" height={16} />
+          <View style={[styles.dateRow, { marginTop: 6 }]}>
+            <Skeleton width={12} height={12} radius={6} />
+            <Skeleton width={100} height={13} />
+          </View>
+        </View>
+      </View>
+    </View>
+  );
+}
 
 function useStyles() {
   const { colors } = useTheme();
@@ -434,9 +505,13 @@ export default function LeaveScreen() {
 
       {/* Content */}
       {loading ? (
-        <View style={styles.center}>
-          <ActivityIndicator size="large" color={colors.primary} />
-        </View>
+        <ScrollView contentContainerStyle={styles.list}>
+          {activeTab === 'requests'
+            ? [1, 2, 3, 4, 5].map((i) => <SkeletonRequestCard key={i} />)
+            : activeTab === 'balance'
+            ? [1, 2, 3, 4, 5].map((i) => <SkeletonBalanceCard key={i} />)
+            : [1, 2, 3, 4, 5, 6, 7, 8].map((i) => <SkeletonHolidayCard key={i} />)}
+        </ScrollView>
       ) : activeTab === 'requests' ? (
         <FlatList
           data={requests}
@@ -487,15 +562,13 @@ export default function LeaveScreen() {
         />
       )}
 
-      {/* FAB — only on requests tab */}
-      {activeTab === 'requests' && (
-        <TouchableOpacity
+      {/* FAB */}
+      <TouchableOpacity
           style={styles.fab}
           onPress={() => navigation.navigate('NewLeaveRequest')}
         >
           <Feather name="plus" size={24} color="#fff" />
         </TouchableOpacity>
-      )}
     </View>
   );
 }

@@ -13,6 +13,7 @@ import { Employee } from '../../types';
 import { useTheme } from '../../contexts/ThemeContext';
 import { spacing, fontSize } from '../../constants/theme';
 import AppHeader from '../../components/AppHeader';
+import ClockFAB from '../../components/ClockFAB';
 
 function useStyles() {
   const { colors } = useTheme();
@@ -199,6 +200,7 @@ export default function TeamDirectoryScreen() {
           }
         />
       )}
+      <ClockFAB />
     </View>
   );
 }

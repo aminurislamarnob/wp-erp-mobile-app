@@ -14,6 +14,7 @@ import { getAnnouncementDetail } from '../../api/endpoints';
 import { Announcement } from '../../types';
 import { spacing, fontSize } from '../../constants/theme';
 import AppHeader from '../../components/AppHeader';
+import ClockFAB from '../../components/ClockFAB';
 
 export default function AnnouncementDetailScreen() {
   const route = useRoute<any>();
@@ -116,6 +117,7 @@ export default function AnnouncementDetailScreen() {
         <Text style={styles.bodyText}>{stripHtml(announcement.body)}</Text>
       </View>
     </ScrollView>
+    <ClockFAB />
     </View>
   );
 }

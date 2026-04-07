@@ -14,6 +14,7 @@ import { getLeaveRequestDetail } from '../../api/endpoints';
 import { LeaveRequest } from '../../types';
 import { spacing, fontSize } from '../../constants/theme';
 import AppHeader from '../../components/AppHeader';
+import ClockFAB from '../../components/ClockFAB';
 
 function useStyles() {
   const { colors } = useTheme();
@@ -341,6 +342,7 @@ export default function LeaveDetailScreen() {
         )}
       </View>
     </ScrollView>
+    <ClockFAB />
     </View>
   );
 }
