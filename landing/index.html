@@ -7,6 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@12/swiper-bundle.min.css">
   <link rel="stylesheet" href="./assets/css/styles.css">
 </head>
 <body>
@@ -190,56 +191,22 @@
         </div>
       </div>
 
-      <div class="preview-scroll-wrapper reveal">
-        <div class="preview-fade-left"></div>
-        <div class="preview-fade-right"></div>
-        <button class="slider-arrow slider-arrow-left" onclick="slidePreview(-1)" aria-label="Previous">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-        </button>
-        <button class="slider-arrow slider-arrow-right" onclick="slidePreview(1)" aria-label="Next">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"/></svg>
-        </button>
-        <div class="preview-scroll" id="previewScroll">
-          <div class="phone-frame">
-            <div class="phone-mockup"><img src="" alt="Login" data-light="./assets/images/app-screens/light-mode/login-screen.png" data-dark="./assets/images/app-screens/dark-mode/login-screen-1.png"></div>
-            <div class="phone-label">Login</div>
+      <div class="preview-swiper-wrapper reveal">
+        <div class="swiper preview-swiper">
+          <div class="swiper-wrapper">
+            <div class="swiper-slide"><div class="phone-frame"><div class="phone-mockup"><img src="" alt="Login" data-light="./assets/images/app-screens/light-mode/login-screen.png" data-dark="./assets/images/app-screens/dark-mode/login-screen-1.png"></div><div class="phone-label">Login</div></div></div>
+            <div class="swiper-slide"><div class="phone-frame"><div class="phone-mockup"><img src="" alt="Dashboard" data-light="./assets/images/app-screens/light-mode/dashboard.png" data-dark="./assets/images/app-screens/dark-mode/dashboard.png"></div><div class="phone-label">Dashboard</div></div></div>
+            <div class="swiper-slide"><div class="phone-frame"><div class="phone-mockup"><img src="" alt="Clock In/Out" data-light="./assets/images/app-screens/light-mode/checkin.png" data-dark="./assets/images/app-screens/dark-mode/checkin-checkout-clock.png"></div><div class="phone-label">Clock In/Out</div></div></div>
+            <div class="swiper-slide"><div class="phone-frame"><div class="phone-mockup"><img src="" alt="Leave Requests" data-light="./assets/images/app-screens/light-mode/leave-requests.png" data-dark="./assets/images/app-screens/dark-mode/leave-request.png"></div><div class="phone-label">Leave Requests</div></div></div>
+            <div class="swiper-slide"><div class="phone-frame"><div class="phone-mockup"><img src="" alt="Leave Balance" data-light="./assets/images/app-screens/light-mode/leave-balance.png" data-dark="./assets/images/app-screens/dark-mode/leave-balance.png"></div><div class="phone-label">Leave Balance</div></div></div>
+            <div class="swiper-slide"><div class="phone-frame"><div class="phone-mockup"><img src="" alt="Holidays" data-light="./assets/images/app-screens/light-mode/holidays.png" data-dark="./assets/images/app-screens/dark-mode/holidays.png"></div><div class="phone-label">Holidays</div></div></div>
+            <div class="swiper-slide"><div class="phone-frame"><div class="phone-mockup"><img src="" alt="Attendance Logs" data-light="./assets/images/app-screens/light-mode/logs.png" data-dark="./assets/images/app-screens/dark-mode/logs.png"></div><div class="phone-label">Attendance Logs</div></div></div>
+            <div class="swiper-slide"><div class="phone-frame"><div class="phone-mockup"><img src="" alt="Reports" data-light="./assets/images/app-screens/light-mode/reports.png" data-dark="./assets/images/app-screens/dark-mode/reports.png"></div><div class="phone-label">Reports</div></div></div>
+            <div class="swiper-slide"><div class="phone-frame"><div class="phone-mockup"><img src="" alt="Profile" data-light="./assets/images/app-screens/light-mode/profile.png" data-dark="./assets/images/app-screens/dark-mode/profile.png"></div><div class="phone-label">Profile</div></div></div>
+            <div class="swiper-slide"><div class="phone-frame"><div class="phone-mockup"><img src="" alt="Team Directory" data-light="./assets/images/app-screens/light-mode/team-members.png" data-dark="./assets/images/app-screens/dark-mode/team-members.png"></div><div class="phone-label">Team Directory</div></div></div>
           </div>
-          <div class="phone-frame">
-            <div class="phone-mockup"><img src="" alt="Dashboard" data-light="./assets/images/app-screens/light-mode/dashboard.png" data-dark="./assets/images/app-screens/dark-mode/dashboard.png"></div>
-            <div class="phone-label">Dashboard</div>
-          </div>
-          <div class="phone-frame">
-            <div class="phone-mockup"><img src="" alt="Clock In/Out" data-light="./assets/images/app-screens/light-mode/checkin.png" data-dark="./assets/images/app-screens/dark-mode/checkin-checkout-clock.png"></div>
-            <div class="phone-label">Clock In/Out</div>
-          </div>
-          <div class="phone-frame">
-            <div class="phone-mockup"><img src="" alt="Leave Requests" data-light="./assets/images/app-screens/light-mode/leave-requests.png" data-dark="./assets/images/app-screens/dark-mode/leave-request.png"></div>
-            <div class="phone-label">Leave Requests</div>
-          </div>
-          <div class="phone-frame">
-            <div class="phone-mockup"><img src="" alt="Leave Balance" data-light="./assets/images/app-screens/light-mode/leave-balance.png" data-dark="./assets/images/app-screens/dark-mode/leave-balance.png"></div>
-            <div class="phone-label">Leave Balance</div>
-          </div>
-          <div class="phone-frame">
-            <div class="phone-mockup"><img src="" alt="Holidays" data-light="./assets/images/app-screens/light-mode/holidays.png" data-dark="./assets/images/app-screens/dark-mode/holidays.png"></div>
-            <div class="phone-label">Holidays</div>
-          </div>
-          <div class="phone-frame">
-            <div class="phone-mockup"><img src="" alt="Attendance Logs" data-light="./assets/images/app-screens/light-mode/logs.png" data-dark="./assets/images/app-screens/dark-mode/logs.png"></div>
-            <div class="phone-label">Attendance Logs</div>
-          </div>
-          <div class="phone-frame">
-            <div class="phone-mockup"><img src="" alt="Reports" data-light="./assets/images/app-screens/light-mode/reports.png" data-dark="./assets/images/app-screens/dark-mode/reports.png"></div>
-            <div class="phone-label">Reports</div>
-          </div>
-          <div class="phone-frame">
-            <div class="phone-mockup"><img src="" alt="Profile" data-light="./assets/images/app-screens/light-mode/profile.png" data-dark="./assets/images/app-screens/dark-mode/profile.png"></div>
-            <div class="phone-label">Profile</div>
-          </div>
-          <div class="phone-frame">
-            <div class="phone-mockup"><img src="" alt="Team Directory" data-light="./assets/images/app-screens/light-mode/team-members.png" data-dark="./assets/images/app-screens/dark-mode/team-members.png"></div>
-            <div class="phone-label">Team Directory</div>
-          </div>
+          <div class="swiper-button-prev"></div>
+          <div class="swiper-button-next"></div>
         </div>
       </div>
     </div>
@@ -329,6 +296,7 @@
     <p>&copy; 2026 WPERP Suite &mdash; Employee Self-Service Portal.</p>
   </footer>
 
+  <script src="https://cdn.jsdelivr.net/npm/swiper@12/swiper-bundle.min.js"></script>
   <script src="./assets/js/script.js"></script>
 </body>
 </html>
