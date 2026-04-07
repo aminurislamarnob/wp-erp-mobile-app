@@ -31,7 +31,7 @@ function switchPreview(mode) {
   document.querySelectorAll('.preview-toggle-btn').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.mode === mode);
   });
-  document.querySelectorAll('.preview-swiper img').forEach(img => {
+  document.querySelectorAll('.preview-swiper .phone-mockup img').forEach(img => {
     img.src = mode === 'dark' ? img.dataset.dark : img.dataset.light;
   });
 }
