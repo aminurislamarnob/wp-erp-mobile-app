@@ -85,6 +85,22 @@ body {
   transform: translateY(-1px);
   box-shadow: 0 4px 20px var(--glow);
 }
+.nav-cta-github {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent !important;
+  border: 1px solid rgba(255,255,255,0.22);
+  color: #fff !important;
+}
+.nav-cta-github svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+.nav-cta-github:hover {
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
 
 /* ── Hero ── */
 .hero {
