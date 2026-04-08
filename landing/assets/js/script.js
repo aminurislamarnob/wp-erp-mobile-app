@@ -85,8 +85,8 @@ function updateNavbarBg() {
   const isLight = htmlEl.getAttribute('data-theme') === 'light';
   if (isLight) {
     navbar.style.background = window.scrollY > 50
-      ? 'rgba(245,247,251,0.95)'
-      : 'rgba(245,247,251,0.8)';
+      ? 'rgba(255,255,255,0.72)'
+      : 'rgba(255,255,255,0.55)';
   } else {
     navbar.style.background = window.scrollY > 50
       ? 'rgba(5,8,22,0.9)'
