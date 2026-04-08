@@ -307,6 +307,7 @@ body {
   top: 0;
   transform: translateX(-50%);
   z-index: 3;
+  animation: phone-center-in 1s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 .hero-phone-left,
 .hero-phone-right {
@@ -317,10 +318,43 @@ body {
 .hero-phone-left {
   left: 50%;
   transform: translateX(calc(-50% - 200px));
+  animation: phone-slide-left 1.2s cubic-bezier(0.22, 1, 0.36, 1) 0.3s both;
 }
 .hero-phone-right {
   left: 50%;
   transform: translateX(calc(-50% + 200px));
+  animation: phone-slide-right 1.2s cubic-bezier(0.22, 1, 0.36, 1) 0.3s both;
+}
+
+@keyframes phone-center-in {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(60px) scale(0.92);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+}
+@keyframes phone-slide-left {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(80px) scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(calc(-50% - 200px)) translateY(0) scale(1);
+  }
+}
+@keyframes phone-slide-right {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(80px) scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(calc(-50% + 200px)) translateY(0) scale(1);
+  }
 }
 
 .btn-primary {
@@ -869,8 +903,8 @@ footer a:hover { text-decoration: underline; }
   .hero-phones { height: 280px; }
   .hero-phone-center { width: 200px; }
   .hero-phone-left, .hero-phone-right { width: 170px; }
-  .hero-phone-left { transform: translateX(calc(-50% - 140px)); }
-  .hero-phone-right { transform: translateX(calc(-50% + 140px)); }
+  .hero-phone-left { animation-name: phone-slide-left-sm; }
+  .hero-phone-right { animation-name: phone-slide-right-sm; }
   .hero-actions { flex-direction: column; align-items: center; }
   .section { padding: 60px 20px; }
   .section-title { font-size: 1.8rem; }
@@ -882,4 +916,12 @@ footer a:hover { text-decoration: underline; }
   .preview-swiper .swiper-slide { width: 150px; }
   .preview-swiper .swiper-button-prev,
   .preview-swiper .swiper-button-next { display: none; }
+  @keyframes phone-slide-left-sm {
+    0% { opacity: 0; transform: translateX(-50%) translateY(80px) scale(0.9); }
+    100% { opacity: 1; transform: translateX(calc(-50% - 140px)) translateY(0) scale(1); }
+  }
+  @keyframes phone-slide-right-sm {
+    0% { opacity: 0; transform: translateX(-50%) translateY(80px) scale(0.9); }
+    100% { opacity: 1; transform: translateX(calc(-50% + 140px)) translateY(0) scale(1); }
+  }
 }
