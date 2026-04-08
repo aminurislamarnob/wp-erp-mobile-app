@@ -63,10 +63,35 @@ const previewSwiper = new Swiper('.preview-swiper', {
   },
 });
 
+// ── Theme Toggle ──
+const themeToggle = document.getElementById('themeToggle');
+const htmlEl = document.documentElement;
+
+function setTheme(theme) {
+  htmlEl.setAttribute('data-theme', theme);
+  localStorage.setItem('theme', theme);
+  updateNavbarBg();
+}
+
+// Init from stored value (already set by inline script, just wire up)
+themeToggle.addEventListener('click', () => {
+  const current = htmlEl.getAttribute('data-theme');
+  setTheme(current === 'dark' ? 'light' : 'dark');
+});
+
 // ── Navbar background on scroll ──
 const navbar = document.querySelector('.navbar');
-window.addEventListener('scroll', () => {
-  navbar.style.background = window.scrollY > 50
-    ? 'rgba(5,8,22,0.9)'
-    : 'rgba(5,8,22,0.7)';
-});
+function updateNavbarBg() {
+  const isLight = htmlEl.getAttribute('data-theme') === 'light';
+  if (isLight) {
+    navbar.style.background = window.scrollY > 50
+      ? 'rgba(245,247,251,0.95)'
+      : 'rgba(245,247,251,0.8)';
+  } else {
+    navbar.style.background = window.scrollY > 50
+      ? 'rgba(5,8,22,0.9)'
+      : 'rgba(5,8,22,0.7)';
+  }
+}
+window.addEventListener('scroll', updateNavbarBg);
+updateNavbarBg();
