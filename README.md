@@ -144,6 +144,8 @@ The app requires two WordPress plugins on the server:
 1. **WP-ERP** — Provides the HR management REST API (`/wp-json/erp/v1/hrm/...`)
 2. **ERP Mobile Auth** — Provides token-based authentication (`/wp-json/erp-mobile/v1/login`) so the app can authenticate without cookies
 
+ERP Mobile Auth repository: [wp-erp-mobile-helper](https://github.com/aminurislamarnob/wp-erp-mobile-helper)
+
 ### Authentication Flow
 
 1. User enters their WordPress site URL, username, and password
