@@ -83,7 +83,7 @@ export default function AppHeader({ showBack, title }: AppHeaderProps) {
             <View style={styles.profileInfo}>
               <Text style={styles.name} numberOfLines={1}>{employee?.full_name || 'Employee'}</Text>
               <Text style={styles.designation} numberOfLines={1}>
-                {[employee?.designation?.title, employee?.department?.title].filter(Boolean).join(' · ')}
+                {employee?.designation?.title ?? ''}
               </Text>
             </View>
           </>
