@@ -7,7 +7,6 @@ import { Feather } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
-import { fontSize } from '../constants/theme';
 
 import LoginScreen from '../screens/auth/LoginScreen';
 import DashboardScreen from '../screens/dashboard/DashboardScreen';
@@ -19,11 +18,16 @@ import TeamDirectoryScreen from '../screens/profile/TeamDirectoryScreen';
 import AttendanceScreen from '../screens/attendance/AttendanceScreen';
 import AnnouncementsScreen from '../screens/announcements/AnnouncementsScreen';
 import AnnouncementDetailScreen from '../screens/announcements/AnnouncementDetailScreen';
+import MoreScreen from '../screens/more/MoreScreen';
+import MoreSettingsScreen from '../screens/more/MoreSettingsScreen';
+import StandupScreen from '../screens/more/StandupScreen';
+import ReimbursementScreen from '../screens/reimbursement/ReimbursementScreen';
 
 const RootStack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 const ProfileStackNav = createNativeStackNavigator();
 const LeaveStackNav = createNativeStackNavigator();
+const MoreStackNav = createNativeStackNavigator();
 
 function ProfileStackScreen() {
   return (
@@ -44,6 +48,21 @@ function LeaveStackScreen() {
   );
 }
 
+function MoreStackScreen() {
+  return (
+    <MoreStackNav.Navigator screenOptions={{ headerShown: false }}>
+      <MoreStackNav.Screen name="MoreHome" component={MoreScreen} />
+      <MoreStackNav.Screen name="MoreStandup" component={StandupScreen} />
+      <MoreStackNav.Screen name="MoreAttendance" component={AttendanceScreen} />
+      <MoreStackNav.Screen name="MoreReimbursement" component={ReimbursementScreen} />
+      <MoreStackNav.Screen name="MoreAnnouncements" component={AnnouncementsScreen} />
+      <MoreStackNav.Screen name="AnnouncementDetail" component={AnnouncementDetailScreen} />
+      <MoreStackNav.Screen name="MoreTeamDirectory" component={TeamDirectoryScreen} />
+      <MoreStackNav.Screen name="MoreSettings" component={MoreSettingsScreen} />
+    </MoreStackNav.Navigator>
+  );
+}
+
 function MainTabs() {
   const { isModuleActive } = useAuth();
   const { colors } = useTheme();
@@ -58,19 +77,17 @@ function MainTabs() {
         tabBarStyle: {
           backgroundColor: colors.surface,
           borderTopColor: colors.border,
+          paddingTop: 10,
           paddingBottom: Math.max(insets.bottom, 4),
-          height: 56 + Math.max(insets.bottom - 4, 0),
+          height: 66 + Math.max(insets.bottom - 4, 0),
         },
-        tabBarLabelStyle: {
-          fontSize: fontSize.xs,
-        },
+        tabBarShowLabel: false,
       }}
     >
       <Tab.Screen
         name="Dashboard"
         component={DashboardScreen}
         options={{
-          tabBarLabel: 'Home',
           tabBarIcon: ({ color, size }) => <Feather name="home" size={size} color={color} />,
         }}
       />
@@ -78,7 +95,6 @@ function MainTabs() {
         name="Leave"
         component={LeaveStackScreen}
         options={{
-          title: 'Leave',
           tabBarIcon: ({ color, size }) => <Feather name="calendar" size={size} color={color} />,
         }}
       />
@@ -87,7 +103,6 @@ function MainTabs() {
           name="Attendance"
           component={AttendanceScreen}
           options={{
-            title: 'Attendance',
             tabBarIcon: ({ color, size }) => <Feather name="clock" size={size} color={color} />,
           }}
         />
@@ -96,8 +111,14 @@ function MainTabs() {
         name="Profile"
         component={ProfileStackScreen}
         options={{
-          title: 'Profile',
           tabBarIcon: ({ color, size }) => <Feather name="user" size={size} color={color} />,
+        }}
+      />
+      <Tab.Screen
+        name="More"
+        component={MoreStackScreen}
+        options={{
+          tabBarIcon: ({ color, size }) => <Feather name="more-vertical" size={size} color={color} />,
         }}
       />
     </Tab.Navigator>

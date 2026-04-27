@@ -319,12 +319,25 @@ export interface StandupSummary {
   total: number;
 }
 
+export interface StandupLog {
+  date: string;
+  status: 'present' | 'absent' | 'leave';
+}
+
+export interface StandupResponse {
+  summary: StandupSummary;
+  logs: StandupLog[];
+}
+
 export async function getMyStandupLog(
   params: { month: string } | { from: string; to: string }
-): Promise<StandupSummary> {
+): Promise<StandupResponse> {
   const client = await getClient();
   const { data } = await client.get('/erp-app/v1/standup/my-log', { params });
-  return data?.summary ?? { present: 0, absent: 0, leave: 0, total: 0 };
+  return {
+    summary: data?.summary ?? { present: 0, absent: 0, leave: 0, total: 0 },
+    logs: Array.isArray(data?.logs) ? data.logs : [],
+  };
 }
 
 // ─── Attendance ───

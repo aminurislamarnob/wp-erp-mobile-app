@@ -365,7 +365,7 @@ export default function AttendanceStatusChart() {
     setStdLoading(true);
     try {
       const params = getStandupParams(filter);
-      const summary = await getMyStandupLog(params);
+      const { summary } = await getMyStandupLog(params);
       setStdStats({ present: summary.present, absent: summary.absent, leave: summary.leave });
     } catch {
       setStdStats({ present: 0, absent: 0, leave: 0 });

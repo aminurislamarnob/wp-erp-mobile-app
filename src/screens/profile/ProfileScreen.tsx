@@ -111,20 +111,6 @@ function useStyles() {
       color: colors.textLight,
       marginTop: spacing.xs,
     },
-    teamBtn: {
-      marginTop: spacing.md,
-      paddingHorizontal: spacing.lg,
-      paddingVertical: spacing.sm,
-      borderRadius: 20,
-      borderWidth: 1,
-      borderColor: colors.primary,
-    },
-    teamBtnText: {
-      fontSize: fontSize.sm,
-      color: colors.primary,
-      fontWeight: '600',
-    },
-
     // Theme toggle
     themeToggle: {
       flexDirection: 'row',
@@ -373,13 +359,6 @@ export default function ProfileScreen() {
           {employee.designation?.title || ''}
           {employee.department ? ` · ${employee.department.title}` : ''}
         </Text>
-        <TouchableOpacity
-          style={styles.teamBtn}
-          onPress={() => navigation.navigate('TeamDirectory')}
-        >
-          <Text style={styles.teamBtnText}>Team Directory</Text>
-        </TouchableOpacity>
-
         {/* Theme Toggle */}
         <View style={styles.themeToggle}>
           {(['system', 'light', 'dark'] as ThemeMode[]).map((m) => (
