@@ -11,6 +11,7 @@ import {
   ScrollView,
   Image,
 } from 'react-native';
+import { Feather } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../../contexts/AuthContext';
 import { useToast } from '../../components/Toast';
@@ -96,6 +97,23 @@ function useStyles() {
       backgroundColor: colors.background,
       color: colors.text,
     },
+    passwordWrap: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: 10,
+      backgroundColor: colors.background,
+    },
+    passwordInput: {
+      flex: 1,
+      padding: spacing.md,
+      fontSize: fontSize.md,
+      color: colors.text,
+    },
+    eyeBtn: {
+      padding: spacing.md,
+    },
     hint: {
       fontSize: fontSize.xs,
       color: colors.textLight,
@@ -136,6 +154,7 @@ export default function LoginScreen() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [siteStatus, setSiteStatus] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   async function handleConnect() {
     const trimmed = siteUrl.trim();
@@ -280,17 +299,30 @@ export default function LoginScreen() {
             />
 
             <Text style={styles.label}>Password</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Enter your password"
-              placeholderTextColor={colors.textLight}
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry
-              autoCapitalize="none"
-              autoCorrect={false}
-              editable={!loading}
-            />
+            <View style={styles.passwordWrap}>
+              <TextInput
+                style={styles.passwordInput}
+                placeholder="Enter your password"
+                placeholderTextColor={colors.textLight}
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry={!showPassword}
+                autoCapitalize="none"
+                autoCorrect={false}
+                editable={!loading}
+              />
+              <TouchableOpacity
+                style={styles.eyeBtn}
+                onPress={() => setShowPassword((v) => !v)}
+                activeOpacity={0.6}
+              >
+                <Feather
+                  name={showPassword ? 'eye-off' : 'eye'}
+                  size={18}
+                  color={colors.textLight}
+                />
+              </TouchableOpacity>
+            </View>
 
             <Text style={styles.hint}>
               Use your WordPress login credentials to sign in.

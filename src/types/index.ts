@@ -77,6 +77,12 @@ export interface LeaveRequest {
   end_date: string;
   reason: string;
   comments: string;
+  message?: string;
+  required_approval?: {
+    approver_id: number;
+    approver_name: string;
+    status: string;
+  } | null;
   days?: number;
   available?: number;
   spent?: number;

@@ -10,7 +10,7 @@ import { useRoute } from '@react-navigation/native';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
-import { getLeaveRequestDetail } from '../../api/endpoints';
+import { getLeaveRequestDetail, getPendingLeaveDetail, getRejectedLeaveDetail } from '../../api/endpoints';
 import { LeaveRequest } from '../../types';
 import { spacing, fontSize } from '../../constants/theme';
 import AppHeader from '../../components/AppHeader';
@@ -138,7 +138,7 @@ function useStyles() {
     // Comments
     commentBox: {
       flexDirection: 'row',
-      alignItems: 'flex-start',
+      alignItems: 'center',
       gap: spacing.sm,
       backgroundColor: colors.background,
       padding: spacing.md,
@@ -188,7 +188,7 @@ export default function LeaveDetailScreen() {
   const { user } = useAuth();
   const { colors } = useTheme();
   const styles = useStyles();
-  const { requestId } = route.params;
+  const { requestId, source } = route.params;
 
   const STATUS_MAP: Record<number, { label: string; color: string; icon: keyof typeof Feather.glyphMap }> = {
     1: { label: 'Approved', color: colors.success, icon: 'check-circle' },
@@ -203,7 +203,14 @@ export default function LeaveDetailScreen() {
     if (!user) return;
     (async () => {
       try {
-        const data = await getLeaveRequestDetail(requestId, user.id);
+        let data: LeaveRequest | null = null;
+        if (source === 'pending') {
+          data = await getPendingLeaveDetail(user.id, requestId);
+        } else if (source === 'rejected') {
+          data = await getRejectedLeaveDetail(user.id, requestId);
+        } else {
+          data = await getLeaveRequestDetail(requestId, user.id);
+        }
         setRequest(data);
       } catch {
         // ignore
@@ -211,7 +218,7 @@ export default function LeaveDetailScreen() {
         setLoading(false);
       }
     })();
-  }, [requestId, user]);
+  }, [requestId, source, user]);
 
   if (loading) {
     return (
@@ -301,6 +308,41 @@ export default function LeaveDetailScreen() {
           <View style={styles.commentBox}>
             <Feather name="message-circle" size={14} color={colors.textSecondary} />
             <Text style={styles.commentText}>{request.comments}</Text>
+          </View>
+        </View>
+      ) : null}
+
+      {/* Intermediate Approver */}
+      {request.required_approval ? (
+        <View style={styles.card}>
+          <Text style={styles.sectionLabel}>Approval Required</Text>
+          <View style={styles.commentBox}>
+            <Feather name="user-check" size={14} color={colors.textSecondary} />
+            <View style={{ flex: 1 }}>
+              <Text style={styles.commentText}>{request.required_approval.approver_name}</Text>
+              <Text style={[styles.commentText, {
+                fontSize: fontSize.xs,
+                color: request.required_approval.status === 'Approved'
+                  ? colors.success
+                  : request.required_approval.status === 'Rejected'
+                  ? colors.error
+                  : colors.warning,
+                marginTop: 2,
+              }]}>
+                {request.required_approval.status}
+              </Text>
+            </View>
+          </View>
+        </View>
+      ) : null}
+
+      {/* Status Message */}
+      {request.message ? (
+        <View style={styles.card}>
+          <Text style={styles.sectionLabel}>Status Note</Text>
+          <View style={styles.commentBox}>
+            <Feather name="info" size={14} color={colors.textSecondary} />
+            <Text style={styles.commentText}>{request.message}</Text>
           </View>
         </View>
       ) : null}

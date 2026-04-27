@@ -139,7 +139,9 @@ function normalizeLeaveRequest(raw: any): LeaveRequest {
     start_date: parseLeaveDate(raw.start_date),
     end_date: parseLeaveDate(raw.end_date),
     reason: raw.reason || '',
-    comments: raw.comments || raw.message || '',
+    comments: raw.comments || '',
+    message: raw.message || raw.required_approval_message || '',
+    required_approval: raw.required_approval ?? null,
     days: raw.days ? Number(raw.days) : undefined,
     available: raw.available != null ? Number(raw.available) : undefined,
     spent: raw.spent != null ? Number(raw.spent) : undefined,
@@ -245,6 +247,30 @@ export async function getMyLeavePolicies(userId: number): Promise<LeavePolicy[]>
   }));
 }
 
+export async function getMyPendingLeaves(userId: number): Promise<LeaveRequest[]> {
+  const client = await getClient();
+  const { data } = await client.get(`/erp-app/v1/hrm/employees/${userId}/pending-leaves`);
+  const items = Array.isArray(data) ? data : [];
+  return items.map(normalizeLeaveRequest);
+}
+
+export async function getMyRejectedLeaves(userId: number): Promise<LeaveRequest[]> {
+  const client = await getClient();
+  const { data } = await client.get(`/erp-app/v1/hrm/employees/${userId}/rejected-leaves`);
+  const items = Array.isArray(data) ? data : [];
+  return items.map(normalizeLeaveRequest);
+}
+
+export async function getPendingLeaveDetail(userId: number, requestId: number): Promise<LeaveRequest | null> {
+  const items = await getMyPendingLeaves(userId);
+  return items.find((r) => r.id === requestId) ?? null;
+}
+
+export async function getRejectedLeaveDetail(userId: number, requestId: number): Promise<LeaveRequest | null> {
+  const items = await getMyRejectedLeaves(userId);
+  return items.find((r) => r.id === requestId) ?? null;
+}
+
 export async function getMyLeaveBalance(userId: number) {
   const client = await getClient();
   const { data } = await client.get(`/erp/v1/hrm/employees/${userId}/policies`, {
@@ -282,6 +308,23 @@ export async function getMyCalendarEvents(
     params: { start: `${year}-01-01`, end: `${year}-12-31`, per_page: 100 },
   });
   return data;
+}
+
+// ─── Standup ───
+
+export interface StandupSummary {
+  present: number;
+  absent: number;
+  leave: number;
+  total: number;
+}
+
+export async function getMyStandupLog(
+  params: { month: string } | { from: string; to: string }
+): Promise<StandupSummary> {
+  const client = await getClient();
+  const { data } = await client.get('/erp-app/v1/standup/my-log', { params });
+  return data?.summary ?? { present: 0, absent: 0, leave: 0, total: 0 };
 }
 
 // ─── Attendance ───

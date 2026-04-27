@@ -15,6 +15,8 @@ import { useTheme } from '../../contexts/ThemeContext';
 import { useToast } from '../../components/Toast';
 import {
   getMyLeaveRequests,
+  getMyPendingLeaves,
+  getMyRejectedLeaves,
   getMyLeaveBalance,
   getHolidays,
 } from '../../api/endpoints';
@@ -401,14 +403,18 @@ export default function LeaveScreen() {
   const loadRequests = useCallback(async () => {
     if (!user) return;
     try {
-      const allRequests = await getMyLeaveRequests(user.id);
-      // API returns current fiscal year leaves; apply status filter client-side
-      const filter = STATUS_FILTERS.find((f) => f.key === statusFilter);
-      const filterValue = filter?.value;
-      const filtered = filterValue !== undefined
-        ? allRequests.filter((r) => r.status === filterValue)
-        : allRequests;
-      setRequests(filtered);
+      let result;
+      if (statusFilter === 'pending') {
+        result = await getMyPendingLeaves(user.id);
+      } else if (statusFilter === 'rejected') {
+        result = await getMyRejectedLeaves(user.id);
+      } else {
+        const all = await getMyLeaveRequests(user.id);
+        const filter = STATUS_FILTERS.find((f) => f.key === statusFilter);
+        const filterValue = filter?.value;
+        result = filterValue !== undefined ? all.filter((r) => r.status === filterValue) : all;
+      }
+      setRequests(result);
     } catch (err: any) {
       toast.error('Load Failed', err?.message || 'Failed to load leave requests');
     }
@@ -520,7 +526,7 @@ export default function LeaveScreen() {
             <RequestCard
               item={item}
               statusMap={STATUS_MAP}
-              onPress={() => navigation.navigate('LeaveDetail', { requestId: item.id })}
+              onPress={() => navigation.navigate('LeaveDetail', { requestId: item.id, source: statusFilter })}
             />
           )}
           contentContainerStyle={styles.list}

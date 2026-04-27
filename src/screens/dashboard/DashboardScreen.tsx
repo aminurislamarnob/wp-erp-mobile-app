@@ -17,6 +17,7 @@ import { spacing, fontSize } from '../../constants/theme';
 import { useTheme } from '../../contexts/ThemeContext';
 import AppHeader from '../../components/AppHeader';
 import { Skeleton } from '../../components/Skeleton';
+import AttendanceStatusChart from '../../components/AttendanceStatusChart';
 import {
   getUpcomingBirthdays,
   getWhoIsOut,
@@ -463,10 +464,17 @@ export default function DashboardScreen() {
       return () => {
         if (timerRef.current) clearInterval(timerRef.current);
       };
+    } else if (checkedOut && attLog) {
+      // Already checked out — show final total from log_time (static, no timer)
+      const logTime = parseInt(String(attLog.log_time)) || 0;
+      const h = String(Math.floor(logTime / 3600)).padStart(2, '0');
+      const m = String(Math.floor((logTime % 3600) / 60)).padStart(2, '0');
+      const s = String(logTime % 60).padStart(2, '0');
+      setElapsed(`${h}:${m}:${s}`);
     } else {
       setElapsed('00:00:00');
     }
-  }, [isCheckedIn, attLog]);
+  }, [isCheckedIn, checkedOut, attLog]);
 
   async function onRefresh() {
     setRefreshing(true);
@@ -665,6 +673,14 @@ export default function DashboardScreen() {
               </Text>
             </View>
 
+            {checkedOut ? (
+              <View style={styles.clockInfoRow}>
+                <Text style={styles.clockInfoLabel}>Checked-out</Text>
+                <Text style={styles.clockInfoColon}>:</Text>
+                <Text style={styles.clockInfoValue}>{formatTime12h(checkedOut)}</Text>
+              </View>
+            ) : null}
+
             {/* Bottom: working time + button */}
             <View style={styles.clockInfoRow}>
               <Text style={styles.clockInfoLabel}>Today Work Time</Text>
@@ -709,6 +725,9 @@ export default function DashboardScreen() {
           </View>
         );
       })()}
+
+      {/* ─── Attendance Status Chart ─── */}
+      {hasAttendance && <AttendanceStatusChart />}
 
       {/* ─── Quick Actions ─── */}
       <View style={styles.section}>
