@@ -21,6 +21,7 @@ import AnnouncementDetailScreen from '../screens/announcements/AnnouncementDetai
 import MoreScreen from '../screens/more/MoreScreen';
 import MoreSettingsScreen from '../screens/more/MoreSettingsScreen';
 import StandupScreen from '../screens/more/StandupScreen';
+import StandupFormScreen from '../screens/more/StandupFormScreen';
 import ReimbursementScreen from '../screens/reimbursement/ReimbursementScreen';
 
 const RootStack = createNativeStackNavigator();
@@ -53,6 +54,7 @@ function MoreStackScreen() {
     <MoreStackNav.Navigator screenOptions={{ headerShown: false }}>
       <MoreStackNav.Screen name="MoreHome" component={MoreScreen} />
       <MoreStackNav.Screen name="MoreStandup" component={StandupScreen} />
+      <MoreStackNav.Screen name="MoreStandupForm" component={StandupFormScreen} />
       <MoreStackNav.Screen name="MoreAttendance" component={AttendanceScreen} />
       <MoreStackNav.Screen name="MoreReimbursement" component={ReimbursementScreen} />
       <MoreStackNav.Screen name="MoreAnnouncements" component={AnnouncementsScreen} />

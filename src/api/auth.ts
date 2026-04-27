@@ -56,7 +56,7 @@ export async function loginWithPassword(
   password: string
 ): Promise<LoginResult> {
   const response = await axios.post(
-    `${siteUrl}/wp-json/erp-mobile/v1/login`,
+    `${siteUrl}/wp-json/erp-app/v1/login`,
     { username, password },
     { timeout: 15000 }
   );

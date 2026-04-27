@@ -13,7 +13,6 @@ import { Employee } from '../../types';
 import { useTheme } from '../../contexts/ThemeContext';
 import { spacing, fontSize } from '../../constants/theme';
 import AppHeader from '../../components/AppHeader';
-import ClockFAB from '../../components/ClockFAB';
 import { Skeleton } from '../../components/Skeleton';
 import { ScrollView } from 'react-native';
 
@@ -163,7 +162,7 @@ export default function TeamDirectoryScreen() {
 
   return (
     <View style={styles.container}>
-      <AppHeader showBack />
+      <AppHeader showBack title="Team Directory" />
       <View style={styles.searchWrap}>
         <TextInput
           style={styles.searchInput}
@@ -210,7 +209,6 @@ export default function TeamDirectoryScreen() {
           }
         />
       )}
-      <ClockFAB />
     </View>
   );
 }

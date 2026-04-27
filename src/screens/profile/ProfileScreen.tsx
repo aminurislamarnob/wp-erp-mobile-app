@@ -25,7 +25,6 @@ import {
   uploadPhoto,
 } from '../../api/endpoints';
 import { Employee } from '../../types';
-import ClockFAB from '../../components/ClockFAB';
 
 type TabKey = 'info' | 'experience' | 'education' | 'dependents';
 
@@ -327,7 +326,7 @@ export default function ProfileScreen() {
 
   return (
     <View style={styles.container}>
-    <AppHeader />
+    <AppHeader title="My Profile" />
     <ScrollView
       style={{ flex: 1 }}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
@@ -417,7 +416,6 @@ export default function ProfileScreen() {
 
       <View style={{ height: spacing.xl }} />
     </ScrollView>
-    <ClockFAB />
     </View>
   );
 }

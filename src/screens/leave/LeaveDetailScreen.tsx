@@ -14,7 +14,6 @@ import { getLeaveRequestDetail, getPendingLeaveDetail, getRejectedLeaveDetail } 
 import { LeaveRequest } from '../../types';
 import { spacing, fontSize } from '../../constants/theme';
 import AppHeader from '../../components/AppHeader';
-import ClockFAB from '../../components/ClockFAB';
 
 function useStyles() {
   const { colors } = useTheme();
@@ -223,7 +222,7 @@ export default function LeaveDetailScreen() {
   if (loading) {
     return (
       <View style={styles.container}>
-        <AppHeader showBack />
+        <AppHeader showBack title="Leave Details" />
         <View style={styles.center}>
           <ActivityIndicator size="large" color={colors.primary} />
         </View>
@@ -234,7 +233,7 @@ export default function LeaveDetailScreen() {
   if (!request) {
     return (
       <View style={styles.container}>
-        <AppHeader showBack />
+        <AppHeader showBack title="Leave Details" />
         <View style={styles.center}>
           <Feather name="alert-circle" size={48} color={colors.textLight} />
           <Text style={styles.errorText}>Could not load request details</Text>
@@ -249,7 +248,7 @@ export default function LeaveDetailScreen() {
 
   return (
     <View style={styles.container}>
-    <AppHeader showBack />
+    <AppHeader showBack title="Leave Details" />
     <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.content}>
       {/* Status Banner */}
       <View style={[styles.statusBanner, { backgroundColor: status.color + '15' }]}>
@@ -384,7 +383,6 @@ export default function LeaveDetailScreen() {
         )}
       </View>
     </ScrollView>
-    <ClockFAB />
     </View>
   );
 }

@@ -573,7 +573,7 @@ export default function AttendanceScreen() {
 
   return (
     <View style={styles.container}>
-      <AppHeader />
+      <AppHeader title="Attendance" />
       {/* Tab Bar */}
       <View style={styles.tabBar}>
         {TABS.map((t) => (

@@ -4,9 +4,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Expo React Native mobile app for WP-ERP (WordPress ERP plugin). Provides an employee self-service portal: dashboard with live clock-in/out, leave management, attendance, announcements, profile (info, experience, education, dependents), and team directory.
+Expo React Native mobile app for WP-ERP (WordPress ERP plugin), ERP Pro & WP ERP App Helder. Provides an employee self-service portal: dashboard with live clock-in/out, leave management, attendance, announcements, profile (info, experience, education, dependents), and team directory.
 
 Connects to a WordPress site running WP-ERP via its REST API (`/wp-json/erp/v1/hrm/...`). Authentication uses a custom `erp-mobile/v1/login` endpoint that returns a persistent Bearer token.
+
+**Deps:** WP ERP, ERP Pro, WP ERP App Helper
 
 ## Development Commands
 
@@ -18,6 +20,7 @@ npx expo start --web    # Start web version
 ```
 
 EAS builds (requires `eas-cli`):
+
 ```bash
 eas build --profile development --platform android   # Dev client build
 eas build --profile preview --platform android        # Preview APK
@@ -32,6 +35,7 @@ No test runner or linter is configured.
 **Entry:** `App.tsx` wraps the app in `ThemeProvider` → `AuthProvider` → `ToastProvider` → `AppNavigator`.
 
 **Navigation** (`src/navigation/AppNavigator.tsx`):
+
 - Unauthenticated: shows `LoginScreen`
 - Authenticated: bottom tab navigator with Dashboard, Leave (stack), Attendance (conditional on module), Profile (stack)
 - Announcements list + detail screens live on the RootStack (accessible from dashboard quick action or any screen)
@@ -40,12 +44,14 @@ No test runner or linter is configured.
 - Profile tabs: Info, Experience, Education, Dependents
 
 **Auth flow** (`src/contexts/AuthContext.tsx`):
+
 - Login: validate site URL → POST to `erp-mobile/v1/login` → verify employee role → fetch employee profile + active modules
 - Credentials (including username/password for auto-refresh) stored in `expo-secure-store`
 - Session restore: re-authenticates on app launch, auto-logout on 401 via Axios interceptor
 - `useAuth()` hook exposes auth state, `login`, `logout`, `connectSite`, `isModuleActive`
 
 **API layer** (`src/api/`):
+
 - `client.ts` — Axios instance factory with Bearer token auth, credential storage via SecureStore, pagination helper
 - `auth.ts` — Site validation, login, employee fetch, module fetch
 - `endpoints.ts` — All HRM/accounting API calls. Some endpoints use native `fetch` instead of Axios (file uploads, and `clockInOut` where the WP backend uses `wp_send_json_success/die()`)
@@ -54,6 +60,7 @@ No test runner or linter is configured.
 **Types** (`src/types/index.ts`): All TypeScript interfaces for API models. Leave status is numeric (not string).
 
 **Theme** (`src/constants/theme.ts` + `src/contexts/ThemeContext.tsx`):
+
 - `lightColors` and `darkColors` palettes defined in `theme.ts`; `spacing` and `fontSize` are shared
 - `ThemeContext` provides `useTheme()` hook returning `{ colors, isDark, mode, setMode }`
 - Theme mode (`light` | `dark` | `system`) persisted via `expo-secure-store`

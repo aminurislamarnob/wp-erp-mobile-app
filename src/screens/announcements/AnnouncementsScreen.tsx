@@ -17,7 +17,6 @@ import { getMyAnnouncements } from '../../api/endpoints';
 import { Announcement } from '../../types';
 import { spacing, fontSize } from '../../constants/theme';
 import AppHeader from '../../components/AppHeader';
-import ClockFAB from '../../components/ClockFAB';
 
 export default function AnnouncementsScreen() {
   const navigation = useNavigation<any>();
@@ -85,7 +84,7 @@ export default function AnnouncementsScreen() {
   if (loading) {
     return (
       <View style={styles.container}>
-        <AppHeader showBack />
+        <AppHeader showBack title="Announcements" />
         <View style={styles.center}>
           <ActivityIndicator size="large" color={colors.primary} />
         </View>
@@ -95,7 +94,7 @@ export default function AnnouncementsScreen() {
 
   return (
     <View style={styles.container}>
-    <AppHeader showBack />
+    <AppHeader showBack title="Announcements" />
     <FlatList
       style={{ flex: 1 }}
       data={announcements}
@@ -143,7 +142,6 @@ export default function AnnouncementsScreen() {
         ) : null
       }
     />
-    <ClockFAB />
     </View>
   );
 }

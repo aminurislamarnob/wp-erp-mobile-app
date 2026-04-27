@@ -340,6 +340,41 @@ export async function getMyStandupLog(
   };
 }
 
+// ─── Standup Manager ───
+
+export interface StandupEmployee {
+  employee_id: number;
+  first_name: string;
+  last_name: string;
+  name: string;
+  standup_status: 'present' | 'absent' | 'leave' | null;
+}
+
+export async function checkStandupPermission(): Promise<boolean> {
+  try {
+    const client = await getClient();
+    await client.get('/erp-app/v1/standup/history');
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export async function getStandupEmployees(date: string): Promise<StandupEmployee[]> {
+  const client = await getClient();
+  const { data } = await client.get('/erp-app/v1/standup/employees', { params: { date } });
+  return Array.isArray(data) ? data : [];
+}
+
+export async function saveStandup(
+  date: string,
+  records: { employee_id: number; status: 'present' | 'absent' | 'leave' }[]
+): Promise<{ success: boolean; message: string }> {
+  const client = await getClient();
+  const { data } = await client.post('/erp-app/v1/standup/save', { date, records });
+  return data;
+}
+
 // ─── Attendance ───
 
 export async function getSelfAttendance(): Promise<{ attendance: SelfAttendance; log: SelfAttendanceLog }> {

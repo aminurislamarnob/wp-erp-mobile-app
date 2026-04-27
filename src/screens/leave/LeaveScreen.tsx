@@ -470,7 +470,7 @@ export default function LeaveScreen() {
 
   return (
     <View style={styles.container}>
-      <AppHeader />
+      <AppHeader title="Leave" />
       {/* Tabs */}
       <View style={styles.tabBar}>
         {(['requests', 'balance', 'holidays'] as TabKey[]).map((tab) => (

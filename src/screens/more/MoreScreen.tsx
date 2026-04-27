@@ -11,7 +11,6 @@ import { useTheme } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { spacing, fontSize } from '../../constants/theme';
 import AppHeader from '../../components/AppHeader';
-import ClockFAB from '../../components/ClockFAB';
 
 interface MenuItem {
   icon: keyof typeof Feather.glyphMap;
@@ -36,7 +35,7 @@ export default function MoreScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <AppHeader />
+      <AppHeader title="More" />
 
       <View style={styles.content}>
         <View style={[styles.card, { backgroundColor: colors.surface }]}>
@@ -73,7 +72,6 @@ export default function MoreScreen() {
         </View>
       </View>
 
-      <ClockFAB />
     </View>
   );
 }

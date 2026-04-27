@@ -8,11 +8,11 @@ import {
   RefreshControl,
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 import { useTheme } from '../../contexts/ThemeContext';
-import { getMyStandupLog, StandupLog, StandupSummary } from '../../api/endpoints';
+import { getMyStandupLog, checkStandupPermission, StandupLog, StandupSummary } from '../../api/endpoints';
 import { spacing, fontSize } from '../../constants/theme';
 import AppHeader from '../../components/AppHeader';
-import ClockFAB from '../../components/ClockFAB';
 import { Skeleton } from '../../components/Skeleton';
 
 function useStyles() {
@@ -171,6 +171,22 @@ function useStyles() {
       fontSize: fontSize.sm,
       color: colors.textLight,
     },
+
+    fab: {
+      position: 'absolute',
+      bottom: spacing.xl,
+      right: spacing.md,
+      width: 56,
+      height: 56,
+      borderRadius: 28,
+      justifyContent: 'center',
+      alignItems: 'center',
+      elevation: 6,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 3 },
+      shadowOpacity: 0.25,
+      shadowRadius: 6,
+    },
   }), [colors]);
 }
 
@@ -251,6 +267,7 @@ function SkeletonStandup() {
 export default function StandupScreen() {
   const { colors } = useTheme();
   const styles = useStyles();
+  const navigation = useNavigation<any>();
 
   const now = new Date();
   const [year, setYear] = useState(now.getFullYear());
@@ -259,6 +276,7 @@ export default function StandupScreen() {
   const [logs, setLogs] = useState<StandupLog[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [canManage, setCanManage] = useState(false);
 
   const load = useCallback(async (isRefresh = false) => {
     if (isRefresh) setRefreshing(true);
@@ -279,6 +297,10 @@ export default function StandupScreen() {
 
   useEffect(() => { load(); }, [load]);
 
+  useEffect(() => {
+    checkStandupPermission().then(setCanManage);
+  }, []);
+
   function prevMonth() {
     if (month === 1) { setYear(y => y - 1); setMonth(12); }
     else setMonth(m => m - 1);
@@ -295,10 +317,11 @@ export default function StandupScreen() {
 
   return (
     <View style={styles.container}>
-      <AppHeader showBack />
+      <AppHeader showBack title="Daily Standup" />
 
       {loading ? (
         <SkeletonStandup />
+
       ) : (
         <ScrollView
           contentContainerStyle={styles.content}
@@ -388,7 +411,16 @@ export default function StandupScreen() {
         </ScrollView>
       )}
 
-      <ClockFAB />
+      {/* FAB — only for users with erp_manage_standup */}
+      {canManage && (
+        <TouchableOpacity
+          style={[styles.fab, { backgroundColor: colors.primary }]}
+          onPress={() => navigation.navigate('MoreStandupForm')}
+          activeOpacity={0.85}
+        >
+          <Feather name="plus" size={24} color="#fff" />
+        </TouchableOpacity>
+      )}
     </View>
   );
 }

@@ -14,7 +14,6 @@ import { getAnnouncementDetail } from '../../api/endpoints';
 import { Announcement } from '../../types';
 import { spacing, fontSize } from '../../constants/theme';
 import AppHeader from '../../components/AppHeader';
-import ClockFAB from '../../components/ClockFAB';
 
 export default function AnnouncementDetailScreen() {
   const route = useRoute<any>();
@@ -43,7 +42,7 @@ export default function AnnouncementDetailScreen() {
   if (loading) {
     return (
       <View style={styles.container}>
-        <AppHeader showBack />
+        <AppHeader showBack title="Announcement" />
         <View style={styles.center}>
           <ActivityIndicator size="large" color={colors.primary} />
         </View>
@@ -54,7 +53,7 @@ export default function AnnouncementDetailScreen() {
   if (!announcement) {
     return (
       <View style={styles.container}>
-        <AppHeader showBack />
+        <AppHeader showBack title="Announcement" />
         <View style={styles.center}>
           <Feather name="alert-circle" size={48} color={colors.textLight} />
           <Text style={styles.errorText}>Could not load announcement</Text>
@@ -92,7 +91,7 @@ export default function AnnouncementDetailScreen() {
 
   return (
     <View style={styles.container}>
-    <AppHeader showBack />
+    <AppHeader showBack title="Announcement" />
     <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.content}>
       {/* Header */}
       <View style={styles.headerCard}>
@@ -117,7 +116,6 @@ export default function AnnouncementDetailScreen() {
         <Text style={styles.bodyText}>{stripHtml(announcement.body)}</Text>
       </View>
     </ScrollView>
-    <ClockFAB />
     </View>
   );
 }

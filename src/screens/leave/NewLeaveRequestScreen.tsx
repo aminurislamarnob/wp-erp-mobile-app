@@ -21,7 +21,6 @@ import { getMyLeaveBalance, submitLeaveRequest } from '../../api/endpoints';
 import { LeavePolicy } from '../../types';
 import { spacing, fontSize } from '../../constants/theme';
 import AppHeader from '../../components/AppHeader';
-import ClockFAB from '../../components/ClockFAB';
 
 interface AttachedFile {
   uri: string;
@@ -435,7 +434,7 @@ export default function NewLeaveRequestScreen() {
 
   return (
     <View style={styles.container}>
-    <AppHeader showBack />
+    <AppHeader showBack title="New Leave Request" />
     <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.content}>
       {/* Policy Selector */}
       <Text style={styles.label}>Leave Policy</Text>
@@ -609,7 +608,6 @@ export default function NewLeaveRequestScreen() {
         )}
       </TouchableOpacity>
     </ScrollView>
-    <ClockFAB />
     </View>
   );
 }
