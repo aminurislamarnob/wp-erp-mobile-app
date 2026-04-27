@@ -375,6 +375,94 @@ export async function saveStandup(
   return data;
 }
 
+// ─── Payment Requests ───
+
+export interface PaymentAttachment {
+  id: number;
+  url: string;
+  type: string;
+  filename: string;
+}
+
+export interface PaymentRequest {
+  id: number;
+  title: string;
+  amount: string;
+  description: string;
+  purchase_date: string | null;
+  expect_payment_by: string | null;
+  status: 'pending' | 'approved' | 'rejected';
+  payment_type: string | null;
+  hr_note: string | null;
+  reviewed_by: number | null;
+  reviewed_at: string | null;
+  created_at: string;
+  attachments: PaymentAttachment[];
+  employee_name?: string;
+}
+
+export async function uploadWPMedia(uri: string, name: string, mimeType: string): Promise<number> {
+  const credentials = await getCredentials();
+  if (!credentials) throw new Error('Not authenticated');
+  const formData = new FormData();
+  formData.append('file', { uri, name, type: mimeType } as any);
+  const res = await fetch(`${credentials.siteUrl}/wp-json/wp/v2/media`, {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${credentials.token}` },
+    body: formData,
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => null);
+    throw new Error(err?.message || `Upload failed (${res.status})`);
+  }
+  const data = await res.json();
+  if (!data?.id) throw new Error('Upload failed — no attachment ID returned');
+  return data.id as number;
+}
+
+export interface PaymentRequestsResponse {
+  currency: string;
+  data: PaymentRequest[];
+}
+
+export async function getCurrency(): Promise<string> {
+  const client = await getClient();
+  const { data } = await client.get('/erp-app/v1/currency');
+  return typeof data === 'string' ? data : (data?.currency ?? '');
+}
+
+export async function getPaymentRequests(): Promise<PaymentRequestsResponse> {
+  const client = await getClient();
+  const { data } = await client.get('/erp-app/v1/payment-requests', { params: { _t: Date.now() } });
+  // Handle both new { currency, data } shape and legacy plain array
+  if (Array.isArray(data)) {
+    return { currency: '', data };
+  }
+  return {
+    currency: data?.currency ?? '',
+    data: Array.isArray(data?.data) ? data.data : [],
+  };
+}
+
+export async function getPaymentRequest(id: number): Promise<PaymentRequest> {
+  const client = await getClient();
+  const { data } = await client.get(`/erp-app/v1/payment-requests/${id}`);
+  return data;
+}
+
+export async function createPaymentRequest(payload: {
+  title: string;
+  amount: number;
+  description: string;
+  purchase_date?: string;
+  expect_payment_by?: string;
+  attachment_ids: number[];
+}): Promise<PaymentRequest> {
+  const client = await getClient();
+  const { data } = await client.post('/erp-app/v1/payment-requests', payload);
+  return data;
+}
+
 // ─── Attendance ───
 
 export async function getSelfAttendance(): Promise<{ attendance: SelfAttendance; log: SelfAttendanceLog }> {
