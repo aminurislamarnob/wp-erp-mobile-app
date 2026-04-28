@@ -144,7 +144,8 @@ function useStyles() {
       fontWeight: '600',
     },
     buttonArrow: {
-      marginLeft: spacing.sm,
+      position: 'absolute',
+      right: spacing.md,
     },
   }), [colors]);
 }
@@ -371,7 +372,7 @@ export default function LoginScreen() {
               ) : (
                 <>
                   <Text style={styles.buttonText}>Sign In</Text>
-                  <Feather name="arrow-right" size={18} color="#fff" style={styles.buttonArrow} />
+                  <MaterialCommunityIcons name="arrow-right-thin" size={26} color="#fff" style={styles.buttonArrow} />
                 </>
               )}
             </TouchableOpacity>
