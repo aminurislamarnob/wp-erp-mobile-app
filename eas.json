@@ -8,6 +8,9 @@
     },
     "production-arm64": {
       "channel": "production",
+      "env": {
+        "ANDROID_HOME": "/Users/aiarnob/Library/Android/sdk"
+      },
       "android": {
         "buildType": "apk",
         "gradleCommand": ":app:assembleRelease"

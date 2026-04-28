@@ -41,14 +41,16 @@
             "reactNativeArchitectures": "arm64-v8a",
             "enableProguardInReleaseBuilds": true,
             "enableShrinkResourcesInReleaseBuilds": true,
-            "useLegacyPackaging": true
+            "useLegacyPackaging": true,
+            "enableMinifyInReleaseBuilds": true
           }
         }
-      ]
+      ],
+      "expo-font"
     ],
     "extra": {
       "eas": {
-        "projectId": "8c82bf67-3963-45dd-a133-1beb8cac7d90"
+        "projectId": "2862c64c-900d-45c8-ac0f-b5c98cff1ccd"
       }
     },
     "owner": "aminur147",
