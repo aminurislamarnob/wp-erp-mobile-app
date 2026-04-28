@@ -40,11 +40,17 @@ function useStyles() {
     logo: {
       width: 160,
       height: 45,
+      marginBottom: spacing.lg,
     },
-    subtitle: {
+    welcomeTitle: {
+      fontSize: fontSize.xl,
+      fontWeight: '700',
+      color: colors.text,
+      marginBottom: spacing.xs,
+    },
+    welcomeSubtitle: {
       fontSize: fontSize.sm,
       color: colors.textSecondary,
-      marginTop: spacing.xs,
     },
     form: {
       backgroundColor: colors.surface,
@@ -292,6 +298,8 @@ export default function LoginScreen() {
       >
         <View style={styles.header}>
           <Image source={require('../../../assets/logo.png')} style={styles.logo} resizeMode="contain" />
+          <Text style={styles.welcomeTitle}>Welcome Back</Text>
+          <Text style={styles.welcomeSubtitle}>Glad to see you again!</Text>
         </View>
 
         {step === 'site' ? (
@@ -416,7 +424,7 @@ export default function LoginScreen() {
               activeOpacity={0.7}
             >
               <MaterialCommunityIcons name="fingerprint" size={20} color={colors.primary} style={styles.biometricIcon} />
-              <Text style={styles.biometricText}>Log In with Biometric</Text>
+              <Text style={styles.biometricText}>Log In With Biometric</Text>
             </TouchableOpacity>
 
           </View>
