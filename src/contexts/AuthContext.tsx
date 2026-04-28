@@ -56,13 +56,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logoutRef = useRef<() => Promise<void>>(undefined);
 
   const logout = useCallback(async () => {
-    try {
-      const creds = await getCredentials();
-      if (creds) await revokeBiometricToken(creds.siteUrl, creds.token).catch(() => {});
-    } catch {}
-    await clearBiometricToken();
     await clearCredentials();
-    setIsBiometricEnabled(false);
     setState({
       isLoading: false,
       isAuthenticated: false,
@@ -254,8 +248,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   async function loginWithBiometric(): Promise<void> {
-    const storedToken = await getBiometricToken();
-    if (!storedToken) throw new Error('Biometric login is not set up on this device');
+    const stored = await getBiometricToken();
+    if (!stored) throw new Error('Biometric login is not set up on this device');
 
     const hardware = await LocalAuthentication.hasHardwareAsync();
     const enrolled = await LocalAuthentication.isEnrolledAsync();
@@ -268,16 +262,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
     if (!result.success) throw new Error('Biometric authentication cancelled');
 
-    const creds = await getCredentials();
-    if (!creds) throw new Error('Site URL not found — please log in manually first');
-
-    const loginResult = await loginWithBiometricToken(creds.siteUrl, storedToken);
+    const loginResult = await loginWithBiometricToken(stored.siteUrl, stored.token);
     const user = loginResult.user;
 
-    await saveCredentials({ ...creds, token: loginResult.token });
+    // Restore or create credentials with the fresh auth token
+    const existingCreds = await getCredentials();
+    await saveCredentials({
+      siteUrl: stored.siteUrl,
+      username: existingCreds?.username ?? '',
+      password: existingCreds?.password ?? '',
+      token: loginResult.token,
+    });
 
-    const employee = await fetchEmployee(creds.siteUrl, user.id, loginResult.token);
-    const modules = await fetchActiveModules(creds.siteUrl, loginResult.token);
+    const employee = await fetchEmployee(stored.siteUrl, user.id, loginResult.token);
+    const modules = await fetchActiveModules(stored.siteUrl, loginResult.token);
 
     setState({ isLoading: false, isAuthenticated: true, user, employee, modules });
   }
@@ -298,13 +296,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (!creds) throw new Error('Not authenticated');
 
     const biometricToken = await registerBiometricToken(creds.siteUrl, creds.token);
-    await saveBiometricToken(biometricToken);
+    await saveBiometricToken(biometricToken, creds.siteUrl);
     setIsBiometricEnabled(true);
   }
 
   async function disableBiometric(): Promise<void> {
+    const stored = await getBiometricToken();
     const creds = await getCredentials();
-    if (creds) await revokeBiometricToken(creds.siteUrl, creds.token).catch(() => {});
+    const token = creds?.token;
+    const siteUrl = stored?.siteUrl ?? creds?.siteUrl;
+    if (siteUrl && token) await revokeBiometricToken(siteUrl, token).catch(() => {});
     await clearBiometricToken();
     setIsBiometricEnabled(false);
   }

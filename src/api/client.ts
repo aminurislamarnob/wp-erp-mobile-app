@@ -81,12 +81,16 @@ export async function getClient(): Promise<AxiosInstance> {
   return apiClient;
 }
 
-export async function saveBiometricToken(token: string): Promise<void> {
-  try { await SecureStore.setItemAsync(BIOMETRIC_TOKEN_KEY, token); } catch {}
+export async function saveBiometricToken(token: string, siteUrl: string): Promise<void> {
+  try { await SecureStore.setItemAsync(BIOMETRIC_TOKEN_KEY, JSON.stringify({ token, siteUrl })); } catch {}
 }
 
-export async function getBiometricToken(): Promise<string | null> {
-  try { return await SecureStore.getItemAsync(BIOMETRIC_TOKEN_KEY); } catch { return null; }
+export async function getBiometricToken(): Promise<{ token: string; siteUrl: string } | null> {
+  try {
+    const raw = await SecureStore.getItemAsync(BIOMETRIC_TOKEN_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch { return null; }
 }
 
 export async function clearBiometricToken(): Promise<void> {
