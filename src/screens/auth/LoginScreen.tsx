@@ -42,16 +42,6 @@ function useStyles() {
       height: 45,
       marginBottom: spacing.lg,
     },
-    welcomeTitle: {
-      fontSize: fontSize.xl,
-      fontWeight: '700',
-      color: colors.text,
-      marginBottom: spacing.xs,
-    },
-    welcomeSubtitle: {
-      fontSize: fontSize.sm,
-      color: colors.textSecondary,
-    },
     form: {
       backgroundColor: colors.surface,
       borderRadius: 16,
@@ -298,8 +288,6 @@ export default function LoginScreen() {
       >
         <View style={styles.header}>
           <Image source={require('../../../assets/logo.png')} style={styles.logo} resizeMode="contain" />
-          <Text style={styles.welcomeTitle}>Welcome Back</Text>
-          <Text style={styles.welcomeSubtitle}>Glad to see you again!</Text>
         </View>
 
         {step === 'site' ? (
