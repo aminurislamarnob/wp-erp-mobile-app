@@ -87,6 +87,34 @@ export async function fetchEmployee(
   return response.data;
 }
 
+export async function registerBiometricToken(siteUrl: string, token: string): Promise<string> {
+  const res = await axios.post(
+    `${siteUrl}/wp-json/erp-app/v1/biometric/register`,
+    {},
+    { headers: { 'Authorization': `Bearer ${token}` }, timeout: 10000 }
+  );
+  if (!res.data?.biometric_token) throw new Error('Failed to obtain biometric token');
+  return res.data.biometric_token as string;
+}
+
+export async function loginWithBiometricToken(siteUrl: string, biometricToken: string): Promise<LoginResult> {
+  const res = await axios.post(
+    `${siteUrl}/wp-json/erp-app/v1/biometric/login`,
+    { biometric_token: biometricToken },
+    { timeout: 10000 }
+  );
+  const data = res.data;
+  if (!data?.success || !data?.token) throw new Error('Biometric login failed');
+  return { token: data.token, user: data.user };
+}
+
+export async function revokeBiometricToken(siteUrl: string, token: string): Promise<void> {
+  await axios.delete(
+    `${siteUrl}/wp-json/erp-app/v1/biometric/revoke`,
+    { headers: { 'Authorization': `Bearer ${token}` }, timeout: 10000 }
+  );
+}
+
 export async function fetchActiveModules(
   siteUrl: string,
   token: string

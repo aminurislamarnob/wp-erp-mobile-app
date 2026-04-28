@@ -11,7 +11,7 @@ import {
   ScrollView,
   Image,
 } from 'react-native';
-import { Feather } from '@expo/vector-icons';
+import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../../contexts/AuthContext';
 import { useToast } from '../../components/Toast';
@@ -144,7 +144,7 @@ function useStyles() {
 }
 
 export default function LoginScreen() {
-  const { connectSite, login } = useAuth();
+  const { connectSite, login, loginWithBiometric } = useAuth();
   const toast = useToast();
   const { colors } = useTheme();
   const styles = useStyles();
@@ -207,6 +207,17 @@ export default function LoginScreen() {
           ? 'Invalid username or password'
           : error?.message || 'Login failed. Please try again.';
       toast.error('Login Failed', message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleBiometricLogin() {
+    setLoading(true);
+    try {
+      await loginWithBiometric();
+    } catch (e: any) {
+      toast.error('Biometric Failed', e?.message ?? 'Could not authenticate');
     } finally {
       setLoading(false);
     }
@@ -321,6 +332,14 @@ export default function LoginScreen() {
                   color={colors.textLight}
                 />
               </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.eyeBtn, { borderLeftWidth: StyleSheet.hairlineWidth, borderLeftColor: colors.border }]}
+                onPress={handleBiometricLogin}
+                disabled={loading}
+                activeOpacity={0.6}
+              >
+                <MaterialCommunityIcons name="fingerprint" size={22} color={colors.primary} />
+              </TouchableOpacity>
             </View>
 
             <Text style={styles.hint}>
@@ -338,6 +357,7 @@ export default function LoginScreen() {
                 <Text style={styles.buttonText}>Sign In</Text>
               )}
             </TouchableOpacity>
+
           </View>
         )}
       </ScrollView>

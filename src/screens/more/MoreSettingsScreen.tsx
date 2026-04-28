@@ -1,43 +1,44 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
-  Alert,
+  Switch,
+  ActivityIndicator,
 } from 'react-native';
-import { Feather } from '@expo/vector-icons';
+import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useTheme } from '../../contexts/ThemeContext';
+import { useAuth } from '../../contexts/AuthContext';
+import { useToast } from '../../components/Toast';
 import { spacing, fontSize } from '../../constants/theme';
 import AppHeader from '../../components/AppHeader';
-
-interface SecurityItem {
-  icon: keyof typeof Feather.glyphMap;
-  label: string;
-  subtitle: string;
-  onPress: () => void;
-}
 
 export default function MoreSettingsScreen() {
   const { colors } = useTheme();
   const s = useStyles();
   const navigation = useNavigation<any>();
+  const toast = useToast();
+  const { isBiometricEnabled, enableBiometric, disableBiometric } = useAuth();
+  const [biometricLoading, setBiometricLoading] = useState(false);
 
-  const ITEMS: SecurityItem[] = [
-    {
-      icon: 'cpu',
-      label: 'Biometric Login',
-      subtitle: 'Use fingerprint or face to sign in',
-      onPress: () => Alert.alert('Biometric Login', 'Coming soon'),
-    },
-    {
-      icon: 'lock',
-      label: 'Change Password',
-      subtitle: 'Update your account password',
-      onPress: () => navigation.navigate('MoreChangePassword'),
-    },
-  ];
+  async function handleBiometricToggle(value: boolean) {
+    setBiometricLoading(true);
+    try {
+      if (value) {
+        await enableBiometric();
+        toast.success('Biometric enabled', 'You can now sign in with fingerprint or face');
+      } else {
+        await disableBiometric();
+        toast.success('Biometric disabled', 'Biometric login has been turned off');
+      }
+    } catch (e: any) {
+      toast.error('Error', e?.message ?? 'Could not update biometric setting');
+    } finally {
+      setBiometricLoading(false);
+    }
+  }
 
   return (
     <View style={[s.container, { backgroundColor: colors.background }]}>
@@ -45,23 +46,47 @@ export default function MoreSettingsScreen() {
 
       <View style={s.content}>
         <View style={[s.card, { backgroundColor: colors.surface }]}>
-          {ITEMS.map((item, index) => (
-            <React.Fragment key={item.label}>
-              <TouchableOpacity style={s.row} onPress={item.onPress} activeOpacity={0.7}>
-                <View style={[s.iconBadge, { backgroundColor: colors.primary + '18' }]}>
-                  <Feather name={item.icon} size={20} color={colors.primary} />
-                </View>
-                <View style={s.rowText}>
-                  <Text style={[s.label, { color: colors.text }]}>{item.label}</Text>
-                  <Text style={[s.subtitle, { color: colors.textSecondary }]}>{item.subtitle}</Text>
-                </View>
-                <Feather name="chevron-right" size={18} color={colors.textLight} />
-              </TouchableOpacity>
-              {index < ITEMS.length - 1 && (
-                <View style={[s.divider, { backgroundColor: colors.border }]} />
-              )}
-            </React.Fragment>
-          ))}
+
+          {/* Biometric Login */}
+          <View style={s.row}>
+            <View style={[s.iconBadge, { backgroundColor: colors.primary + '18' }]}>
+              <MaterialCommunityIcons name="fingerprint" size={22} color={colors.primary} />
+            </View>
+            <View style={s.rowText}>
+              <Text style={[s.label, { color: colors.text }]}>Biometric Login</Text>
+              <Text style={[s.subtitle, { color: colors.textSecondary }]}>
+                {isBiometricEnabled ? 'Enabled — fingerprint or face' : 'Use fingerprint or face to sign in'}
+              </Text>
+            </View>
+            {biometricLoading
+              ? <ActivityIndicator size="small" color={colors.primary} />
+              : <Switch
+                  value={isBiometricEnabled}
+                  onValueChange={handleBiometricToggle}
+                  trackColor={{ false: colors.border, true: colors.primary + '80' }}
+                  thumbColor={isBiometricEnabled ? colors.primary : colors.textLight}
+                />
+            }
+          </View>
+
+          <View style={[s.divider, { backgroundColor: colors.border }]} />
+
+          {/* Change Password */}
+          <TouchableOpacity
+            style={s.row}
+            onPress={() => navigation.navigate('MoreChangePassword')}
+            activeOpacity={0.7}
+          >
+            <View style={[s.iconBadge, { backgroundColor: colors.primary + '18' }]}>
+              <Feather name="lock" size={20} color={colors.primary} />
+            </View>
+            <View style={s.rowText}>
+              <Text style={[s.label, { color: colors.text }]}>Change Password</Text>
+              <Text style={[s.subtitle, { color: colors.textSecondary }]}>Update your account password</Text>
+            </View>
+            <Feather name="chevron-right" size={18} color={colors.textLight} />
+          </TouchableOpacity>
+
         </View>
       </View>
     </View>

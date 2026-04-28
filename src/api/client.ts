@@ -3,6 +3,7 @@ import * as SecureStore from 'expo-secure-store';
 import { Credentials } from '../types';
 
 const CREDENTIALS_KEY = 'erp_credentials';
+const BIOMETRIC_TOKEN_KEY = 'erp_biometric_token';
 
 let apiClient: AxiosInstance | null = null;
 let currentCredentials: Credentials | null = null;
@@ -78,6 +79,18 @@ export async function getClient(): Promise<AxiosInstance> {
 
   apiClient = createClient(credentials);
   return apiClient;
+}
+
+export async function saveBiometricToken(token: string): Promise<void> {
+  try { await SecureStore.setItemAsync(BIOMETRIC_TOKEN_KEY, token); } catch {}
+}
+
+export async function getBiometricToken(): Promise<string | null> {
+  try { return await SecureStore.getItemAsync(BIOMETRIC_TOKEN_KEY); } catch { return null; }
+}
+
+export async function clearBiometricToken(): Promise<void> {
+  try { await SecureStore.deleteItemAsync(BIOMETRIC_TOKEN_KEY); } catch {}
 }
 
 export function extractPagination(headers: Record<string, any>) {
