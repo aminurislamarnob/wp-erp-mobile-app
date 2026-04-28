@@ -20,6 +20,7 @@ import AnnouncementsScreen from '../screens/announcements/AnnouncementsScreen';
 import AnnouncementDetailScreen from '../screens/announcements/AnnouncementDetailScreen';
 import MoreScreen from '../screens/more/MoreScreen';
 import MoreSettingsScreen from '../screens/more/MoreSettingsScreen';
+import ChangePasswordScreen from '../screens/more/ChangePasswordScreen';
 import StandupScreen from '../screens/more/StandupScreen';
 import StandupFormScreen from '../screens/more/StandupFormScreen';
 import ReimbursementScreen from '../screens/reimbursement/ReimbursementScreen';
@@ -65,6 +66,7 @@ function MoreStackScreen() {
       <MoreStackNav.Screen name="AnnouncementDetail" component={AnnouncementDetailScreen} />
       <MoreStackNav.Screen name="MoreTeamDirectory" component={TeamDirectoryScreen} />
       <MoreStackNav.Screen name="MoreSettings" component={MoreSettingsScreen} />
+      <MoreStackNav.Screen name="MoreChangePassword" component={ChangePasswordScreen} />
     </MoreStackNav.Navigator>
   );
 }

@@ -14,7 +14,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { Feather } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../../contexts/AuthContext';
-import { useTheme, ThemeMode } from '../../contexts/ThemeContext';
+import { useTheme } from '../../contexts/ThemeContext';
 import { spacing, fontSize } from '../../constants/theme';
 import AppHeader from '../../components/AppHeader';
 import {
@@ -110,32 +110,6 @@ function useStyles() {
       color: colors.textLight,
       marginTop: spacing.xs,
     },
-    // Theme toggle
-    themeToggle: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      marginTop: spacing.sm,
-      backgroundColor: colors.background,
-      borderRadius: 100,
-      padding: 4,
-      gap: 4,
-    },
-    themeOption: {
-      width: 34,
-      height: 34,
-      alignItems: 'center',
-      justifyContent: 'center',
-      borderRadius: 17,
-    },
-    themeOptionActive: {
-      backgroundColor: colors.surface,
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 1 },
-      shadowOpacity: 0.12,
-      shadowRadius: 4,
-      elevation: 2,
-    },
-
     // Tabs
     tabBar: {
       backgroundColor: colors.surface,
@@ -219,7 +193,7 @@ function useStyles() {
 export default function ProfileScreen() {
   const navigation = useNavigation<any>();
   const { user, employee: authEmployee } = useAuth();
-  const { colors, mode, setMode } = useTheme();
+  const { colors } = useTheme();
   const styles = useStyles();
   const toast = useToast();
   const [employee, setEmployee] = useState<Employee | null>(authEmployee);
@@ -354,27 +328,9 @@ export default function ProfileScreen() {
           </View>
         </TouchableOpacity>
         <Text style={styles.name}>{employee.full_name}</Text>
-        <Text style={styles.designation}>
-          {employee.designation?.title || ''}
-          {employee.department ? ` · ${employee.department.title}` : ''}
-        </Text>
-        {/* Theme Toggle */}
-        <View style={styles.themeToggle}>
-          {(['system', 'light', 'dark'] as ThemeMode[]).map((m) => (
-            <TouchableOpacity
-              key={m}
-              style={[styles.themeOption, mode === m && styles.themeOptionActive]}
-              onPress={() => setMode(m)}
-              activeOpacity={0.7}
-            >
-              <Feather
-                name={m === 'light' ? 'sun' : m === 'dark' ? 'moon' : 'monitor'}
-                size={16}
-                color={mode === m ? colors.text : colors.textLight}
-              />
-            </TouchableOpacity>
-          ))}
-        </View>
+        {!!employee.designation?.title && (
+          <Text style={styles.designation}>{employee.designation.title}</Text>
+        )}
       </View>
 
       {/* ── Tabs ── */}

@@ -231,7 +231,6 @@ export default function LoginScreen() {
       >
         <View style={styles.header}>
           <Image source={require('../../../assets/logo.png')} style={styles.logo} resizeMode="contain" />
-          <Text style={styles.subtitle}>Employee Portal</Text>
         </View>
 
         {step === 'site' ? (

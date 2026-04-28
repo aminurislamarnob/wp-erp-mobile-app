@@ -621,3 +621,13 @@ export async function getReimbursementDetail(id: number) {
   );
   return data;
 }
+
+export async function changePassword(payload: {
+  current_password: string;
+  new_password: string;
+  confirm_new_password: string;
+}): Promise<{ success: boolean; message: string }> {
+  const client = await getClient();
+  const { data } = await client.post('/erp-app/v1/user/change-password', payload);
+  return data;
+}
