@@ -394,7 +394,7 @@ export default function LoginScreen() {
               ) : (
                 <>
                   <Text style={styles.buttonText}>Log In</Text>
-                  <MaterialCommunityIcons name="arrow-right-thin" size={28} color="rgba(255,255,255,0.65)" style={styles.buttonArrow} />
+                  <Feather name="arrow-right" size={18} color="rgba(255,255,255,0.75)" style={styles.buttonArrow} />
                 </>
               )}
             </TouchableOpacity>
