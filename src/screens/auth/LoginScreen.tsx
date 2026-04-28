@@ -130,7 +130,9 @@ function useStyles() {
       backgroundColor: colors.primary,
       borderRadius: 10,
       padding: spacing.md,
+      flexDirection: 'row',
       alignItems: 'center',
+      justifyContent: 'center',
       marginTop: spacing.lg,
     },
     buttonDisabled: {
@@ -140,6 +142,9 @@ function useStyles() {
       color: '#fff',
       fontSize: fontSize.md,
       fontWeight: '600',
+    },
+    buttonArrow: {
+      marginLeft: spacing.sm,
     },
   }), [colors]);
 }
@@ -296,7 +301,7 @@ export default function LoginScreen() {
           <View style={styles.form}>
             <View style={styles.siteInfoRow}>
               <View style={styles.siteInfoLeft}>
-                <Text style={styles.stepLabel}>Sign In</Text>
+                <Text style={styles.stepLabel}>Log In</Text>
                 <Text style={styles.siteUrlText} numberOfLines={1}>
                   {siteUrl}
                 </Text>
@@ -364,7 +369,10 @@ export default function LoginScreen() {
               {loading ? (
                 <ActivityIndicator color="#fff" />
               ) : (
-                <Text style={styles.buttonText}>Sign In</Text>
+                <>
+                  <Text style={styles.buttonText}>Sign In</Text>
+                  <Feather name="arrow-right" size={18} color="#fff" style={styles.buttonArrow} />
+                </>
               )}
             </TouchableOpacity>
 
