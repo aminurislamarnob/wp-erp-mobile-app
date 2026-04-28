@@ -149,7 +149,7 @@ export default function LoginScreen() {
   const toast = useToast();
   const { colors } = useTheme();
   const styles = useStyles();
-  const [step, setStep] = useState<Step>('site');
+  const [step, setStep] = useState<Step>('login');
   const [siteUrl, setSiteUrl] = useState('https://hr.welabs.dev');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
