@@ -371,7 +371,7 @@ export default function LoginScreen() {
                 <ActivityIndicator color="#fff" />
               ) : (
                 <>
-                  <Text style={styles.buttonText}>Sign In</Text>
+                  <Text style={styles.buttonText}>Log In</Text>
                   <MaterialCommunityIcons name="arrow-right-thin" size={26} color="#fff" style={styles.buttonArrow} />
                 </>
               )}
