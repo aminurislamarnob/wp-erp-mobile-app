@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   View,
   Text,
@@ -17,6 +17,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useToast } from '../../components/Toast';
 import { spacing, fontSize } from '../../constants/theme';
 import { useTheme } from '../../contexts/ThemeContext';
+import { getCredentials } from '../../api/client';
 
 type Step = 'site' | 'login';
 
@@ -149,12 +150,21 @@ export default function LoginScreen() {
   const { colors } = useTheme();
   const styles = useStyles();
   const [step, setStep] = useState<Step>('site');
-  const [siteUrl, setSiteUrl] = useState('https://hr.welabs.dev');
+  const [siteUrl, setSiteUrl] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [siteStatus, setSiteStatus] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+
+  useEffect(() => {
+    getCredentials().then((creds) => {
+      if (creds?.siteUrl) {
+        setSiteUrl(creds.siteUrl);
+        setStep('login');
+      }
+    });
+  }, []);
 
   async function handleConnect() {
     const trimmed = siteUrl.trim();
@@ -246,7 +256,7 @@ export default function LoginScreen() {
 
         {step === 'site' ? (
           <View style={styles.form}>
-            <Text style={styles.stepLabel}>Step 1: Connect Your Site</Text>
+            <Text style={styles.stepLabel}>Connect Your Site</Text>
 
             <Text style={styles.label}>WordPress Site URL</Text>
             <TextInput
@@ -286,7 +296,7 @@ export default function LoginScreen() {
           <View style={styles.form}>
             <View style={styles.siteInfoRow}>
               <View style={styles.siteInfoLeft}>
-                <Text style={styles.stepLabel}>Step 2: Sign In</Text>
+                <Text style={styles.stepLabel}>Sign In</Text>
                 <Text style={styles.siteUrlText} numberOfLines={1}>
                   {siteUrl}
                 </Text>
