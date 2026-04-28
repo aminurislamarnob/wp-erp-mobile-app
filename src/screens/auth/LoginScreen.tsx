@@ -147,6 +147,40 @@ function useStyles() {
       position: 'absolute',
       right: spacing.md,
     },
+    dividerRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginTop: spacing.lg,
+      marginBottom: spacing.sm,
+    },
+    dividerLine: {
+      flex: 1,
+      height: StyleSheet.hairlineWidth,
+      backgroundColor: colors.border,
+    },
+    dividerText: {
+      marginHorizontal: spacing.sm,
+      fontSize: fontSize.xs,
+      color: colors.textLight,
+    },
+    biometricButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderWidth: 1,
+      borderColor: colors.primary,
+      borderRadius: 10,
+      padding: spacing.md,
+      marginTop: spacing.sm,
+    },
+    biometricIcon: {
+      marginRight: spacing.sm,
+    },
+    biometricText: {
+      fontSize: fontSize.md,
+      fontWeight: '600',
+      color: colors.primary,
+    },
   }), [colors]);
 }
 
@@ -348,14 +382,6 @@ export default function LoginScreen() {
                   color={colors.textLight}
                 />
               </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.eyeBtn, { borderLeftWidth: StyleSheet.hairlineWidth, borderLeftColor: colors.border }]}
-                onPress={handleBiometricLogin}
-                disabled={loading}
-                activeOpacity={0.6}
-              >
-                <MaterialCommunityIcons name="fingerprint" size={22} color={colors.primary} />
-              </TouchableOpacity>
             </View>
 
             <Text style={styles.hint}>
@@ -375,6 +401,22 @@ export default function LoginScreen() {
                   <MaterialCommunityIcons name="arrow-right-thin" size={26} color="#fff" style={styles.buttonArrow} />
                 </>
               )}
+            </TouchableOpacity>
+
+            <View style={styles.dividerRow}>
+              <View style={styles.dividerLine} />
+              <Text style={styles.dividerText}>or</Text>
+              <View style={styles.dividerLine} />
+            </View>
+
+            <TouchableOpacity
+              style={[styles.biometricButton, loading && styles.buttonDisabled]}
+              onPress={handleBiometricLogin}
+              disabled={loading}
+              activeOpacity={0.7}
+            >
+              <MaterialCommunityIcons name="fingerprint" size={20} color={colors.primary} style={styles.biometricIcon} />
+              <Text style={styles.biometricText}>Log In with Biometric</Text>
             </TouchableOpacity>
 
           </View>
