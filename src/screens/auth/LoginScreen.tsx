@@ -345,7 +345,7 @@ export default function LoginScreen() {
             <Text style={styles.label}>Username</Text>
             <TextInput
               style={styles.input}
-              placeholder="Your WordPress username"
+              placeholder="Email or phone number"
               placeholderTextColor={colors.textLight}
               value={username}
               onChangeText={setUsername}
