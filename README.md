@@ -103,13 +103,13 @@ npm install -g eas-cli
 
 **Build profiles:**
 
-| Profile       | Description                         | Command                                                   |
-| ------------- | ----------------------------------- | --------------------------------------------------------- |
-| `development` | Development client with dev tools   | `eas build --profile development --platform android`      |
-| `preview`     | Internal distribution APK           | `eas build --profile preview --platform android`          |
-| `production`  | Production release                  | `eas build --profile production --platform android`       |
-| `production`  | Production release (arm64-v8a only) | `eas build --profile production-arm64 --platform android` |
-| `update`      | Update                              | `eas update --auto`                                       |
+| Profile       | Description                         | Command                                                        |
+| ------------- | ----------------------------------- | -------------------------------------------------------------- |
+| `development` | Development client with dev tools   | `eas build --profile development --platform android`           |
+| `preview`     | Internal distribution APK           | `eas build --profile preview --platform android`               |
+| `production`  | Production release                  | `eas build --profile production --platform android`            |
+| `production`  | Production release (arm64-v8a only) | `eas build --profile production-arm64 --platform android`      |
+| `update`      | Update                              | `eas update --auto` version change will not work update update |
 
 Replace `android` with `ios` for iOS builds.
 
