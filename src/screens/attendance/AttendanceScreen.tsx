@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   RefreshControl,
+  DeviceEventEmitter,
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useFocusEffect, useRoute } from '@react-navigation/native';
@@ -684,6 +685,7 @@ function ClockTab({ userId }: { userId?: number }) {
     await new Promise((r) => setTimeout(r, 1500));
     await fetchData();
     if (success) {
+      DeviceEventEmitter.emit('ATTENDANCE_UPDATED');
       toast.success(
         action === 'checkin' ? 'Checked In' : 'Checked Out',
         action === 'checkin' ? 'You have been clocked in successfully' : 'You have been clocked out successfully'
@@ -908,8 +910,8 @@ function LogTab({ userId }: { userId?: number }) {
                 <DayDetailItem icon="log-out" label="Check Out" value={formatSecToTime12h(Number(selectedDay.checkout))} />
                 <DayDetailItem icon="clock" label="Work Hours" value={formatSecToHours(Number(selectedDay.worktime))} />
                 <DayDetailItem icon="alert-triangle" label="Late" value={selectedDay.late_time ? formatSecToHours(Number(selectedDay.late_time)) : '-'} />
-                <DayDetailItem icon="trending-up" label="Overtime" value={selectedDay.overtime ? formatSecToHours(Number(selectedDay.overtime)) : '-'} />
-                <DayDetailItem icon="briefcase" label="Shift" value={selectedDay.shift || '-'} />
+                <DayDetailItem icon="trending-up" label="Overtime" value={Number(selectedDay.overtime) > 0 ? formatSecToHours(Number(selectedDay.overtime)) : '-'} />
+                <DayDetailItem icon="briefcase" label="Shift" value={selectedDay.shift && selectedDay.shift !== '-' ? selectedDay.shift : '-'} />
               </View>
             </View>
           )}
@@ -1191,10 +1193,15 @@ function formatSecToTime12h(seconds: number): string {
 }
 
 function formatSecToHours(seconds: number): string {
-  if (!seconds) return '0h';
+  if (!Number.isFinite(seconds) || seconds <= 0) return '0h';
+
   const h = Math.floor(seconds / 3600);
   const m = Math.floor((seconds % 3600) / 60);
-  return m > 0 ? `${h}h ${m}m` : `${h}h`;
+
+  if (h === 0 && m === 0) return '<1m';
+  if (m === 0) return `${h}h`;
+
+  return `${h}h ${m}m`;
 }
 
 function parseTodayTime(timeStr: string): Date | null {

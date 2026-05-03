@@ -8,7 +8,7 @@ import {
   RefreshControl,
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { useTheme } from '../../contexts/ThemeContext';
 import { getMyStandupLog, checkStandupPermission, StandupLog, StandupSummary } from '../../api/endpoints';
 import { spacing, fontSize } from '../../constants/theme';
@@ -295,7 +295,11 @@ export default function StandupScreen() {
     }
   }, [year, month]);
 
-  useEffect(() => { load(); }, [load]);
+  useFocusEffect(
+    useCallback(() => {
+      load();
+    }, [load])
+  );
 
   useEffect(() => {
     checkStandupPermission().then(setCanManage);

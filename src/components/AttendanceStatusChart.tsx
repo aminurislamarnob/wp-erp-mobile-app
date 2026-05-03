@@ -12,6 +12,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { getMyAttendanceReport, getMyStandupLog } from '../api/endpoints';
 import { spacing, fontSize } from '../constants/theme';
 import { AttendanceReportDay } from '../types';
+import { useFocusEffect } from '@react-navigation/native';
 
 // ─── Constants ───
 
@@ -330,9 +331,11 @@ function DonutChart({ slices, styles, colors }: DonutChartProps) {
   );
 }
 
-// ─── Main Component ───
+interface AttendanceStatusChartProps {
+  refreshTrigger?: number;
+}
 
-export default function AttendanceStatusChart() {
+export default function AttendanceStatusChart({ refreshTrigger = 0 }: AttendanceStatusChartProps) {
   const { user } = useAuth();
   const { colors } = useTheme();
   const styles = useStyles();
@@ -374,8 +377,17 @@ export default function AttendanceStatusChart() {
     }
   }, [user?.id, filter]);
 
-  useEffect(() => { fetchAttendance(); }, [fetchAttendance]);
-  useEffect(() => { fetchStandup(); }, [fetchStandup]);
+  useFocusEffect(
+    useCallback(() => {
+      fetchAttendance();
+    }, [fetchAttendance, refreshTrigger])
+  );
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchStandup();
+    }, [fetchStandup, refreshTrigger])
+  );
 
   const loading = activeTab === 'attendance' ? attLoading : stdLoading;
 

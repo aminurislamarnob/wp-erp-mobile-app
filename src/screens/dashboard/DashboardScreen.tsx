@@ -7,6 +7,7 @@ import {
   RefreshControl,
   Image,
   TouchableOpacity,
+  DeviceEventEmitter,
 } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { Feather } from '@expo/vector-icons';
@@ -363,6 +364,7 @@ export default function DashboardScreen() {
   const [attLog, setAttLog] = useState<SelfAttendanceLog | null>(null);
   const [clockLoading, setClockLoading] = useState(false);
   const [dataLoading, setDataLoading] = useState(true);
+  const [chartRefreshTrigger, setChartRefreshTrigger] = useState(0);
 
   // Collapsible sections
   const [showCelebrations, setShowCelebrations] = useState(true);
@@ -436,6 +438,14 @@ export default function DashboardScreen() {
     }, [loadData])
   );
 
+  useEffect(() => {
+    const sub = DeviceEventEmitter.addListener('ATTENDANCE_UPDATED', () => {
+      loadData();
+      setChartRefreshTrigger(prev => prev + 1);
+    });
+    return () => sub.remove();
+  }, [loadData]);
+
   // Match Vue: check state based on max_checkout and min_checkin
   const checkedIn = todayLog?.min_checkin && todayLog.min_checkin !== '00:00:00' ? todayLog.min_checkin : '';
   const checkedOut = todayLog?.max_checkout && todayLog.max_checkout !== '00:00:00' ? todayLog.max_checkout : '';
@@ -508,6 +518,7 @@ export default function DashboardScreen() {
       // ignore refresh error
     }
     if (success) {
+      setChartRefreshTrigger(prev => prev + 1);
       toast.success(
         action === 'checkin' ? 'Checked In' : 'Checked Out',
         action === 'checkin' ? 'You have been clocked in successfully' : 'You have been clocked out successfully'
@@ -727,7 +738,7 @@ export default function DashboardScreen() {
       })()}
 
       {/* ─── Attendance Status Chart ─── */}
-      {hasAttendance && <AttendanceStatusChart />}
+      {hasAttendance && <AttendanceStatusChart refreshTrigger={chartRefreshTrigger} />}
 
       {/* ─── Quick Actions ─── */}
       <View style={styles.section}>

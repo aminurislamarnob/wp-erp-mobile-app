@@ -26,12 +26,11 @@ import AppHeader from '../../components/AppHeader';
 import { Skeleton } from '../../components/Skeleton';
 
 type TabKey = 'requests' | 'balance' | 'holidays';
-type StatusFilter = 'all' | 'pending' | 'approved' | 'rejected';
+type StatusFilter = 'pending' | 'approved' | 'rejected';
 
 const STATUS_FILTERS: { key: StatusFilter; label: string; value?: number }[] = [
-  { key: 'all', label: 'All' },
-  { key: 'pending', label: 'Pending', value: 2 },
   { key: 'approved', label: 'Approved', value: 1 },
+  { key: 'pending', label: 'Pending', value: 2 },
   { key: 'rejected', label: 'Rejected', value: 3 },
 ];
 
@@ -393,7 +392,7 @@ export default function LeaveScreen() {
   };
 
   const [activeTab, setActiveTab] = useState<TabKey>('requests');
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>('approved');
   const [requests, setRequests] = useState<LeaveRequest[]>([]);
   const [balances, setBalances] = useState<any[]>([]);
   const [holidays, setHolidays] = useState<Holiday[]>([]);

@@ -120,7 +120,7 @@ export async function uploadPhoto(userId: number, uri: string, fileName: string,
 export async function getUpcomingBirthdays(): Promise<Birthday[]> {
   const client = await getClient();
   const { data } = await client.get('/erp/v1/hrm/birthdays', {
-    params: { upcoming: true },
+    params: { upcoming: true, _t: Date.now() },
   });
   return data;
 }
@@ -282,7 +282,7 @@ export async function getMyLeaveBalance(userId: number) {
 export async function getWhoIsOut(): Promise<LeaveRequest[]> {
   const client = await getClient();
   const { data } = await client.get('/erp/v1/hrm/leaves/requests', {
-    params: { type: 'upcoming' },
+    params: { type: 'upcoming', _t: Date.now() },
   });
   return data;
 }
@@ -292,7 +292,7 @@ export async function getWhoIsOut(): Promise<LeaveRequest[]> {
 export async function getHolidays(): Promise<Holiday[]> {
   const client = await getClient();
   const { data } = await client.get('/erp/v1/hrm/leaves/holidays', {
-    params: { per_page: 100 },
+    params: { per_page: 100, _t: Date.now() },
   });
   return data;
 }
