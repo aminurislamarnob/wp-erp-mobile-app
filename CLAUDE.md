@@ -26,6 +26,7 @@ eas build --profile development --platform android   # Dev client build
 eas build --profile preview --platform android        # Preview APK
 eas build --profile production --platform android     # Production AAB
 eas build --profile production-arm64 --platform android  # Production APK (arm64-v8a only)
+eas update --auto
 ```
 
 No test runner or linter is configured.

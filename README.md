@@ -54,9 +54,11 @@ npx expo run:ios        # Build debug and run on iOS
 Build the app locally on your machine. Requires Android SDK / Xcode installed.
 
 > **Note:** If the Android build fails with `SDK location not found`, create the `local.properties` file:
+>
 > ```bash
 > echo "sdk.dir=$HOME/Library/Android/sdk" > android/local.properties
 > ```
+>
 > This file is not committed to git since the `android/` directory is generated. You may need to recreate it after running `npx expo prebuild` or cloning the repo fresh.
 
 **Debug build:**
@@ -101,11 +103,13 @@ npm install -g eas-cli
 
 **Build profiles:**
 
-| Profile | Description | Command |
-|---------|-------------|---------|
-| `development` | Development client with dev tools | `eas build --profile development --platform android` |
-| `preview` | Internal distribution APK | `eas build --profile preview --platform android` |
-| `production` | Production release | `eas build --profile production --platform android` |
+| Profile       | Description                         | Command                                                   |
+| ------------- | ----------------------------------- | --------------------------------------------------------- |
+| `development` | Development client with dev tools   | `eas build --profile development --platform android`      |
+| `preview`     | Internal distribution APK           | `eas build --profile preview --platform android`          |
+| `production`  | Production release                  | `eas build --profile production --platform android`       |
+| `production`  | Production release (arm64-v8a only) | `eas build --profile production-arm64 --platform android` |
+| `update`      | Update                              | `eas update --auto`                                       |
 
 Replace `android` with `ios` for iOS builds.
 
