@@ -12,6 +12,23 @@ Built with **Expo** (React Native) and connects to any WordPress site running th
 - **Announcements** — Browse and read company announcements
 - **Profile** — View personal info, contact details, job information, experience, education, and dependents. Upload profile photo
 - **Team Directory** — Searchable employee directory with pagination
+- **Standup** — Daily standup log with FAB-driven entry form
+- **Payment Requests (Reimbursement)** — Submit, list, and view payment/reimbursement requests
+- **More Menu** — Centralized hub for Standup, Payment Requests, Security, theme switcher, and other tools
+- **Security** — Biometric login (fingerprint/face), change password, and session controls
+- **Theming** — Light, dark, and system theme modes; switcher accessible from Profile and the More menu
+
+## Recent Improvements (2.0.0 → 2.1.0)
+
+- Biometric login with token persistence across sessions, surfaced as a full-width button below Log In
+- Redesigned alert dialogs with centered modal, bounce animation, and dark-mode support
+- Login flow streamlined: site URL hardcoded to `https://hr.welabs.dev`, Connect Site step skipped, Log In always shown first
+- Updated branding — new logo, refreshed icons, splash screen background set to `#2D5BDB`, app icon now used on the post-splash loading screen
+- Login button polish: "Log In" label, Feather arrow-right icon pinned to the right edge
+- Dashboard topbar subtitle no longer shows department
+- Attendance, leave requests, and dashboard feature updates
+- Upgraded to Expo SDK 54 / React Native 0.81 with `expo-font` and `expo-system-ui`
+- EAS local-build fix: `ANDROID_HOME` env wiring
 
 ## Prerequisites
 

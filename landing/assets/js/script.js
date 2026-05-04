@@ -1,5 +1,5 @@
 // ── APK Download URL ──
-const APK_DOWNLOAD_URL = './wperp-suite-v1.0.0.apk';
+const APK_DOWNLOAD_URL = 'https://expo.dev/artifacts/eas/9TKEzJmhmvQ3T5ocFfwu7Y.apk';
 document.getElementById('downloadBtn').href = APK_DOWNLOAD_URL;
 document.getElementById('downloadBtn2').href = APK_DOWNLOAD_URL;
 
