@@ -26,12 +26,30 @@ import StandupFormScreen from '../screens/more/StandupFormScreen';
 import ReimbursementScreen from '../screens/reimbursement/ReimbursementScreen';
 import NewPaymentRequestScreen from '../screens/reimbursement/NewPaymentRequestScreen';
 import PaymentRequestDetailScreen from '../screens/reimbursement/PaymentRequestDetailScreen';
+import NotesScreen from '../screens/notes/NotesScreen';
+import NoteDetailScreen from '../screens/notes/NoteDetailScreen';
+import NoteEditorScreen from '../screens/notes/NoteEditorScreen';
+import NoteFilterScreen from '../screens/notes/NoteFilterScreen';
+import LabelManagerScreen from '../screens/notes/LabelManagerScreen';
 
 const RootStack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 const ProfileStackNav = createNativeStackNavigator();
 const LeaveStackNav = createNativeStackNavigator();
 const MoreStackNav = createNativeStackNavigator();
+const NotesStackNav = createNativeStackNavigator();
+
+function NotesStackScreen() {
+  return (
+    <NotesStackNav.Navigator screenOptions={{ headerShown: false }}>
+      <NotesStackNav.Screen name="NotesList" component={NotesScreen} />
+      <NotesStackNav.Screen name="NoteDetail" component={NoteDetailScreen} />
+      <NotesStackNav.Screen name="NoteEditor" component={NoteEditorScreen} />
+      <NotesStackNav.Screen name="NoteFilter" component={NoteFilterScreen} />
+      <NotesStackNav.Screen name="LabelManager" component={LabelManagerScreen} />
+    </NotesStackNav.Navigator>
+  );
+}
 
 function ProfileStackScreen() {
   return (
@@ -64,6 +82,7 @@ function MoreStackScreen() {
       <MoreStackNav.Screen name="MorePaymentRequestDetail" component={PaymentRequestDetailScreen} />
       <MoreStackNav.Screen name="MoreAnnouncements" component={AnnouncementsScreen} />
       <MoreStackNav.Screen name="AnnouncementDetail" component={AnnouncementDetailScreen} />
+      <MoreStackNav.Screen name="MoreLabelManager" component={LabelManagerScreen} />
       <MoreStackNav.Screen name="MoreTeamDirectory" component={TeamDirectoryScreen} />
       <MoreStackNav.Screen name="MoreSettings" component={MoreSettingsScreen} />
       <MoreStackNav.Screen name="MoreChangePassword" component={ChangePasswordScreen} />
@@ -169,6 +188,7 @@ export default function AppNavigator() {
             <RootStack.Screen name="Main" component={MainTabs} />
             <RootStack.Screen name="Announcements" component={AnnouncementsScreen} />
             <RootStack.Screen name="AnnouncementDetail" component={AnnouncementDetailScreen} />
+            <RootStack.Screen name="Notes" component={NotesStackScreen} />
           </>
         ) : (
           <RootStack.Screen name="Login" component={LoginScreen} />

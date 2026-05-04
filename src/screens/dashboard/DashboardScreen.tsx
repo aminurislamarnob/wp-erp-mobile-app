@@ -27,7 +27,10 @@ import {
   getSelfAttendance,
   clockInOut,
 } from '../../api/endpoints';
-import { Birthday, LeaveRequest, Holiday, CalendarEvent, SelfAttendance, SelfAttendanceLog } from '../../types';
+import { listNotes } from '../../api/notes';
+import { snippet, formatNoteDate } from '../notes/utils';
+import { Birthday, LeaveRequest, Holiday, CalendarEvent, SelfAttendance, SelfAttendanceLog, Note } from '../../types';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const MONTHS = [
@@ -344,6 +347,23 @@ function useStyles() {
       color: colors.text,
     },
 
+    // Notes FAB
+    notesFab: {
+      position: 'absolute',
+      right: spacing.md,
+      width: 52,
+      height: 52,
+      borderRadius: 26,
+      backgroundColor: colors.primary,
+      justifyContent: 'center',
+      alignItems: 'center',
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.25,
+      shadowRadius: 8,
+      elevation: 6,
+    },
+
   }), [colors]);
 }
 
@@ -370,6 +390,11 @@ export default function DashboardScreen() {
   const [showCelebrations, setShowCelebrations] = useState(true);
   const [showWhoIsOut, setShowWhoIsOut] = useState(true);
   const [showHolidays, setShowHolidays] = useState(true);
+  const [showPinnedNotes, setShowPinnedNotes] = useState(true);
+
+  // Pinned notes
+  const [pinnedNotes, setPinnedNotes] = useState<Note[]>([]);
+  const insets = useSafeAreaInsets();
 
   // Calendar state
   const now = new Date();
@@ -386,11 +411,13 @@ export default function DashboardScreen() {
   const loadData = useCallback(async () => {
     const today = new Date().toISOString().split('T')[0];
     try {
-      const [bdays, out, hols] = await Promise.all([
+      const [bdays, out, hols, pinned] = await Promise.all([
         getUpcomingBirthdays().catch(() => []),
         getWhoIsOut().catch(() => []),
         getHolidays().catch(() => []),
+        listNotes({ pinned: true, per_page: 10 }).then((r) => r.data).catch(() => []),
       ]);
+      setPinnedNotes(pinned);
       setBirthdays(bdays);
       setWhoIsOut(out.filter((r) => r.start_date <= today && r.end_date >= today));
       const upcoming = hols
@@ -769,6 +796,13 @@ export default function DashboardScreen() {
             />
           )}
           <QuickAction
+            label="Add Note"
+            iconName="edit-3"
+            bgColor={colors.primary + '20'}
+            iconColor={colors.primary}
+            onPress={() => navigation.navigate('Notes', { screen: 'NoteEditor' })}
+          />
+          <QuickAction
             label="News"
             iconName="volume-2"
             bgColor={colors.success + '20'}
@@ -784,6 +818,47 @@ export default function DashboardScreen() {
           />
         </View>
       </View>
+
+      {/* ─── Pinned Notes ─── */}
+      <CollapsibleSection
+        title="Pinned Notes"
+        count={pinnedNotes.length}
+        expanded={showPinnedNotes}
+        onToggle={() => setShowPinnedNotes(!showPinnedNotes)}
+      >
+        {dataLoading ? (
+          [1, 2, 3].map((i) => (
+            <View key={i} style={styles.listItem}>
+              <Skeleton width={36} height={36} radius={8} />
+              <View style={styles.listItemInfo}>
+                <Skeleton width={140} height={14} />
+                <Skeleton width={180} height={12} style={{ marginTop: 4 }} />
+              </View>
+            </View>
+          ))
+        ) : pinnedNotes.length > 0 ? (
+          pinnedNotes.map((n) => (
+            <TouchableOpacity
+              key={n.id}
+              style={styles.listItem}
+              onPress={() => navigation.navigate('Notes', { screen: 'NoteDetail', params: { noteId: n.id } })}
+            >
+              <View style={[styles.miniAvatar, { backgroundColor: colors.warning + '22', borderRadius: 8 }]}>
+                <Feather name="bookmark" size={16} color={colors.warning} />
+              </View>
+              <View style={styles.listItemInfo}>
+                <Text style={styles.listItemName} numberOfLines={1}>{n.title || 'Untitled'}</Text>
+                {n.content ? (
+                  <Text style={styles.listItemSub} numberOfLines={1}>{snippet(n.content, 80)}</Text>
+                ) : null}
+              </View>
+              <Text style={styles.listItemDate}>{formatNoteDate(n.updated_at || n.created_at)}</Text>
+            </TouchableOpacity>
+          ))
+        ) : (
+          <Text style={styles.emptyText}>No pinned notes yet</Text>
+        )}
+      </CollapsibleSection>
 
       {/* ─── Celebrations ─── */}
       <CollapsibleSection
@@ -997,8 +1072,17 @@ export default function DashboardScreen() {
         )}
       </View>
 
-      <View style={{ height: spacing.xl }} />
+      <View style={{ height: spacing.xl + 60 }} />
     </ScrollView>
+
+    {/* Floating Notes button — fixed above tab bar */}
+    <TouchableOpacity
+      style={[styles.notesFab, { bottom: insets.bottom + 66 + spacing.md }]}
+      onPress={() => navigation.navigate('Notes', { screen: 'NotesList' })}
+      activeOpacity={0.85}
+    >
+      <Feather name="edit-3" size={22} color="#fff" />
+    </TouchableOpacity>
 
     </View>
   );

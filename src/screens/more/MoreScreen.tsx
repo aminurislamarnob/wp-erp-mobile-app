@@ -19,6 +19,7 @@ interface MenuItem {
   label: string;
   subtitle: string;
   screen: string;
+  parent?: string;
 }
 
 const MENU: MenuItem[] = [
@@ -26,6 +27,8 @@ const MENU: MenuItem[] = [
   { icon: 'clock',       label: 'Attendance',      subtitle: 'View your attendance',           screen: 'MoreAttendance' },
   { icon: 'credit-card', label: 'Payment Request', subtitle: 'Submit reimbursements',          screen: 'MoreReimbursement' },
   { icon: 'bell',        label: 'Announcement',    subtitle: 'Read all Announcement',          screen: 'MoreAnnouncements' },
+  { icon: 'edit-3',      label: 'My Notes',        subtitle: 'Personal notes & labels',        screen: 'Notes',         parent: 'root' },
+  { icon: 'tag',         label: 'Labels',          subtitle: 'Manage your note labels',        screen: 'MoreLabelManager' },
   { icon: 'users',       label: 'People',          subtitle: 'View all Employees',             screen: 'MoreTeamDirectory' },
 ];
 
@@ -118,7 +121,13 @@ export default function MoreScreen() {
             <React.Fragment key={item.screen}>
               <TouchableOpacity
                 style={s.row}
-                onPress={() => navigation.navigate(item.screen)}
+                onPress={() => {
+                  if (item.parent === 'root') {
+                    navigation.getParent()?.navigate(item.screen);
+                  } else {
+                    navigation.navigate(item.screen);
+                  }
+                }}
                 activeOpacity={0.7}
               >
                 <View style={[s.iconBadge, { backgroundColor: colors.primary + '18' }]}>

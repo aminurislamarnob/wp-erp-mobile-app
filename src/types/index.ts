@@ -262,3 +262,44 @@ export interface PaginatedResponse<T> {
   total: number;
   totalPages: number;
 }
+
+// ─── Personal Notes (erp-app/v1) ───
+export interface Label {
+  id: number;
+  name: string;
+  color: string;
+  description?: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface NoteAttachment {
+  id: number;
+  url: string;
+  filename?: string;
+  mime_type?: string;
+  size?: number;
+}
+
+export interface Note {
+  id: number;
+  title: string;
+  content: string;
+  labels: Label[];
+  attachments: NoteAttachment[];
+  pinned: boolean;
+  archived: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface NoteListFilters {
+  search?: string;
+  label_ids?: number[];
+  date_from?: string;
+  date_to?: string;
+  pinned?: boolean;
+  archived?: boolean;
+  page?: number;
+  per_page?: number;
+}
